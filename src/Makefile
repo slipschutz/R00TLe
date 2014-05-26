@@ -29,3 +29,6 @@ $(LIBFILES): $(OBJFILES)
 $(PROGFILES): $(LIBFILES)
 	@cd $(COREDIR) && $(MAKE) $(addprefix ../, $(basename $@))
 clean: clean.subdirs
+
+install:
+	@../shell/Install.sh
