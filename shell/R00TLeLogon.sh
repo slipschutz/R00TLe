@@ -25,7 +25,7 @@ if [ ! -d users/$1 ]; then
     mkdir -p users/$1
 else 
     echo "User found exiting..."
-#    exit;
+    exit;
 fi
 cd users/$1 # change directory in to the users directory
 

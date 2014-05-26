@@ -17,7 +17,7 @@ cd $Build_Directory
 flag=$(cat ~/.bashrc | grep R00TLe)
 
 if [ "$flag" == "" ]; then #nothing found
-    echo "#Begin R00TLe settings">>~/.bashrc
+    echo "\n#Begin R00TLe settings">>~/.bashrc
     echo "export PATH=\$PATH:${BIN_DIRECTORY}">>~/.bashrc
     echo "export PATH=\$PATH:$SHELL_DIRECTORY">>~/.bashrc
     echo "export R00TLeInstall=$R00TLe_HEAD">>~/.bashrc
