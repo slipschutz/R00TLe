@@ -11,6 +11,7 @@ flag=$(env | grep "R00TLeInstall")
 
 if [ "$flag" == "" ]; then #failed
 
+    echo "Did not find R00TLeInstall enviroment variable"
     echo "Run the Make Install for R00TLe"
     echo "Then source your .bashrc"
     exit;
@@ -22,9 +23,10 @@ cd $R00TLeInstall
 
 ##make directory for user
 if [ ! -d users/$1 ]; then
+    echo "Making a directory for $1 in ${R00TLeInstall}/users"
     mkdir -p users/$1
 else 
-    echo "User found exiting..."
+    echo "User $1 found.  Setup should already be complete"
     exit;
 fi
 cd users/$1 # change directory in to the users directory

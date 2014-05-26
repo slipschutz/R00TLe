@@ -17,17 +17,22 @@ cd $Build_Directory
 flag=$(cat ~/.bashrc | grep R00TLe)
 
 if [ "$flag" == "" ]; then #nothing found
+    echo "Installing..."
+    echo "Adding lines to ~/.bashrc"
     printf "\n#Begin R00TLe settings\n">>~/.bashrc
     echo "export PATH=\$PATH:${BIN_DIRECTORY}">>~/.bashrc
     echo "export PATH=\$PATH:$SHELL_DIRECTORY">>~/.bashrc
     echo "export R00TLeInstall=$R00TLe_HEAD">>~/.bashrc
     echo "alias root='root -l'">>~/.bashrc
     echo "#End R00TLe settings">>~/.bashrc
+
+    echo 
+    echo "R00TLe Install Successful"
+    echo
+
+else 
+    echo "Seems like install has already been run"
 fi
 
-
-echo 
-echo "R00TLe Install Successful"
-echo
 
 
