@@ -3,7 +3,7 @@
 
 if [ $# -ne 1 ]; then
     echo "Usage: R00TLeLogon AUserName"
-    exit;
+    return
 fi
 
 #look to see if there is a R00TLeInstall
@@ -14,7 +14,7 @@ if [ "$flag" == "" ]; then #failed
     echo "Did not find R00TLeInstall enviroment variable"
     echo "Run the Make Install for R00TLe"
     echo "Then source your .bashrc"
-    exit;
+    return
 
 fi
 
@@ -29,7 +29,7 @@ if [ ! -d users/$1 ]; then
     mkdir -p users/$1
 else 
     echo "User $1 found. Won't make start up files"
-    exit;
+    return
 fi
 cd users/$1 # change directory in to the users directory
 

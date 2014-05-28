@@ -24,7 +24,8 @@ if [ "$flag" == "" ]; then #nothing found
     echo "export PATH=\$PATH:$SHELL_DIRECTORY">>~/.bashrc
     echo "export R00TLeInstall=$R00TLe_HEAD">>~/.bashrc
     echo "alias root='root -l'">>~/.bashrc
-    echo "#End R00TLe settings">>~/.bashrc
+    echo "alias R00TLeLogon.sh='source R00TLeLogon.sh'">>~/.bashrc
+    printf "#End R00TLe settings\n">>~/.bashrc
 
     echo 
     echo "R00TLe Install Successful"
