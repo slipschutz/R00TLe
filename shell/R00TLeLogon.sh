@@ -18,6 +18,8 @@ if [ "$flag" == "" ]; then #failed
 
 fi
 
+echo "Setting enviorment"
+export ANAROOT_PRM=/user/e10003/R00TLe/prm
 
 cd $R00TLeInstall
 
@@ -26,7 +28,7 @@ if [ ! -d users/$1 ]; then
     echo "Making a directory for $1 in ${R00TLeInstall}/users"
     mkdir -p users/$1
 else 
-    echo "User $1 found.  Setup should already be complete"
+    echo "User $1 found. Won't make start up files"
     exit;
 fi
 cd users/$1 # change directory in to the users directory
