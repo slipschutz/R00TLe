@@ -25,7 +25,6 @@
 #include "S800Event.hh"
 #include "DDASEvent.hh"
 #include "LendaPacker.hh"
-#include "LendaFunctions.hh"
 
 #include "S800Settings.hh"
 #include "S800Calibration.hh"

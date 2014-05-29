@@ -9,10 +9,12 @@
 #include "LendaFilter.hh"
 #include <vector>
 #include <sstream>
+#include <string>
 #include <fstream>
 #include "LendaEvent.hh"
 #include "DDASEvent.hh"
 #include <math.h>
+#include <cstdlib>
 
 #define CHANPERMOD 16
 class LendaPacker {

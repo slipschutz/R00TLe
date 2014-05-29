@@ -17,7 +17,7 @@ include ../common.mk
 			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
 			../include/DDASEvent.hh ../include/ddaschannel.hh \
 			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
-			../include/LendaSettings.hh ../include/LendaFunctions.hh \
+			../include/LendaSettings.hh \
 			../include/Utilities.hh
 
 ../../bin/Evt2Cal:	Evt2Cal.cc \
@@ -26,5 +26,5 @@ include ../common.mk
 			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
 			../include/DDASEvent.hh ../include/ddaschannel.hh \
 			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
-			../include/LendaSettings.hh ../include/LendaFunctions.hh \
+			../include/LendaSettings.hh  \
 			../include/Utilities.hh

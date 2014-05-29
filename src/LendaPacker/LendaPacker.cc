@@ -110,11 +110,14 @@ void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
     }
   }
 }
-
 void LendaPacker::BuildMaps(){
   stringstream stream;
   ifstream MapFile;
-  MapFile.open("./MapFile.txt");
+  stringstream ss;
+  ss<<string(getenv("ANAROOT_PRM"));
+  ss<<"/MapFile.txt";
+  cout<<ss.str()<<endl;
+  MapFile.open(ss.str().c_str());
   if (!MapFile.is_open()){
     cout<<"Cable Map File not found"<<endl;
     cout<<"Make a ./MapFile.txt"<<endl;
