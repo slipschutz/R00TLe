@@ -15,8 +15,11 @@ LendaPacker::LendaPacker(){
   sg2=-1;
   traceDelay=-1;
   jentry=-1;
-  Reset();
-  theChannel=NULL;
+
+  Reset();//Reset the member variables that have to do with building Lenda Events
+  //Such as the software CFDs and the energy values
+  
+  BuildMaps();
 }
 
 void LendaPacker::SetFilter(Int_t _FL,Int_t _FG,Int_t _d,Int_t _w){
@@ -44,7 +47,7 @@ void LendaPacker::Reset(){
 
   thisEventsFF.clear();
   thisEventsCFD.clear();
-  theChannel=NULL;
+  
 
   thisEventsIntegral=0;
   thisEventsPulseHeight=0;
@@ -58,7 +61,15 @@ void LendaPacker::Reset(){
   
 
 }
-void LendaPacker::CalcTimeFilters(){
+
+void LendaPacker::CalcAll(ddaschannel*theChannel){
+   CalcTimeFilters(theChannel);
+   CalcEnergyGates(theChannel);
+}
+
+
+
+void LendaPacker::CalcTimeFilters(ddaschannel*theChannel){
 
   if (theChannel->trace.size()!=0){
     theFilter.FastFilter(theChannel->trace,thisEventsFF,fFL,fFG); //run FF algorithim
@@ -77,8 +88,8 @@ void LendaPacker::CalcTimeFilters(){
     //  cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD)-traceDelay;
   }
 }
-void LendaPacker::CalcEnergyGates(){
-  //theTrace = trace;//Stor the trace in packer for later 
+void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
+
   if ( theChannel->trace.size()!=0){
     if (softwareCFD!=0)
       start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
@@ -97,14 +108,111 @@ void LendaPacker::CalcEnergyGates(){
       longGate = theFilter.getGate(theChannel->trace,start,lg2);
       shortGate = theFilter.getGate(theChannel->trace,start,sg2);
     }
-    // if ((softwareCFD <0 || softwareCFD>3)&&theChannel->chanid!=0&&theChannel->chanid!=1){
-    //   cout<<"jentry is "<<jentry<<endl;
-    //   cout<<"softCFD "<<softwareCFD<<endl;
-    //   cout<<"start is "<<start<<endl;
-    //   cout<<"A Problem with "<<theChannel->chanid<<endl;
-    // }
   }
 }
+
+void LendaPacker::BuildMaps(){
+  stringstream stream;
+  ifstream MapFile;
+  MapFile.open("./MapFile.txt");
+  if (!MapFile.is_open()){
+    cout<<"Cable Map File not found"<<endl;
+    cout<<"Make a ./MapFile.txt"<<endl;
+    throw -1;
+  }
+  
+  //Now read in the map information
+  //should be three columns 
+  //slot  channel   Name
+  int slot,channel;
+  string name;
+  while (true){
+    if (MapFile.eof()==true)
+      break;
+    MapFile>>slot>>channel>>name;
+    int spot= CHANPERMOD*(slot-2) + channel;
+    GlobalIDToFullLocal[spot]=name;
+    string BarName=name.substr(0,name.size()-1);
+    GlobalIDToBar[spot]=BarName;
+  }
+}
+
+
+LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c){
+  CalcAll(c);//Preform all the waveform analysis
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Now all the member variables should have been set (if there are traces) //
+  // in the data. Next begin packing all the results into the LendaChannel   //
+  /////////////////////////////////////////////////////////////////////////////
+  LendaChannel tempLenda;
+
+  tempLenda.SetChannel(c->chanid);
+  tempLenda.SetSlot(c->slotid);
+  tempLenda.SetGlobalID(CHANPERMOD*(c->slotid-2)+c->chanid);
+
+  tempLenda.SetEnergy(thisEventsIntegral);
+  tempLenda.SetPulseHeight(thisEventsPulseHeight);
+  tempLenda.SetInternalEnergy(c->energy);
+
+  tempLenda.SetTime(c->time);
+  tempLenda.SetTimeLow(c->timelow);
+  tempLenda.SetTimeHigh(c->timehigh);
+  tempLenda.SetCFDTrigBit(c->GetCFDTriggerSourceBit());
+  
+  tempLenda.SetSoftTime(2*(c->timelow + c->timehigh * 4294967296.0) +softwareCFD);
+  tempLenda.SetCubicTime(2*(c->timelow + c->timehigh * 4294967296.0)+cubicCFD);
+  tempLenda.SetCubicFitTime(2*(c->timelow + c->timehigh * 4294967296.0)+cubicFitCFD);
+
+
+  tempLenda.SetSoftwareCFD(softwareCFD);
+  tempLenda.SetCubicCFD(cubicCFD);
+  tempLenda.SetCubicFitCFD(cubicFitCFD);
+  tempLenda.SetInternalCFD(c->timecfd/32768.0);
+  
+  tempLenda.SetTrace(c->trace);
+  tempLenda.SetFilter(thisEventsFF);
+  tempLenda.SetCFD(thisEventsCFD);
+
+  tempLenda.SetLongGate(longGate);
+  tempLenda.SetShortGate(shortGate);
+  
+  tempLenda.SetJentry(jentry);
+  tempLenda.SetNumZeroCrossings(numZeroCrossings);
+
+  //RESET THE PACKERS VARIABLES
+  Reset();
+  //Return this packed channel
+  return tempLenda;
+}
+
+void LendaPacker::PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel*theChannel){
+  string fullName = GlobalIDToFullLocal[GlobalID];
+  string lastLetter = fullName.substr(fullName.size()-1,1);
+
+  //All we need to do is determine whether this GlobalID coresponds to
+  //the TOP or bottom PMT of the bar 
+  
+  if (lastLetter == "T" ){
+    //IT IS A top PMT
+    LendaChannel temp = DDASChannel2LendaChannel(theChannel);
+    theBar.Tops.push_back(temp);
+  } else if (lastLetter == "B"){
+    LendaChannel temp =DDASChannel2LendaChannel(theChannel);
+    theBar.Bottoms.push_back(temp);
+  } else {
+    cout<<"***************************************************************************"<<endl;
+    cout<<"***************************************************************************"<<endl;
+    cout<<"Found a ddaschannel that maps to a bar name without a T or B as last letter"<<endl;
+    cout<<"*******The cable map file must only contain names ending in T or B*********"<<endl;
+    cout<<"Name was "<<fullName<<" global ID was "<<GlobalID<<endl;
+    throw -99;
+  }
+  
+}
+
+
+
 
 void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 				 Long64_t jentry){
@@ -113,42 +221,36 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
   ////////////////////////////////////////////////////////////////////
   //////////////Get the ddaschannels form the DDASEVent///////////////
   vector <ddaschannel*> theDDASChannels = theDDASEvent->GetData();
-  //cout<<"THE SIZE OF DDAS "<<theDDASChannels.size()<<endl;
-  
-  //sort the events by channel using a Merge sort
-  //Only expecting on module right now
-  vector <ddaschannel*> eventsTemp(16*12,NULL); // temp Vector to hold events in all channels/slots
-  vector <ddaschannel*> eventsSorted; //the final sorted vector
-  bool test=false;
+
   for (int i=0;i<(int)theDDASChannels.size();i++){
-    int GlobalID = theDDASChannels[i]->chanid + 16* (theDDASChannels[i]->slotid-2);
-    if (GlobalID >= 16*12){cout<<"Can Not sort DDAS events. Too many channels"<<endl;throw;}
-    if (eventsTemp[GlobalID] == NULL )
-      eventsTemp[GlobalID]=theDDASChannels[i];
-    else {
-      //if there is already something there. IE a pile up occured where there
-      //were two instances of the same channel in an Event. Put the event in 
-      //the next spot with std::vector::insert
-      eventsTemp.insert(eventsTemp.begin()+theDDASChannels[i]->chanid,theDDASChannels[i]);
-      //      cout<<"********WARNING Found Pile up Event********"<<endl;
+    //First Form the global ID of the channel
+    int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
+    
+    SetJEntry(10); //Temp line 
+    //Get Which Bar this channel belongs to from the map
+    string nameOfBar=GlobalIDToBar[id];
+    
+    //Check to see if this bar has been found in this event yet
+    if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
+      //Put a bar object into a map to keep track of things
+      LendaBar tempBar(nameOfBar);
+      PutDDASChannelInBar(id,tempBar,theDDASChannels[i]);
+      ThisEventsBars[nameOfBar]=tempBar;
+    } else {
+      //The bar has already had a channel in it from a previous iteration of this loop
+      //Instead of making a new bar take the already allocated one from the map and
+      //push this channel on to it
+      PutDDASChannelInBar(id,ThisEventsBars[nameOfBar],theDDASChannels[i]);
     }
+    
   }
-  
-  //Now copy non empty spots in the vector to the final sorted vector
-  for (int i=0;i<(int)eventsTemp.size();i++){
-    if (eventsTemp[i] !=NULL )
-      eventsSorted.push_back(eventsTemp[i]);
+  ///Now put the bars into the Lenda Event by iterating over the map
+  for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();
+       ii!=ThisEventsBars.end();ii++){
+    Event->PushABar(ii->second);
   }
-  //Now call the Packing Functions to build the Event
-  for (int i=0;i<(int)eventsSorted.size();++i){
-    SetDDASChannel(eventsSorted[i]);//Set the current ddaschannel
-    SetJEntry(jentry);   //set jEntry (just to save it in final tree)
-    CalcAll(); //call all the waveform analysis steps
-    PackEvent(Event); //push all the results on to the final LendEvent
-  }
-  
-
-
+ 
+  ThisEventsBars.clear();//Clear the temporary map
 }
 
 
@@ -156,47 +258,43 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 void LendaPacker::PackEvent(LendaEvent * Event){
 
 
-  Event->pushTrace(theChannel->trace);//save the trace for later 
+  // Event->pushTrace(theChannel->trace);//save the trace for later 
   
-  Event->pushFilter(thisEventsFF); //save filter if it is there
-  Event->pushCFD(thisEventsCFD); //save CFD if it is there
+  // Event->pushFilter(thisEventsFF); //save filter if it is there
+  // Event->pushCFD(thisEventsCFD); //save CFD if it is there
   
-  //Push other thing into the event
-  Event->pushLongGate(longGate); //longer integration window
-  Event->pushShortGate(shortGate);//shorter integration window
+  // //Push other thing into the event
+  // Event->pushLongGate(longGate); //longer integration window
+  // Event->pushShortGate(shortGate);//shorter integration window
 
-  Event->pushChannel(theChannel->chanid);//the channel for this pulse
-  Event->pushSlot(theChannel->slotid);
-  Event->pushGlobalID(theChannel->chanid+ 16*(theChannel->slotid-2));
+  // Event->pushChannel(theChannel->chanid);//the channel for this pulse
+  // Event->pushSlot(theChannel->slotid);
+  // Event->pushGlobalID(theChannel->chanid+ 16*(theChannel->slotid-2));
 
-  Event->pushEnergy(thisEventsIntegral);;//push trace energy if therex
-  Event->pushInternEnergy(theChannel->energy);//push internal energy
-  Event->pushTime(theChannel->time);
-  Event->pushTimeLow(theChannel->timelow);
-  Event->pushTimeHigh(theChannel->timehigh);
-  Event->pushCFDTrigBit(theChannel->GetCFDTriggerSourceBit());
-  Event->pushSoftTime(2*(theChannel->timelow + theChannel->timehigh * 4294967296.0) +softwareCFD);// -theChannel->GetCFDTriggerSourceBit());
-  //Event->pushSoftTime(theChannel->time - (theChannel->timecfd/32768.0) +softwareCFD);
+  // Event->pushEnergy(thisEventsIntegral);;//push trace energy if therex
+  // Event->pushInternEnergy(theChannel->energy);//push internal energy
+  // Event->pushTime(theChannel->time);
+  // Event->pushTimeLow(theChannel->timelow);
+  // Event->pushTimeHigh(theChannel->timehigh);
+  // Event->pushCFDTrigBit(theChannel->GetCFDTriggerSourceBit());
+  // Event->pushSoftTime(2*(theChannel->timelow + theChannel->timehigh * 4294967296.0) +softwareCFD);// -theChannel->GetCFDTriggerSourceBit());
+  // //Event->pushSoftTime(theChannel->time - (theChannel->timecfd/32768.0) +softwareCFD);
 
-  Event->pushSoftwareCFD(softwareCFD);
-  Event->pushCubicCFD(cubicCFD);
-  Event->pushCubicFitCFD(cubicFitCFD);
+  // Event->pushSoftwareCFD(softwareCFD);
+  // Event->pushCubicCFD(cubicCFD);
+  // Event->pushCubicFitCFD(cubicFitCFD);
 
-  Event->pushCubicTime(2*(theChannel->timelow + theChannel->timehigh * 4294967296.0)+cubicCFD);
-  Event->pushCubicFitTime(2*(theChannel->timelow + theChannel->timehigh * 4294967296.0)+cubicFitCFD);
+  // Event->pushCubicTime(2*(theChannel->timelow + theChannel->timehigh * 4294967296.0)+cubicCFD);
+  // Event->pushCubicFitTime(2*(theChannel->timelow + theChannel->timehigh * 4294967296.0)+cubicFitCFD);
 
-  Event->pushInternalCFD((theChannel->timecfd)/32768.0);
-  Event->pushEntryNum(jentry);
-  Event->pushNumZeroCrossings(numZeroCrossings);
-  Event->pushPulseHeight(thisEventsPulseHeight);
+  // Event->pushInternalCFD((theChannel->timecfd)/32768.0);
+  // Event->pushEntryNum(jentry);
+  // Event->pushNumZeroCrossings(numZeroCrossings);
+  // Event->pushPulseHeight(thisEventsPulseHeight);
 
   Reset();//Reset the Packers variables
 }
 
-void LendaPacker::CalcAll(){
-   CalcTimeFilters();
-   CalcEnergyGates();
-}
 
 
 
@@ -210,23 +308,23 @@ void LendaPacker::RePackEvent(LendaEvent * Event){
 void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
   //Event should already be packed  
 
-  int num;
-  for (int i=0;i<(int)Event->times.size();i++){
-    vector <Double_t> tempFF;
-    vector <Double_t> tempCFD;
+  // int num;
+  // for (int i=0;i<(int)Event->times.size();i++){
+  //   vector <Double_t> tempFF;
+  //   vector <Double_t> tempCFD;
     
-    theFilter.FastFilter(Event->Traces[i],tempFF,fFL,fFG); //run FF algorithim
-    tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
-    Double_t Basetime = 2*(Event->timeLows[i] + Event->timeHighs[i] * 4294967296.0);
-    Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
-    Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
+  //   theFilter.FastFilter(Event->Traces[i],tempFF,fFL,fFG); //run FF algorithim
+  //   tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
+  //   Double_t Basetime = 2*(Event->timeLows[i] + Event->timeHighs[i] * 4294967296.0);
+  //   Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
+  //   Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
 
-    Event->softwareCFDs[i]=tempSoftTime;
-    Event->softTimes[i]=tempSoftTime+Basetime;
-    Event->cubicCFDs[i]=tempCubicTime;
-    Event->cubicTimes[i]=tempCubicTime+Basetime;
+  //   Event->softwareCFDs[i]=tempSoftTime;
+  //   Event->softTimes[i]=tempSoftTime+Basetime;
+  //   Event->cubicCFDs[i]=tempCubicTime;
+  //   Event->cubicTimes[i]=tempCubicTime+Basetime;
     
-  }
+  // }
 
 
 

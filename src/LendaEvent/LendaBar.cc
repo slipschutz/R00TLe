@@ -7,11 +7,20 @@
 
 #include "LendaBar.hh"
 
-LendaBar::LendaBar()
-{;}
+LendaBar::LendaBar(){
+  Tops.clear();
+  Bottoms.clear();
+}
 LendaBar::~LendaBar(){
   Tops.clear();
   Bottoms.clear();
 
 }
 
+void LendaBar::Finalize(){
+
+
+
+
+
+}

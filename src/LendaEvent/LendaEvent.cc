@@ -28,11 +28,9 @@ void LendaEvent::Clear(){
   
   //Clear the main information holder the bars vector
   Bars.clear();//Will call deconstructor on sub objects
-  
   N=0;
   NumBars=0;
   NumOfChannelsInEvent=0;
-
 }
 void LendaEvent::Finalize(){
  

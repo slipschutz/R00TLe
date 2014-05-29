@@ -8,10 +8,13 @@
 
 #include "LendaFilter.hh"
 #include <vector>
+#include <sstream>
+#include <fstream>
 #include "LendaEvent.hh"
 #include "DDASEvent.hh"
 #include <math.h>
-//#include "ddaschannel.h"
+
+#define CHANPERMOD 16
 class LendaPacker {
 
 public:
@@ -23,15 +26,15 @@ public:
 
   void Reset();
 
-  void CalcTimeFilters();
-  void CalcEnergyGates();
-  void CalcAll();
+  void CalcTimeFilters(ddaschannel *theChannel);
+  void CalcEnergyGates(ddaschannel *theChannel);
+  void CalcAll(ddaschannel * theChannel);
+
   void SetFilter(Int_t,Int_t,Int_t,Int_t);
   void SetGates(Double_t,Double_t,Double_t,Double_t);
   inline void SetTraceDelay(Int_t x){traceDelay=x;}
 
 
-  inline void SetDDASChannel(ddaschannel *d){theChannel=d;} 
   inline void SetJEntry(Long64_t n){jentry=n;}
 
   vector <Double_t> thisEventsFF;
@@ -41,6 +44,7 @@ public:
 		      Long64_t jentry);
 
 
+  LendaChannel DDASChannel2LendaChannel(ddaschannel* c);
   
   void RePackSoftwareTimes(LendaEvent *Event);
   
@@ -49,7 +53,16 @@ public:
   void RePackEvent(LendaEvent* Event);
 
 private:
-  ddaschannel * theChannel;
+  void BuildMaps();
+  
+  void PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel *theChannel);
+
+  map<int,string> GlobalIDToFullLocal;
+  map<int,string> GlobalIDToBar;
+
+  map<string,LendaBar> ThisEventsBars;
+
+
   Int_t fFL,fFG,fd,fw;
   Double_t lg,sg,lg2,sg2;
   Int_t traceDelay;

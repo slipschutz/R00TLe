@@ -11,6 +11,7 @@
 
 #include "TObject.h"
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -37,14 +38,19 @@ public:
   inline Double_t GetSoftTime(){return _softTime;}
   inline Double_t GetCubicTime(){return _cubicTime;}
   inline Double_t GetCubicFitTime(){return _cubicFitTime;}
-    
+
+  inline UInt_t GetCFDTrigBit(){return _CFDTrigBit;}
+  
   inline Double_t GetSoftwareCFD(){return _softwareCFD;}
   inline Double_t GetCubicCFD(){return _cubicCFD;}
   inline Double_t GetCubicFitCFD(){return _cubicFitCFD;}
   inline Double_t GetInternalCFD(){return _internalCFD;}
 
+
   inline Double_t GetShortGate(){return _shortGate;}
   inline Double_t GetLongGate() {return _longGate;}
+
+  inline Long64_t GetJentry(){return _jentry;}
 
   vector <UShort_t> GetTrace(){return _trace;}
   vector <Double_t> GetFilter(){return _filter;}
@@ -67,7 +73,13 @@ public:
   void SetSoftTime(Double_t v){_softTime=v;}
   void SetCubicTime(Double_t v){_cubicTime=v;}
   void SetCubicFitTime(Double_t v){_cubicFitTime=v;}
-    
+
+  void SetTimeLow(UInt_t v){_timeLow=v;}
+  void SetTimeHigh(UInt_t v){_timeHigh=v;}
+  
+
+  void SetCFDTrigBit(UInt_t v){_CFDTrigBit=v;}
+   
   void SetSoftwareCFD(Double_t v){_softwareCFD=v;}
   void SetCubicCFD(Double_t v){_cubicCFD=v;}
   void SetCubicFitCFD(Double_t v){_cubicFitCFD=v;}
@@ -76,11 +88,13 @@ public:
   void SetShortGate(Double_t v){_shortGate=v;}
   void SetLongGate(Double_t v) {_longGate=v;}
   
+  void SetJentry(Long64_t v){_jentry=v;}
+
   void SetTrace(vector<UShort_t> v){_trace=v;}
   void SetFilter(vector <Double_t> v){_filter=v;}
   void SetCFD(vector <Double_t> v){_CFD=v;}
 
-
+  //  LendaChannel & operator=(const LendaChannel &);
 
 private:
   Int_t _channel;
@@ -99,7 +113,10 @@ private:
   Double_t _softTime;
   Double_t _cubicTime;
   Double_t _cubicFitTime;
-  
+
+  UInt_t _timeLow;
+  UInt_t _timeHigh;
+
   Double_t _softwareCFD;
   Double_t _cubicCFD;
   Double_t _cubicFitCFD;
@@ -108,7 +125,9 @@ private:
 
   Double_t _shortGate;
   Double_t _longGate;
-
+  
+  Long64_t _jentry;
+  
   vector <UShort_t> _trace;
   vector <Double_t> _filter;
   vector <Double_t> _CFD;

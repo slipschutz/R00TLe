@@ -8,11 +8,14 @@
 #define __LENDABAR_HH
 #include "TObject.h"
 #include "LendaChannel.hh"
-
+#include <string>
+#include <vector>
+using namespace std;
 
 class LendaBar : public TObject{
 public:
   LendaBar();
+  LendaBar(string s) : Name(s) {}
   ~LendaBar();
   
   //Storing a vector of Tops and bottoms
@@ -20,6 +23,16 @@ public:
   //channel to be stored
   vector <LendaChannel> Tops;
   vector <LendaChannel> Bottoms;
+  
+  void PushTopChannel(LendaChannel c){Tops.push_back(c);}
+  void PushBottomChannel(LendaChannel c){Bottoms.push_back(c);}
+
+  string Name;//the name of the bar to make it unique
+  
+  void Finalize();//Method to calcualte things like Dt, COG, AvgE, TOF
+
+private:
+  
 
 public:
   ClassDef(LendaBar,1);
