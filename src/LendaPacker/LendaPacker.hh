@@ -1,4 +1,15 @@
 
+///////////////////////////////////////////////////////////////////////////////////////
+// This file defines the LendaPacker class.  The main purpose of this class is to    //
+// take DDASEvents and make LendaEvents.  The Packer is responsible for preforming   //
+// the various trace analysis routines (defined in the LendaFilter class) and saving //
+// them in the LendaEvent.  The Packer needs a cable map file which tells it which   //
+// DDAS channels to associate together into LendaBars.  Will Throw expception if     //
+// it cannot find this file.  							     //
+// 										     //
+// Written by Sam Lipschut Copyright 2014  					     //
+///////////////////////////////////////////////////////////////////////////////////////
+
 
 
 
@@ -15,8 +26,22 @@
 #include "DDASEvent.hh"
 #include <math.h>
 #include <cstdlib>
-
+#include <unordered_map>
 #define CHANPERMOD 16
+
+#define OBJSCINTID 96
+
+class Correction{
+public:
+  Correction(Double_t s,Double_t i,Double_t t) :
+    slope(s),intercept(i),timeOffSet(t) {;}
+  Correction(){;}
+  Double_t slope;
+  Double_t intercept;
+  Double_t timeOffSet;
+};
+
+
 class LendaPacker {
 
 public:
@@ -46,7 +71,7 @@ public:
 		      Long64_t jentry);
 
 
-  LendaChannel DDASChannel2LendaChannel(ddaschannel* c);
+  LendaChannel DDASChannel2LendaChannel(ddaschannel* c,string name);
   
   void RePackSoftwareTimes(LendaEvent *Event);
   
@@ -60,8 +85,15 @@ private:
   void PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel *theChannel);
 
   map<int,string> GlobalIDToFullLocal;
+
+  map<string,int> FullLocalToGlobalID;
+
   map<int,string> GlobalIDToBar;
 
+  map<string,int> BarNameToUniqueBarNumber;
+  
+  map<string,Correction > FullNameToCorrection;
+  
   map<string,LendaBar> ThisEventsBars;
 
 

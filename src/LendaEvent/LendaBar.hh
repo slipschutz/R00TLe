@@ -1,7 +1,7 @@
 
 
 /////////////////////////////////////////////////////////
-// This is the header file for the LendaBar ROOT Dictionary //
+// This is the header file for the LendaBar ROOT class //
 /////////////////////////////////////////////////////////
 
 #ifndef __LENDABAR_HH
@@ -27,11 +27,17 @@ public:
   void PushTopChannel(LendaChannel c){Tops.push_back(c);}
   void PushBottomChannel(LendaChannel c){Bottoms.push_back(c);}
 
+  inline string GetName(){return Name;}
+  inline Int_t GetNumTops(){return NumTops;}
+  inline Int_t GetNumBottoms(){return NumBottoms;}
+  inline Int_t GetBarMultiplicity(){return BarMultiplicity;}
+
   string Name;//the name of the bar to make it unique
   Int_t NumTops;
   Int_t NumBottoms;
   Int_t BarMultiplicity;
   void Finalize();//Method to calcualte things like Dt, COG, AvgE, TOF
+
 
 private:
   

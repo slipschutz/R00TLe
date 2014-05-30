@@ -17,6 +17,7 @@ LendaBar::~LendaBar(){
   NumTops=0;
   NumBottoms=0;
   BarMultiplicity=0;
+
 }
 
 void LendaBar::Finalize(){

@@ -31,6 +31,7 @@ void LendaEvent::Clear(){
   N=0;
   NumBars=0;
   NumOfChannelsInEvent=0;
+  TheObjectScintilator.Clear();
 }
 void LendaEvent::Finalize(){
   int tot=0;

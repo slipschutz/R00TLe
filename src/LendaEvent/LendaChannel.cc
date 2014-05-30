@@ -27,6 +27,7 @@ void LendaChannel::Clear(){
   _softTime=BAD_NUM;
   _cubicTime=BAD_NUM;
   _cubicFitTime=BAD_NUM;
+  _correctedTime=BAD_NUM;
 
   _timeLow=BAD_NUM;
   _timeHigh=BAD_NUM;

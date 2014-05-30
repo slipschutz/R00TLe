@@ -113,35 +113,74 @@ void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
 void LendaPacker::BuildMaps(){
   stringstream stream;
   ifstream MapFile;
-  stringstream ss;
+  ifstream CorrectionsFile;
+
+  stringstream ss,ss1;
   ss<<string(getenv("ANAROOT_PRM"));
+  ss1<<ss.str();
+
   ss<<"/MapFile.txt";
-  cout<<ss.str()<<endl;
+  ss1<<"/Corrections.txt";
+
   MapFile.open(ss.str().c_str());
   if (!MapFile.is_open()){
     cout<<"Cable Map File not found"<<endl;
+    cout<<"Looking in "<<ss.str()<<endl;
     cout<<"Make a ./MapFile.txt"<<endl;
     throw -1;
   }
-  
+
+  CorrectionsFile.open(ss1.str().c_str());
+  if ( ! CorrectionsFile.is_open()){
+    cout<<"Correction File not found"<<endl;
+    cout<<"Looking in "<<ss1.str()<<endl;
+    cout<<"Make a ./Corrections.txt file"<<endl;
+    throw -1;
+  }
+
   //Now read in the map information
   //should be three columns 
   //slot  channel   Name
   int slot,channel;
   string name;
+  int UniqueBarNumber=0;
   while (true){
     if (MapFile.eof()==true)
       break;
     MapFile>>slot>>channel>>name;
     int spot= CHANPERMOD*(slot-2) + channel;
     GlobalIDToFullLocal[spot]=name;
-    string BarName=name.substr(0,name.size()-1);
+    FullLocalToGlobalID[name]=spot;
+    string BarName=name.substr(0,name.size()-1);//The string minus last letter
     GlobalIDToBar[spot]=BarName;
+    
+    if (BarNameToUniqueBarNumber.count(BarName)==0){ //Isn't already there
+      BarNameToUniqueBarNumber[BarName]=UniqueBarNumber;
+      UniqueBarNumber++;
+    }
   }
+  Double_t slope,intercept,timeOffSet;
+  while (true){
+    if (CorrectionsFile.eof()==true)
+      break;
+    CorrectionsFile>>name>>slope>>intercept>>timeOffSet;
+    
+    if (FullLocalToGlobalID.count(name) == 0){
+      //There is a name in the corrections file that isn't in the 
+      //Cable Map file.  
+      cout<<"Found a name in the corrections file that"<<endl;
+      cout<<"wasn't in the cable map file"<<endl;
+      cout<<"Name is "<<name<<endl;
+      throw -99;
+    }
+
+    FullNameToCorrection[name]=Correction(slope,intercept,0);
+  }
+
 }
 
 
-LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c){
+LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
   CalcAll(c);//Preform all the waveform analysis
 
   /////////////////////////////////////////////////////////////////////////////
@@ -183,6 +222,10 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c){
   tempLenda.SetJentry(jentry);
   tempLenda.SetNumZeroCrossings(numZeroCrossings);
 
+  //Corrections should be Slope then Intercept then Timming offset
+  Correction cor = FullNameToCorrection[name];
+  tempLenda.SetCorrectedEnergy( thisEventsIntegral*cor.slope + cor.intercept);
+  tempLenda.SetCorrectedTime( tempLenda.GetTime() + cor.timeOffSet);
   //RESET THE PACKERS VARIABLES
   Reset();
   //Return this packed channel
@@ -198,10 +241,10 @@ void LendaPacker::PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel*
   
   if (lastLetter == "T" ){
     //IT IS A top PMT
-    LendaChannel temp = DDASChannel2LendaChannel(theChannel);
+    LendaChannel temp = DDASChannel2LendaChannel(theChannel,fullName);
     theBar.Tops.push_back(temp);
   } else if (lastLetter == "B"){
-    LendaChannel temp =DDASChannel2LendaChannel(theChannel);
+    LendaChannel temp =DDASChannel2LendaChannel(theChannel,fullName);
     theBar.Bottoms.push_back(temp);
   } else {
     cout<<"***************************************************************************"<<endl;
@@ -229,23 +272,27 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
     
-    SetJEntry(10); //Temp line 
-    //Get Which Bar this channel belongs to from the map
-    string nameOfBar=GlobalIDToBar[id];
-    
-    //Check to see if this bar has been found in this event yet
-    if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
-      //Put a bar object into a map to keep track of things
-      LendaBar tempBar(nameOfBar);
-      PutDDASChannelInBar(id,tempBar,theDDASChannels[i]);
-      ThisEventsBars[nameOfBar]=tempBar;
-    } else {
-      //The bar has already had a channel in it from a previous iteration of this loop
-      //Instead of making a new bar take the already allocated one from the map and
-      //push this channel on to it
-      PutDDASChannelInBar(id,ThisEventsBars[nameOfBar],theDDASChannels[i]);
+    if (id == OBJSCINTID ){ // it is the object scintilator 
+      Event->TheObjectScintilator = DDASChannel2LendaChannel(theDDASChannels[i],"");
+    } else { // it is a lenda bar
+      
+      SetJEntry(10); //Temp line 
+      //Get Which Bar this channel belongs to from the map
+      string nameOfBar=GlobalIDToBar[id];
+      int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
+      //Check to see if this bar has been found in this event yet
+      if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
+	//Put a bar object into a map to keep track of things
+	LendaBar tempBar(nameOfBar);
+	PutDDASChannelInBar(id,tempBar,theDDASChannels[i]);
+	ThisEventsBars[nameOfBar]=tempBar;
+      } else {
+	//The bar has already had a channel in it from a previous iteration of this loop
+	//Instead of making a new bar take the already allocated one from the map and
+	//push this channel on to it
+	PutDDASChannelInBar(id,ThisEventsBars[nameOfBar],theDDASChannels[i]);
+      }
     }
-    
   }
   ///Now put the bars into the Lenda Event by iterating over the map
   for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();

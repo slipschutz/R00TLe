@@ -1,8 +1,7 @@
 #ifndef __LENDA_EVENT_HH
 #define __LENDA_EVENT_HH
 
-#include "TObject.h"
-#include "TFile.h"
+#include "TObject.h" //Include ROOT
 #include <vector>
 #include <map>
 #include "LendaSettings.hh"
@@ -15,9 +14,10 @@ public:
   LendaEvent(); //Constructor 
 
   void Clear(); //Clear the Event.  Should be called after every write to a tree
-  void Finalize(); //Applies internal corrections and calculates convient Branches/leaves
 
-  vector <LendaBar> Bars;
+  void Finalize(); //Calculates convient Branches/leaves
+
+  vector <LendaBar> Bars; //The vector of LendaBars that contains the real event information
   void PushABar(LendaBar aBar){Bars.push_back(aBar);NumBars++;}
   
 
@@ -25,9 +25,9 @@ public:
   Int_t N;//Same thing as NumOfChannelsInEvent
   Int_t NumBars;//Number of bars in event.  Due to pileup could be different from N/2
   
+  LendaChannel TheObjectScintilator;
 
-
-  void Fatal();//overload this stupid inherited method
+  void Fatal();//Overload this stupid inherited method
 
 
   void WriteSettings(LendaSettings * theSettings);
@@ -40,7 +40,6 @@ private:
 public:
   ClassDef(LendaEvent, 21);
 };
-
 #endif
 
 
