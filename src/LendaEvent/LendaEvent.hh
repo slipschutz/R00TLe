@@ -38,7 +38,7 @@ private:
 
   
 public:
-  ClassDef(LendaEvent, 20);
+  ClassDef(LendaEvent, 21);
 };
 
 #endif

@@ -33,7 +33,13 @@ void LendaEvent::Clear(){
   NumOfChannelsInEvent=0;
 }
 void LendaEvent::Finalize(){
- 
+  int tot=0;
+  for (int i=0;i<Bars.size();i++){
+    Bars[i].Finalize();
+    tot=Bars[i].BarMultiplicity+tot;
+  }
+  N=tot;
+  NumOfChannelsInEvent=N;
 }
 
 

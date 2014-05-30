@@ -28,7 +28,9 @@ public:
   void PushBottomChannel(LendaChannel c){Bottoms.push_back(c);}
 
   string Name;//the name of the bar to make it unique
-  
+  Int_t NumTops;
+  Int_t NumBottoms;
+  Int_t BarMultiplicity;
   void Finalize();//Method to calcualte things like Dt, COG, AvgE, TOF
 
 private:
