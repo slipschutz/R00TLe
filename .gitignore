@@ -3,3 +3,5 @@
 *Dictionary*
 bin*
 users/*
+shell/.*
+src/LendaPacker/*Test*
