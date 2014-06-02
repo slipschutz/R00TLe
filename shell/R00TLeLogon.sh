@@ -18,11 +18,12 @@ fi
 #check to see if user is known
 if [ ! -f $R00TLeInstall/users/.knownusers ]; then
     echo
-    echo "N known users file found"
+    echo "No known users file found"
     echo "Run 'R00TLeLogon.sh -f A_User_Name' to create one"
     return
 fi
-userStat=$(cat $R00TLeInstall/users/.knownusers | grep $1)
+user=$1
+userStat=$(cat $R00TLeInstall/users/.knownusers | awk ' { if($1=="'$user'"){print 1}}')
 if [ "$userStat" == "" ]; then
     echo
     echo "User $1 not found"
