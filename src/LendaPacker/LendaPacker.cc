@@ -278,6 +278,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
       SetJEntry(jentry);  
       //Get Which Bar this channel belongs to from the map
       string nameOfBar=GlobalIDToBar[id];
+
       //Check to see if this bar has been found in this event yet
       if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
 	//Put a bar object into a map to keep track of things

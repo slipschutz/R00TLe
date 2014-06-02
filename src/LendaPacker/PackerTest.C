@@ -75,29 +75,6 @@ int main(){
   ddasTest3->GetData().push_back(chan3);
   ddasTest3->GetData().push_back(chan4);
 
-  DDASEvent * test4 = new DDASEvent();
-  ddaschannel *c1=new ddaschannel();
-  ddaschannel *c2=new ddaschannel();
-
-  c1->slotid=2; c1->chanid=3;
-  c2->slotid=7; c2->chanid=3;
-
-  c1->time=100;
-  c2->time =102;
-
-  ddaschannel *c3=new ddaschannel();
-  ddaschannel *c4=new ddaschannel();
-
-  c3->slotid=6; c3->chanid=4;
-  c4->slotid=7; c4->chanid=4;
-  
-  c3->time=500;
-  c4->time=501;
-  
-  test4->GetData().push_back(c1);
-  test4->GetData().push_back(c2);
-  test4->GetData().push_back(c3);
-  test4->GetData().push_back(c4);
 
   LendaEvent * e = new LendaEvent();
   
@@ -107,11 +84,6 @@ int main(){
   thePacker.SetFilter(6,0,6,0);
   thePacker.SetGates(10,20,10,20);
 
-  thePacker.MakeLendaEvent(e,test4,0);
-  e->Finalize();
-  PrintInfo(e);
-
-  return 3;
   
   thePacker.MakeLendaEvent(e,ddasTest1,0);
   PrintInfo(e);

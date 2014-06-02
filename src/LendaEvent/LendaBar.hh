@@ -16,7 +16,7 @@ using namespace std;
 class LendaBar : public TObject{
 public:
   LendaBar();
-  LendaBar(string s) : Name(s) {}
+  LendaBar(string s) {Clear(); Name=s;}
   ~LendaBar();
   
   //Storing a vector of Tops and bottoms

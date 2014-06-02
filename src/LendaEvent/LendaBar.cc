@@ -33,6 +33,10 @@ void LendaBar::Clear(){
   AvgT=BAD_NUM;
   CorrectedAvgT=BAD_NUM;
   SimpleEventBit=0;
+
+  Name="_No_NAME_";
+  BarId=BAD_NUM;
+
 }
 
 void LendaBar::Finalize(){
