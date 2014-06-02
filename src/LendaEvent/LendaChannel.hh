@@ -12,6 +12,7 @@
 #include "TObject.h"
 #include <vector>
 #include <iostream>
+#define BAD_NUM -10008
 
 using namespace std;
 

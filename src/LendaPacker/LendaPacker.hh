@@ -29,7 +29,6 @@
 #include <unordered_map>
 #define CHANPERMOD 16
 
-#define OBJSCINTID 96
 
 class Correction{
 public:
@@ -82,7 +81,7 @@ public:
 private:
   void BuildMaps();
   
-  void PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel *theChannel);
+  void PutDDASChannelInBar(string fullName,LendaBar &theBar,ddaschannel *theChannel);
 
   map<int,string> GlobalIDToFullLocal;
 

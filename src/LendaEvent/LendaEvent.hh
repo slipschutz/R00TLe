@@ -32,6 +32,12 @@ public:
 
   void WriteSettings(LendaSettings * theSettings);
 
+  inline Double_t GetTOF(){return TOF;}
+  inline Double_t GetCorrectedTOF(){return CorrectedTOF;}
+  
+
+  Double_t TOF;
+  Double_t CorrectedTOF;
 
 private:
 

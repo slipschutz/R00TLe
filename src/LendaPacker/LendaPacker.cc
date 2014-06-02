@@ -232,11 +232,10 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
   return tempLenda;
 }
 
-void LendaPacker::PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel*theChannel){
-  string fullName = GlobalIDToFullLocal[GlobalID];
+void LendaPacker::PutDDASChannelInBar(string fullName,LendaBar &theBar,ddaschannel*theChannel){
   string lastLetter = fullName.substr(fullName.size()-1,1);
 
-  //All we need to do is determine whether this GlobalID coresponds to
+  //All we need to do is determine whether this fullName coresponds to
   //the TOP or bottom PMT of the bar 
   
   if (lastLetter == "T" ){
@@ -250,8 +249,8 @@ void LendaPacker::PutDDASChannelInBar(int GlobalID,LendaBar &theBar,ddaschannel*
     cout<<"***************************************************************************"<<endl;
     cout<<"***************************************************************************"<<endl;
     cout<<"Found a ddaschannel that maps to a bar name without a T or B as last letter"<<endl;
-    cout<<"*******The cable map file must only contain names ending in T or B*********"<<endl;
-    cout<<"Name was "<<fullName<<" global ID was "<<GlobalID<<endl;
+    cout<<"****Bars in the cable map file must have names that end in T or B****"<<endl;
+    cout<<"Name was "<<fullName;
     throw -99;
   }
   
@@ -271,26 +270,28 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
   for (int i=0;i<(int)theDDASChannels.size();i++){
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
-    
-    if (id == OBJSCINTID ){ // it is the object scintilator 
+    string fullName = GlobalIDToFullLocal[id];
+
+    if (fullName =="OBJSCINT"){ //It is the Object Scintillator
       Event->TheObjectScintilator = DDASChannel2LendaChannel(theDDASChannels[i],"");
-    } else { // it is a lenda bar
-      
-      SetJEntry(10); //Temp line 
+    } else { //It is a LENDA BAR
+      SetJEntry(jentry);  
       //Get Which Bar this channel belongs to from the map
       string nameOfBar=GlobalIDToBar[id];
-      int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
       //Check to see if this bar has been found in this event yet
       if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
 	//Put a bar object into a map to keep track of things
 	LendaBar tempBar(nameOfBar);
-	PutDDASChannelInBar(id,tempBar,theDDASChannels[i]);
+	//Only look up the Bar Id the first time the bar is found
+	int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
+	tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
+	PutDDASChannelInBar(fullName,tempBar,theDDASChannels[i]);
 	ThisEventsBars[nameOfBar]=tempBar;
       } else {
 	//The bar has already had a channel in it from a previous iteration of this loop
 	//Instead of making a new bar take the already allocated one from the map and
 	//push this channel on to it
-	PutDDASChannelInBar(id,ThisEventsBars[nameOfBar],theDDASChannels[i]);
+	PutDDASChannelInBar(fullName,ThisEventsBars[nameOfBar],theDDASChannels[i]);
       }
     }
   }

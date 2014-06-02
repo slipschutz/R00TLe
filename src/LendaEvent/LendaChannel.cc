@@ -1,7 +1,6 @@
 
 
 #include "LendaChannel.hh"
-#define BAD_NUM -10008
 
 LendaChannel::LendaChannel(){
   Clear();
