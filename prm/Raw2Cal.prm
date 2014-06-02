@@ -1,0 +1,19 @@
+# CRDC
+Crdc.File:			/user/e10003/R00TLe/prm/crdccal.dat
+Crdc.Ped.File:			/user/e10003/R00TLe/prm/crdcpedestals.dat
+BadPad.File:			/user/e10003/R00TLe/prm/BadPads.dat
+
+# Do fit?
+Crdc.X.Fit:			0
+# fit function: 1=SECHS 2=gaussian
+Crdc.X.FitFunc:			1
+
+# CRDC position calibration
+Crdc.X.Offset.0:		-300.
+Crdc.X.Slope.0:			2.54
+Crdc.Y.Offset.0:		-103.97013
+Crdc.Y.Slope.0:			0.08239
+Crdc.X.Offset.1:		-300.
+Crdc.X.Slope.1:			2.54
+Crdc.Y.Offset.1:		115.02531
+Crdc.Y.Slope.1:			-0.08071
