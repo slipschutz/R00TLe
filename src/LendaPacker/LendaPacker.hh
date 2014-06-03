@@ -96,6 +96,8 @@ private:
   map<string,LendaBar> ThisEventsBars;
 
 
+  Bool_t saveTraces;
+
   Int_t fFL,fFG,fd,fw;
   Double_t lg,sg,lg2,sg2;
   Int_t traceDelay;

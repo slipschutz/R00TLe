@@ -18,6 +18,8 @@ LendaPacker::LendaPacker(){
 
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
+
+  saveTraces=false;
   
   BuildMaps();
 }
@@ -101,13 +103,9 @@ void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
     thisEventsPulseHeight=theFilter.getMaxPulseHeight(theChannel->trace);
     
     thisEventsIntegral = theFilter.getEnergy(theChannel->trace);
-    if (theChannel->chanid ==9){
-      longGate = theFilter.getGate(theChannel->trace,start,lg);
-      shortGate = theFilter.getGate(theChannel->trace,start,sg);
-    } else if (theChannel->chanid ==8 ){
-      longGate = theFilter.getGate(theChannel->trace,start,lg2);
-      shortGate = theFilter.getGate(theChannel->trace,start,sg2);
-    }
+    longGate = theFilter.getGate(theChannel->trace,start,lg);
+    shortGate = theFilter.getGate(theChannel->trace,start,sg);
+    
   }
 }
 void LendaPacker::BuildMaps(){
@@ -176,6 +174,7 @@ void LendaPacker::BuildMaps(){
 
     FullNameToCorrection[name]=Correction(slope,intercept,0);
   }
+  
 
 }
 
@@ -212,10 +211,11 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
   tempLenda.SetCubicFitCFD(cubicFitCFD);
   tempLenda.SetInternalCFD(c->timecfd/32768.0);
   
-  tempLenda.SetTrace(c->trace);
-  tempLenda.SetFilter(thisEventsFF);
-  tempLenda.SetCFD(thisEventsCFD);
-
+  if (saveTraces){
+    tempLenda.SetTrace(c->trace);
+    tempLenda.SetFilter(thisEventsFF);
+    tempLenda.SetCFD(thisEventsCFD);
+  }
   tempLenda.SetLongGate(longGate);
   tempLenda.SetShortGate(shortGate);
   
