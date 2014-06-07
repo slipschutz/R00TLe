@@ -29,6 +29,7 @@ if [ "$flag" == "" ]; then #nothing found
 
     echo 
     echo "R00TLe Install Successful"
+    echo "Source your bashrc"
     echo
 
 else 

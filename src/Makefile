@@ -32,3 +32,5 @@ clean: clean.subdirs
 
 install:
 	@../shell/Install.sh
+uninstall:
+	@../shell/Uninstall.sh
