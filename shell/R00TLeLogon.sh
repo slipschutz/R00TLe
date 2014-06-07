@@ -42,50 +42,68 @@ if [ "$flag" == "" ]; then #failed
 
 fi
 
-echo "Setting enviorment"
+echo "Setting enviorment Variables"
 export ANAROOT_PRM=/user/e10003/R00TLe/prm
-
+export R00TLe_User=$1
 cd $R00TLeInstall
 
 ##make directory for user
-if [ ! -d users/$1 ]; then
+if [ ! -f users/$1/.R00TLelogonfile ]; then
     echo "Making a directory for $1 in ${R00TLeInstall}/users"
     mkdir -p users/$1
-    echo "Switching to working directory"
+    echo "Switching to working directory..."
     cd users/$1 # change directory in to the users directory
+    touch .R00TLelogonfile
 else 
-    echo "User $1 found. Won't make start up files"
-    echo "Switching to working directory"
+    echo "User $1 found."
+    echo "Switching to working directory..."
     cd users/$1 # change directory in to the users directory
     return
 fi
 
+##Should now be in the directory for the user
+echo "Generating ROOT start up file..."
 ### Make a rootrc
 rm -f .rootrc
 echo "Rint.HistSize 500" >> .rootrc
 echo "Rint.HistSave 100" >> .rootrc
-
+echo "Canvas.ShowEventStatus: true">>.rootrc
 echo "Unix.*.Root.DynamicPath: .:${R00TLeInstall}/lib:\$(ROOTSYS)/lib" >> .rootrc
-echo "Unix.*.Root.MacroPath: .:${R00TLeInstall}/lib:\$(ROOTSYS)/lib" >> .rootrc
+echo "Unix.*.Root.MacroPath: .:${R00TLeInstall}/scripts:${R00TLeInstall}/users/${1}/macros:\$(ROOTSYS)/macros" >> .rootrc
+
 echo "Rint.Logon: ${R00TLeInstall}/users/$1/rootlogon.C">>.rootrc
 
 ###Make a rootlogon
 rm -f rootlogon.C
 
-echo "rootlogon(){">>rootlogon.C
-echo "cout<<\"\\nWelcome to R00TLe\\n\"<<endl;" >>rootlogon.C
-echo "gSystem->Load(\"libLendaEvent.so\");">>rootlogon.C
-echo "gSystem->Load(\"libS800.so\");">>rootlogon.C
-echo "gSystem->Load(\"libDDASEvent.so\");">>rootlogon.C
-echo "gSystem->Load(\"libLendaSettings.so\");">>rootlogon.C
-echo "return;">>rootlogon.C
-echo "}">>rootlogon.C
+#copy the skelton version of the rootlogon
+echo "Generating ROOT logon file..."
+cp ${R00TLeInstall}/skelton/rootlogon.C .
+
+echo "rootlogon(){" >> temp_R00TLe
+echo "cout<<\"\\nHello $1,\"<<endl;" >>temp_R00TLe
 
 
+cat rootlogon.C | awk ' {if ($0 !~/rootlogon()/){print}}' >> temp_R00TLe
+
+mv -f temp_R00TLe rootlogon.C
+
+if [ -d src ] || [ -d macros ] || [ -d histograms ]; then
+    echo "Found histogrmer already.  Won't over write"
+else 
+echo "Copying over skelton histogramer..."
+cp -r ${R00TLeInstall}/skelton/src/ .
+cp -r ${R00TLeInstall}/skelton/macros/ .
+cp -r ${R00TLeInstall}/skelton/histograms/ .
+fi
 
 
+if [ ! -L ./evtfiles ]; then
+echo "Making sym link to evt files"
+    ln -s /events/e10003/complete ./evtfiles
+fi
 
-
-
-
-
+if [ ! -L rootfiles ]; then
+    echo "Making sym link to root files"
+    ln -s /events/e10003/rootfiles .
+fi
