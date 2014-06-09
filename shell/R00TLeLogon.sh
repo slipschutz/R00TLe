@@ -72,7 +72,7 @@ echo "Unix.*.Root.DynamicPath: .:${R00TLeInstall}/lib:\$(ROOTSYS)/lib" >> .rootr
 echo "Unix.*.Root.MacroPath: .:${R00TLeInstall}/scripts:${R00TLeInstall}/users/${1}/macros:\$(ROOTSYS)/macros" >> .rootrc
 
 echo "Rint.Logon: ${R00TLeInstall}/users/$1/rootlogon.C">>.rootrc
-
+echo "ACLiC.IncludePaths: -I$HOME/R00TLe/src/include">>.rootrc
 ###Make a rootlogon
 rm -f rootlogon.C
 
