@@ -19,7 +19,7 @@ LendaPacker::LendaPacker(){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=false;
+  saveTraces=true;
   
   BuildMaps();
 }
@@ -271,9 +271,10 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
     string fullName = GlobalIDToFullLocal[id];
-
     if (fullName =="OBJSCINT"){ //It is the Object Scintillator
       Event->TheObjectScintilator = DDASChannel2LendaChannel(theDDASChannels[i],"");
+    }else if (fullName == "IGNORE"){
+      //Do nothing
     } else { //It is a LENDA BAR
       SetJEntry(jentry);  
       //Get Which Bar this channel belongs to from the map
