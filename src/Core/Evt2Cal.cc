@@ -329,13 +329,19 @@ int main(int argc, char* argv[])
 		  s800calc->ApplyCalibration(s800event->GetS800(),cal); // this should work as well
 		  
 		  thePacker->MakeLendaEvent(lendaevent, ddasevent,nentries);
+		  
 		  lendaevent->Finalize();
 		  
 		  // populate tree; clear event for the next;
 		  outtree->Fill();
 		  // reinitialize
 		  s800event->Clear();
-		  ddasevent->Reset();
+		  for (int i=0;i<ddasevent->GetData().size();i++){
+		    delete ddasevent->GetData()[i];
+		  }
+		  ddasevent->GetData().clear();//Clearing Vector
+
+		  
 		  s800calc  ->Clear();
 		  lendaevent->Clear();
 		  nentries++;
