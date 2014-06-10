@@ -336,11 +336,11 @@ int main(int argc, char* argv[])
 		  outtree->Fill();
 		  // reinitialize
 		  s800event->Clear();
+
 		  for (int i=0;i<ddasevent->GetData().size();i++){
 		    delete ddasevent->GetData()[i];
 		  }
 		  ddasevent->GetData().clear();//Clearing Vector
-
 		  
 		  s800calc  ->Clear();
 		  lendaevent->Clear();

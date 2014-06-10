@@ -298,7 +298,12 @@ int main(int argc, char* argv[])
 		  // populate tree; clear event for the next;
 		  outtree->Fill();
 		  s800event->Clear();
-		  ddasevent->Reset();
+		  //ddasevent->Reset();
+		  for (int i=0;i<ddasevent->GetData().size();i++){
+		    delete ddasevent->GetData()[i];
+		  }
+		  ddasevent->GetData().clear();//Clearing Vector
+
 		  nentries++;
 
 		  break;

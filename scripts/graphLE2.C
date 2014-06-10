@@ -11,9 +11,9 @@ void graphLE2(Long64_t entry=0,int num=2,int spot=0){
   
   tree->SetBranchAddress("lendaevent",&event);
 
-  TCanvas *c = new TCanvas("c12");
-  TCanvas *c1 = new TCanvas("c22");
-  TCanvas *c2 = new TCanvas("c32");
+  TCanvas *c = new TCanvas("c121");
+  TCanvas *c1 = new TCanvas("c221");
+  TCanvas *c2 = new TCanvas("c321");
   
   if (num!=1){ //special case
     if (num !=0 ){
