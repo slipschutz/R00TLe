@@ -54,6 +54,9 @@ public:
 
   inline Long64_t GetJentry(){return _jentry;}
 
+  inline UInt_t GetTimeLow(){return _timeLow;}
+  inline UInt_t GetTimeHigh(){return _timeHigh;}
+
   vector <UShort_t> GetTrace(){return _trace;}
   vector <Double_t> GetFilter(){return _filter;}
   vector <Double_t> GetCFD(){return _CFD;}

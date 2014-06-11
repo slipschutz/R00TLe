@@ -360,25 +360,55 @@ void LendaPacker::RePackEvent(LendaEvent * Event){
 
 void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
   //Event should already be packed  
+  traceDelay=0;
+  int num;
+  for (int i=0;i<(int)Event->NumBars;i++){
+    for (int t=0;t<(int)Event->Bars[i].Tops.size();t++){
+      
+      vector <Double_t> tempFF;
+      vector <Double_t> tempCFD;
+      vector <UShort_t> tempTrace = Event->Bars[i].Tops[t].GetTrace();
+      theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
+      tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
+      Double_t Basetime = 2*(Event->Bars[i].Tops[t].GetTimeLow() + Event->Bars[i].Tops[t].GetTimeHigh() * 4294967296.0);
+      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
+      Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
+      
+      Event->Bars[i].Tops[t].SetSoftwareCFD(tempSoftTime);
+      Event->Bars[i].Tops[t].SetSoftTime(tempSoftTime+Basetime);
+      Event->Bars[i].Tops[t].SetCubicCFD(tempCubicTime);
+      Event->Bars[i].Tops[t].SetCubicTime(tempCubicTime+Basetime);
+    }
+    for (int b=0;b<(int)Event->Bars[i].Bottoms.size();b++){
+      vector <Double_t> tempFF;
+      vector <Double_t> tempCFD;
+      vector <UShort_t> tempTrace = Event->Bars[i].Bottoms[b].GetTrace();
+      theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
+      tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
+      Double_t Basetime = 2*(Event->Bars[i].Bottoms[b].GetTimeLow() + Event->Bars[i].Bottoms[b].GetTimeHigh() * 4294967296.0);
+      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
+      Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
+      
+      Event->Bars[i].Bottoms[b].SetSoftwareCFD(tempSoftTime);
+      Event->Bars[i].Bottoms[b].SetSoftTime(tempSoftTime+Basetime);
+      Event->Bars[i].Bottoms[b].SetCubicCFD(tempCubicTime);
+      Event->Bars[i].Bottoms[b].SetCubicTime(tempCubicTime+Basetime);
+    }
+  }
 
-  // int num;
-  // for (int i=0;i<(int)Event->times.size();i++){
-  //   vector <Double_t> tempFF;
-  //   vector <Double_t> tempCFD;
-    
-  //   theFilter.FastFilter(Event->Traces[i],tempFF,fFL,fFG); //run FF algorithim
-  //   tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
-  //   Double_t Basetime = 2*(Event->timeLows[i] + Event->timeHighs[i] * 4294967296.0);
-  //   Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
-  //   Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
-
-  //   Event->softwareCFDs[i]=tempSoftTime;
-  //   Event->softTimes[i]=tempSoftTime+Basetime;
-  //   Event->cubicCFDs[i]=tempCubicTime;
-  //   Event->cubicTimes[i]=tempCubicTime+Basetime;
-    
-  // }
-
+  vector <Double_t> tempFF;
+  vector <Double_t> tempCFD;
+  vector <UShort_t> tempTrace = Event->TheObjectScintilator.GetTrace();
+  theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
+  tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
+  Double_t Basetime = 2*(Event->TheObjectScintilator.GetTimeLow() + Event->TheObjectScintilator.GetTimeHigh() * 4294967296.0);
+  Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
+  Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
+  
+  Event->TheObjectScintilator.SetSoftwareCFD(tempSoftTime);
+  Event->TheObjectScintilator.SetSoftTime(tempSoftTime+Basetime);
+  Event->TheObjectScintilator.SetCubicCFD(tempCubicTime);
+  Event->TheObjectScintilator.SetCubicTime(tempCubicTime+Basetime);
 
 
 
