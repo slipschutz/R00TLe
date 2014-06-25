@@ -109,6 +109,7 @@ void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
   }
 }
 void LendaPacker::BuildMaps(){
+  cout<<"BUILDING MAPS"<<endl;
   stringstream stream;
   ifstream MapFile;
   ifstream CorrectionsFile;
@@ -137,26 +138,39 @@ void LendaPacker::BuildMaps(){
   }
 
   //Now read in the map information
-  //should be three columns 
-  //slot  channel   Name
+  //should be 5 columns 
+  //slot channel Name Angle ReferenceName
   int slot,channel;
-  string name;
+  string name,ReferenceName;
+  double Angle;
   int UniqueBarNumber=0;
   while (true){
     if (MapFile.eof()==true)
       break;
-    MapFile>>slot>>channel>>name;
+    //Read Line
+    MapFile>>slot>>channel>>name>>Angle>>ReferenceName;
+    //Make Global ID
     int spot= CHANPERMOD*(slot-2) + channel;
+
+    MapInfo tempInfo;
+    
     GlobalIDToFullLocal[spot]=name;
     FullLocalToGlobalID[name]=spot;
     string BarName=name.substr(0,name.size()-1);//The string minus last letter
     GlobalIDToBar[spot]=BarName;
     
+    tempInfo.FullName = name;
+    tempInfo.BarName = BarName;
+
+    
+
     if (BarNameToUniqueBarNumber.count(BarName)==0){ //Isn't already there
       BarNameToUniqueBarNumber[BarName]=UniqueBarNumber;
       UniqueBarNumber++;
-    }
+    } 
+    GlobalIDToMapInfo[spot]=tempInfo;
   }
+
   Double_t slope,intercept,timeOffSet;
   while (true){
     if (CorrectionsFile.eof()==true)
@@ -171,10 +185,21 @@ void LendaPacker::BuildMaps(){
       cout<<"Name is "<<name<<endl;
       throw -99;
     }
-
-    FullNameToCorrection[name]=Correction(slope,intercept,0);
+    int GlobalID = FullLocalToGlobalID[name];
+    MapInfo * temp =&GlobalIDToMapInfo[GlobalID];
+    temp->EnergySlope=slope;
+    temp->EnergyIntercept=intercept;
+    temp->TOFOffset=timeOffSet;
+    temp->HasCorrections=true;
   }
   
+  for (auto ii : GlobalIDToMapInfo){
+    if (ii.second.HasCorrections){
+      cout<<ii.first<<" ";
+      ii.second.Print();
+      cout<<endl;
+    }
+  }
 
 }
 
@@ -223,10 +248,11 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
   tempLenda.SetNumZeroCrossings(numZeroCrossings);
   tempLenda.SetCFDResidual(CFDResidual);
 
-  //Corrections should be Slope then Intercept then Timming offset
-  Correction cor = FullNameToCorrection[name];
-  tempLenda.SetCorrectedEnergy( thisEventsIntegral*cor.slope + cor.intercept);
-  tempLenda.SetCorrectedTime( tempLenda.GetTime() + cor.timeOffSet);
+  // //Corrections should be Slope then Intercept then Timming offset
+  // Correction cor = FullNameToCorrection[name];
+  // tempLenda.SetCorrectedEnergy( thisEventsIntegral*cor.slope + cor.intercept);
+  // tempLenda.SetCorrectedTime( tempLenda.GetTime() + cor.timeOffSet);
+
   //RESET THE PACKERS VARIABLES
   Reset();
   //Return this packed channel
@@ -272,18 +298,19 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
     
-    map<int,string>::iterator it = GlobalIDToFullLocal.find(id);
+    map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(id);
     string fullName;
-    if ( it != GlobalIDToFullLocal.end()){ // the channel is in the map
-      fullName = it->second;
-      if (fullName =="OBJSCINT"){ //Special check for the Object Scintillator
-	Event->TheObjectScintilator = DDASChannel2LendaChannel(theDDASChannels[i],"");
+    if ( it != GlobalIDToMapInfo.end()){ // the channel is in the map
+      fullName = it->second.FullName;
+      if (fullName.find("OBJ") != string::npos ){ //Special check for the Object Scintillators
+	//If the channel is one of the Object Scintillators
+	
       }else if (fullName == "IGNORE"){ //Special check for IGNORE
 	//Do nothing
       } else { //It is a LENDA BAR
 	SetJEntry(jentry);  
 	//Get Which Bar this channel belongs to from the map
-	string nameOfBar=GlobalIDToBar[id];
+	string nameOfBar=it->second.BarName;
 
 	//Check to see if this bar has been found in this event yet
 	if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
@@ -404,22 +431,22 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
     }
   }
 
-  vector <Double_t> tempFF;
-  vector <Double_t> tempCFD;
+  // vector <Double_t> tempFF;
+  // vector <Double_t> tempCFD;
   
-  if (Event->TheObjectScintilator.GetTime()!=-10008){
-    vector <UShort_t> tempTrace = Event->TheObjectScintilator.GetTrace();
-    theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
-    tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
-    Double_t Basetime = 2*(Event->TheObjectScintilator.GetTimeLow() + Event->TheObjectScintilator.GetTimeHigh() * 4294967296.0);
-    Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
-    Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
+  // if (Event->TheObjectScintilator.GetTime()!=-10008){
+  //   vector <UShort_t> tempTrace = Event->TheObjectScintilator.GetTrace();
+  //   theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
+  //   tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
+  //   Double_t Basetime = 2*(Event->TheObjectScintilator.GetTimeLow() + Event->TheObjectScintilator.GetTimeHigh() * 4294967296.0);
+  //   Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
+  //   Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
   
-    Event->TheObjectScintilator.SetSoftwareCFD(tempSoftTime);
-    Event->TheObjectScintilator.SetSoftTime(tempSoftTime+Basetime);
-    Event->TheObjectScintilator.SetCubicCFD(tempCubicTime);
-    Event->TheObjectScintilator.SetCubicTime(tempCubicTime+Basetime);
-  }
+  //   Event->TheObjectScintilator.SetSoftwareCFD(tempSoftTime);
+  //   Event->TheObjectScintilator.SetSoftTime(tempSoftTime+Basetime);
+  //   Event->TheObjectScintilator.SetCubicCFD(tempCubicTime);
+  //   Event->TheObjectScintilator.SetCubicTime(tempCubicTime+Basetime);
+  // }
 
 
 }

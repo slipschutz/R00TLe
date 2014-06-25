@@ -35,7 +35,7 @@ void LendaEvent::Clear(){
   N=0;
   NumBars=0;
   NumOfChannelsInEvent=0;
-  TheObjectScintilator.Clear();
+  TheObjectScintillators.clear();//Clear Vector of Obj scintillators
 
   NumUnMappedChannels=0;
   UnMappedChannels.clear();
@@ -53,8 +53,8 @@ void LendaEvent::Finalize(){
   NumOfChannelsInEvent=N;
   
   if ( Bars.size()==1 ){//IF only one bar in Event
-    TOF=Bars[0].GetAvgT() - TheObjectScintilator.GetTime();
-    CorrectedTOF =Bars[0].GetCorrectedAvgT() -TheObjectScintilator.GetCorrectedTime();
+    // TOF=Bars[0].GetAvgT() - TheObjectScintilator.GetTime();
+    // CorrectedTOF =Bars[0].GetCorrectedAvgT() -TheObjectScintilator.GetCorrectedTime();
   }
 }
 

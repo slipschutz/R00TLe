@@ -27,13 +27,13 @@ public:
   Int_t N;//Same thing as NumOfChannelsInEvent
   Int_t NumBars;//Number of bars in event.  Due to pileup could be different from N/2
 
-  Int_t NumUnMappedChannels;//Number of DDAS channels in the event that were not maped 
+  Int_t NumUnMappedChannels;//Number of DDAS channels in the event that were not in the map file
 
-  LendaChannel TheObjectScintilator;
+
+
+  vector <LendaChannel> TheObjectScintillators;
 
   void Fatal();//Overload this stupid inherited method
-
-
   void WriteSettings(LendaSettings * theSettings);
 
   inline Double_t GetTOF(){return TOF;}

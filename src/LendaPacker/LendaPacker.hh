@@ -7,7 +7,7 @@
 // DDAS channels to associate together into LendaBars.  Will Throw expception if     //
 // it cannot find this file.  							     //
 // 										     //
-// Written by Sam Lipschut Copyright 2014  					     //
+// Written by Sam Lipschutz Copyright 2014  					     //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -30,14 +30,22 @@
 #define CHANPERMOD 16
 
 
-class Correction{
+class MapInfo{
 public:
-  Correction(Double_t s,Double_t i,Double_t t) :
-    slope(s),intercept(i),timeOffSet(t) {;}
-  Correction(){;}
-  Double_t slope;
-  Double_t intercept;
-  Double_t timeOffSet;
+  MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
+	     TOFOffset(BAD_NUM),FullName(""),BarName(""),
+	     HasCorrections(false){;}
+
+  Double_t EnergySlope;
+  Double_t EnergyIntercept;
+  Double_t TOFOffset;
+  
+  string FullName;
+  string BarName;
+  string ReferenceName;
+  bool HasCorrections;
+  
+  void Print(){cout<<FullName<<" "<<BarName<<" Slope "<<EnergySlope<<" Intercept "<<EnergyIntercept<<" Offset "<<TOFOffset;}
 };
 
 
@@ -91,7 +99,7 @@ private:
 
   map<string,int> BarNameToUniqueBarNumber;
   
-  map<string,Correction > FullNameToCorrection;
+  map<int,MapInfo > GlobalIDToMapInfo;
   
   map<string,LendaBar> ThisEventsBars;
 
