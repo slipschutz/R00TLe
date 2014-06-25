@@ -311,7 +311,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
     Event->PushABar(ii->second);
   }
  
-  ThisEventsBars.clear();//Clear the temporary map
+  ThisEventsBars.clear();//Clear the temporary map of bars
 }
 
 
