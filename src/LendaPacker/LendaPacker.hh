@@ -45,7 +45,7 @@ class LendaPacker {
 
 public:
 
-  LendaPacker();
+  LendaPacker(); //Defualt Constructor
   ~LendaPacker();
   
   LendaFilter theFilter;
@@ -114,6 +114,7 @@ private:
   Double_t softwareCFD;
   Double_t start;
 
+  Double_t CFDResidual;
   
 
 };

@@ -6,7 +6,7 @@
 using namespace std;
 
 
-LendaEvent::LendaEvent(){
+LendaEvent::LendaEvent(){  
 
   Clear();
 
@@ -36,6 +36,9 @@ void LendaEvent::Clear(){
   NumBars=0;
   NumOfChannelsInEvent=0;
   TheObjectScintilator.Clear();
+
+  NumUnMappedChannels=0;
+  UnMappedChannels.clear();
   
   TOF=BAD_NUM;
   CorrectedTOF=BAD_NUM;
@@ -46,7 +49,7 @@ void LendaEvent::Finalize(){
     Bars[i].Finalize();
     tot=Bars[i].BarMultiplicity+tot;
   }
-  N=tot;
+  N=tot+NumUnMappedChannels;
   NumOfChannelsInEvent=N;
   
   if ( Bars.size()==1 ){//IF only one bar in Event

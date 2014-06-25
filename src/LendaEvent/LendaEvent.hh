@@ -19,12 +19,16 @@ public:
 
   vector <LendaBar> Bars; //The vector of LendaBars that contains the real event information
   void PushABar(LendaBar aBar){Bars.push_back(aBar);NumBars++;}
-  
+
+  vector <LendaChannel> UnMappedChannels;
+  void PushUnMappedChannel(LendaChannel c){UnMappedChannels.push_back(c);NumUnMappedChannels++;}
 
   Int_t NumOfChannelsInEvent; //The Number of channels associated with this event  
   Int_t N;//Same thing as NumOfChannelsInEvent
   Int_t NumBars;//Number of bars in event.  Due to pileup could be different from N/2
-  
+
+  Int_t NumUnMappedChannels;//Number of DDAS channels in the event that were not maped 
+
   LendaChannel TheObjectScintilator;
 
   void Fatal();//Overload this stupid inherited method
@@ -38,6 +42,7 @@ public:
 
   Double_t TOF;
   Double_t CorrectedTOF;
+
 
 private:
 

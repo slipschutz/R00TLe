@@ -60,7 +60,7 @@ void LendaPacker::Reset(){
   softwareCFD=0;
   start=0;
   numZeroCrossings=0;
-  
+  CFDResidual=0;
 
 }
 
@@ -77,7 +77,7 @@ void LendaPacker::CalcTimeFilters(ddaschannel*theChannel){
     theFilter.FastFilter(theChannel->trace,thisEventsFF,fFL,fFG); //run FF algorithim
     thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
     
-    softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings)-traceDelay; //find zeroCrossig of CFD
+    softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay; //find zeroCrossig of CFD
     
     
     //  softwareCFD=softwareCFD-floor(softwareCFD);
@@ -87,7 +87,7 @@ void LendaPacker::CalcTimeFilters(ddaschannel*theChannel){
     //  softwareCFD=softwareCFD-1;
     //  softwareCFD=softwareCFD-floor(softwareCFD);
     cubicCFD = theFilter.GetZeroCubic(thisEventsCFD)-traceDelay;
-    //  cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD)-traceDelay;
+    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD)-traceDelay;
   }
 }
 void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
@@ -96,7 +96,7 @@ void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
     if (softwareCFD!=0)
       start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
     else{
-      softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings)-traceDelay;
+      softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay;
       start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
     }
 
@@ -221,6 +221,7 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
   
   tempLenda.SetJentry(jentry);
   tempLenda.SetNumZeroCrossings(numZeroCrossings);
+  tempLenda.SetCFDResidual(CFDResidual);
 
   //Corrections should be Slope then Intercept then Timming offset
   Correction cor = FullNameToCorrection[name];
@@ -270,34 +271,41 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
   for (int i=0;i<(int)theDDASChannels.size();i++){
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
-    string fullName = GlobalIDToFullLocal[id];
-    if (fullName =="OBJSCINT"){ //It is the Object Scintillator
-      Event->TheObjectScintilator = DDASChannel2LendaChannel(theDDASChannels[i],"");
-    }else if (fullName == "IGNORE"){
-      //Do nothing
-    } else { //It is a LENDA BAR
-      SetJEntry(jentry);  
-      //Get Which Bar this channel belongs to from the map
-      string nameOfBar=GlobalIDToBar[id];
+    
+    map<int,string>::iterator it = GlobalIDToFullLocal.find(id);
+    string fullName;
+    if ( it != GlobalIDToFullLocal.end()){ // the channel is in the map
+      fullName = it->second;
+      if (fullName =="OBJSCINT"){ //Special check for the Object Scintillator
+	Event->TheObjectScintilator = DDASChannel2LendaChannel(theDDASChannels[i],"");
+      }else if (fullName == "IGNORE"){ //Special check for IGNORE
+	//Do nothing
+      } else { //It is a LENDA BAR
+	SetJEntry(jentry);  
+	//Get Which Bar this channel belongs to from the map
+	string nameOfBar=GlobalIDToBar[id];
 
-      //Check to see if this bar has been found in this event yet
-      if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
-	//Put a bar object into a map to keep track of things
-	LendaBar tempBar(nameOfBar);
-	//Only look up the Bar Id the first time the bar is found
-	int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
-	tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
-	PutDDASChannelInBar(fullName,tempBar,theDDASChannels[i]);
-	ThisEventsBars[nameOfBar]=tempBar;
-      } else {
-	//The bar has already had a channel in it from a previous iteration of this loop
-	//Instead of making a new bar take the already allocated one from the map and
-	//push this channel on to it
-	PutDDASChannelInBar(fullName,ThisEventsBars[nameOfBar],theDDASChannels[i]);
+	//Check to see if this bar has been found in this event yet
+	if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
+	  //Put a bar object into a map to keep track of things
+	  LendaBar tempBar(nameOfBar);
+	  //Only look up the Bar Id the first time the bar is found
+	  int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
+	  tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
+	  PutDDASChannelInBar(fullName,tempBar,theDDASChannels[i]);
+	  ThisEventsBars[nameOfBar]=tempBar;
+	} else {
+	  //The bar has already had a channel in it from a previous iteration of this loop
+	  //Instead of making a new bar take the already allocated one from the map and
+	  //push this channel on to it
+	  PutDDASChannelInBar(fullName,ThisEventsBars[nameOfBar],theDDASChannels[i]);
+	}
       }
+    } else { // This is when the channel was not in the map
+      Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],"") );
     }
   }
-  ///Now put the bars into the Lenda Event by iterating over the map
+  ///Now put the bars into the Lenda Event by iterating over the temporary bar map
   for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();
        ii!=ThisEventsBars.end();ii++){
     Event->PushABar(ii->second);
@@ -371,7 +379,7 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
       theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
       tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
       Double_t Basetime = 2*(Event->Bars[i].Tops[t].GetTimeLow() + Event->Bars[i].Tops[t].GetTimeHigh() * 4294967296.0);
-      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
+      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
       Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
       
       Event->Bars[i].Tops[t].SetSoftwareCFD(tempSoftTime);
@@ -386,7 +394,7 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
       theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
       tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
       Double_t Basetime = 2*(Event->Bars[i].Bottoms[b].GetTimeLow() + Event->Bars[i].Bottoms[b].GetTimeHigh() * 4294967296.0);
-      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
+      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
       Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
       
       Event->Bars[i].Bottoms[b].SetSoftwareCFD(tempSoftTime);
@@ -398,18 +406,20 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
 
   vector <Double_t> tempFF;
   vector <Double_t> tempCFD;
-  vector <UShort_t> tempTrace = Event->TheObjectScintilator.GetTrace();
-  theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
-  tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
-  Double_t Basetime = 2*(Event->TheObjectScintilator.GetTimeLow() + Event->TheObjectScintilator.GetTimeHigh() * 4294967296.0);
-  Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num)-traceDelay;
-  Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
   
-  Event->TheObjectScintilator.SetSoftwareCFD(tempSoftTime);
-  Event->TheObjectScintilator.SetSoftTime(tempSoftTime+Basetime);
-  Event->TheObjectScintilator.SetCubicCFD(tempCubicTime);
-  Event->TheObjectScintilator.SetCubicTime(tempCubicTime+Basetime);
-
+  if (Event->TheObjectScintilator.GetTime()!=-10008){
+    vector <UShort_t> tempTrace = Event->TheObjectScintilator.GetTrace();
+    theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
+    tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
+    Double_t Basetime = 2*(Event->TheObjectScintilator.GetTimeLow() + Event->TheObjectScintilator.GetTimeHigh() * 4294967296.0);
+    Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
+    Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
+  
+    Event->TheObjectScintilator.SetSoftwareCFD(tempSoftTime);
+    Event->TheObjectScintilator.SetSoftTime(tempSoftTime+Basetime);
+    Event->TheObjectScintilator.SetCubicCFD(tempCubicTime);
+    Event->TheObjectScintilator.SetCubicTime(tempCubicTime+Basetime);
+  }
 
 
 }
