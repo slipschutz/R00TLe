@@ -61,6 +61,7 @@ public:
   vector <Double_t> GetFilter(){return _filter;}
   vector <Double_t> GetCFD(){return _CFD;}
 
+  inline Double_t GetCFDResidual(){return _CFDResidual;}
 
   void SetChannel(Int_t v){_channel=v;}
   void SetSlot(Int_t v){_slot=v;}
@@ -99,6 +100,8 @@ public:
   void SetTrace(vector<UShort_t> v){_trace=v;}
   void SetFilter(vector <Double_t> v){_filter=v;}
   void SetCFD(vector <Double_t> v){_CFD=v;}
+
+  void SetCFDResidual(Double_t v){_CFDResidual=v;}
 
   //  LendaChannel & operator=(const LendaChannel &);
 
@@ -140,8 +143,10 @@ private:
   vector <Double_t> _filter;
   vector <Double_t> _CFD;
 
+  Double_t _CFDResidual;
+
 public:
-  ClassDef(LendaChannel,1);
+  ClassDef(LendaChannel,2);
 };
 
 

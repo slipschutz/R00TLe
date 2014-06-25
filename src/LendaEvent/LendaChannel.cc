@@ -46,6 +46,7 @@ void LendaChannel::Clear(){
   _filter.clear();
   _CFD.clear();
 
+  _CFDResidual=BAD_NUM;
 }
 
 // #include <iostream>
