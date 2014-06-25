@@ -8,7 +8,7 @@
 #include <iostream>
 #include "TFile.h"
 #include "TMatrixD.h"
-
+using namespace std;
 
 
 class LendaFilter {
@@ -36,10 +36,11 @@ public:
   std::vector <Double_t> CFDOp( std::vector <Double_t> &,Double_t,Double_t);
 
   
-  Double_t GetZeroCrossing(std::vector <Double_t> &,Int_t &);
+  Double_t GetZeroCrossing(std::vector <Double_t> &,Int_t &,Double_t&);
   Double_t GetZeroCrossingOp(std::vector <Double_t> &,Int_t &);
 
   Double_t GetZeroCubic(std::vector <Double_t> &);
+  Double_t GetZeroFitCubic(std::vector <Double_t> &);   
   
   Double_t fitTrace(std::vector <UShort_t> &,Double_t, Double_t );
   
@@ -50,6 +51,7 @@ public:
   Double_t getMaxPulseHeight(std::vector <UShort_t> &trace);
 
   double getFunc(TMatrixD, double);
+  double getFunc(vector<double>&, double);
 
   Double_t numOfBadFits;
 
