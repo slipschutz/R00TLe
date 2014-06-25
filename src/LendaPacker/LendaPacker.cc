@@ -292,12 +292,12 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 	  //Only look up the Bar Id the first time the bar is found
 	  int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
 	  tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
-	  PutDDASChannelInBar(fullName,tempBar,theDDASChannels[i]);
-	  ThisEventsBars[nameOfBar]=tempBar;
+	  PutDDASChannelInBar(fullName,tempBar,theDDASChannels[i]);//Build The tempBar
+	  ThisEventsBars[nameOfBar]=tempBar; //Copy the tempBar into thisEventsBars map
 	} else {
-	  //The bar has already had a channel in it from a previous iteration of this loop
-	  //Instead of making a new bar take the already allocated one from the map and
-	  //push this channel on to it
+	  //The bar has already had a channel in it from a previous iteration of this loop 
+	  //over DDAS Channels Instead of making a new bar take the already allocated one 
+	  //from the map and push this channel on to it
 	  PutDDASChannelInBar(fullName,ThisEventsBars[nameOfBar],theDDASChannels[i]);
 	}
       }
@@ -317,7 +317,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 
 
 void LendaPacker::PackEvent(LendaEvent * Event){
-
+  cout<<"LendaPacker::PackEvent is OBSOLETE!!!!"<<endl;
 
   // Event->pushTrace(theChannel->trace);//save the trace for later 
   
@@ -353,7 +353,7 @@ void LendaPacker::PackEvent(LendaEvent * Event){
   // Event->pushNumZeroCrossings(numZeroCrossings);
   // Event->pushPulseHeight(thisEventsPulseHeight);
 
-  Reset();//Reset the Packers variables
+  //  Reset();//Reset the Packers variables
 }
 
 
