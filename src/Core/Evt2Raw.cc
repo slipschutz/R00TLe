@@ -27,6 +27,8 @@
 
 #include "Utilities.hh"
 
+using namespace std;
+
 int main(int argc, char* argv[])
 {
    if (argc != 3) {
@@ -121,7 +123,8 @@ int main(int argc, char* argv[])
    nentries    = 0;
    s800event->Clear();
    ddasevent->Reset();
-
+   
+   Bool_t BadLastEvent=kFALSE;
    //Loop over the entirety of the input file.
    while (!feof(infile) && !signal_received) {
 
@@ -129,7 +132,7 @@ int main(int argc, char* argv[])
       // A 32-bit size of entire item (in bytes)
       count_read  = fread(&size_of_entire_item, sizeof(uint32_t), 1, infile);
       bytes_read += 1 * sizeof(uint32_t);
-
+ 
       // A 32-bit type of item (/usr/opt/nscldaq/10.2-104/include/DataFormat.h)
       count_read  = fread(&type_of_entire_item, sizeof(uint32_t), 1, infile);
       bytes_read += 1 * sizeof(uint32_t);
@@ -148,9 +151,16 @@ int main(int argc, char* argv[])
 	    count_read  = fread(&total_size_of_body, sizeof(uint32_t), 1, infile);
 	    bytes_read += sizeof(uint32_t);
 	    bytes_read_in_body += sizeof(uint32_t);
-
+	    
+	    if (bytes_read+total_size_of_body > info.fSize){
+	      BadLastEvent=kTRUE;
+	      cout<<"\n\nThis fragment goes over the total files size"<<endl;
+	      cout<<"Skipping and ending the main loop"<<endl;
+	      break;//Break out of Switch over Type of event
+	    }
+	  	  
 	    while(kTRUE) {
-	       // Reading a fragment
+	      // Reading a fragment
 	       // 64-bit timestamp
 	       count_read  = fread(&timestamp, 
 				   sizeof(uint64_t), 1, infile);
@@ -296,19 +306,19 @@ int main(int argc, char* argv[])
 	       // check if all the event fragments are processed
 	       if (total_size_of_body == bytes_read_in_body) {
 		  // populate tree; clear event for the next;
-		  outtree->Fill();
-		  s800event->Clear();
-		  //ddasevent->Reset();
-		  for (int i=0;i<ddasevent->GetData().size();i++){
-		    delete ddasevent->GetData()[i];
-		  }
-		  ddasevent->GetData().clear();//Clearing Vector
-
-		  nentries++;
-
-		  break;
-	       } else {
-		  // Reading the next fragment...
+		 outtree->Fill();
+		 s800event->Clear();
+		 //ddasevent->Reset();
+		 for (int i=0;i<ddasevent->GetData().size();i++){
+		   delete ddasevent->GetData()[i];
+		 }
+		 ddasevent->GetData().clear();//Clearing Vector
+		 
+		 nentries++;
+		 
+		 break;
+	       }  else {
+		 // Reading the next fragment...
 	       }
 	    } // Done reading all the fragments.
 	    break;
@@ -337,6 +347,11 @@ int main(int argc, char* argv[])
 		  ((float)(info.fSize-bytes_read)/(float)bytes_read)*(time_end-time_start)
 	    );
       }
+
+      if (BadLastEvent==kTRUE){
+	break;
+      }
+      
    }
 
    Info("Evt2Raw","Total of %d data buffers (%5.2f MB read)",

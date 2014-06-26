@@ -33,6 +33,8 @@
 
 #include "Utilities.hh"
 
+using namespace std;// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 int main(int argc, char* argv[])
 {
    if (argc != 3) {
@@ -151,6 +153,7 @@ int main(int argc, char* argv[])
    s800calc  ->Clear();
    lendaevent->Clear();
 
+   Bool_t BadLastEvent=kFALSE;
    //Loop over the entirety of the input file.
    while (!feof(infile) && !signal_received) {
 
@@ -177,6 +180,14 @@ int main(int argc, char* argv[])
 	    count_read  = fread(&total_size_of_body, sizeof(uint32_t), 1, infile);
 	    bytes_read += sizeof(uint32_t);
 	    bytes_read_in_body += sizeof(uint32_t);
+
+	    if (bytes_read+total_size_of_body > info.fSize){
+	      BadLastEvent=kTRUE;
+	      cout<<"\n\nThis fragment goes over the total files size"<<endl;
+	      cout<<"Skipping and ending the main loop"<<endl;
+	      break;//Break out of Switch over Type of event
+	    }
+
 
 	    while(kTRUE) {
 	       // Reading a fragment
@@ -226,7 +237,7 @@ int main(int argc, char* argv[])
 			   // The pointer should now be pointing at the end of the ring item.
 			   // buffer32[0] should have the address of the beginning of the DDAS event body
 			   body_ptr = buffer32;
-
+			 
 			   //dchan->Reset();
 			   dchan = new ddaschannel; // Needs to be careful with push_back with class object...
 			   dchan->UnpackChannelData(body_ptr);
@@ -366,17 +377,22 @@ int main(int argc, char* argv[])
       const Int_t denom = 10000;
       buffers++;
       if(buffers % denom == 0){
-	 outtree->AutoSave();
+	outtree->AutoSave();
      
-	 double time_end = get_time();
-	 Progress("Evt2Cal", "%8d buffers %5.0f MB (%6.2f%%) read at %5.2f buffers/sec... %6.2f sec to go\r",
-		  buffers, 
-		  float(bytes_read/(1024*1024)), 
-		  float(bytes_read/(1024*1024)) / float(info.fSize/1024./1024.) * 100.,
-		  float(buffers/(time_end-time_start)),
-		  ((float)(info.fSize-bytes_read)/(float)bytes_read)*(time_end-time_start)
-	    );
+	double time_end = get_time();
+	Progress("Evt2Cal", "%8d buffers %5.0f MB (%6.2f%%) read at %5.2f buffers/sec... %6.2f sec to go\r",
+		 buffers, 
+		 float(bytes_read/(1024*1024)), 
+		 float(bytes_read/(1024*1024)) / float(info.fSize/1024./1024.) * 100.,
+		 float(buffers/(time_end-time_start)),
+		 ((float)(info.fSize-bytes_read)/(float)bytes_read)*(time_end-time_start)
+		 );
       }
+      
+      if (BadLastEvent==kTRUE){
+	break;
+      }
+
    }
 
    Info("Evt2Cal","Total of %d data buffers (%5.2f MB read)",
