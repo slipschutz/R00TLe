@@ -33,8 +33,9 @@
 class MapInfo{
 public:
   MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
-	     TOFOffset(BAD_NUM),FullName(""),BarName(""),
-	     HasCorrections(false){;}
+	     TOFOffset(BAD_NUM),FullName(""),BarName(""),ReferenceName(""),
+	     HasCorrections(false),ReferenceGlobalID(BAD_NUM),
+	     GlobalID(BAD_NUM){;}
 
   Double_t EnergySlope;
   Double_t EnergyIntercept;
@@ -43,9 +44,13 @@ public:
   string FullName;
   string BarName;
   string ReferenceName;
+
+
   bool HasCorrections;
+  Int_t ReferenceGlobalID;
+  Int_t GlobalID;
   
-  void Print(){cout<<FullName<<" "<<BarName<<" Slope "<<EnergySlope<<" Intercept "<<EnergyIntercept<<" Offset "<<TOFOffset;}
+  void Print(){cout<<FullName<<" "<<BarName<<" Slope "<<EnergySlope<<" Intercept "<<EnergyIntercept<<" Offset "<<TOFOffset<<" reference name "<<ReferenceName<<" RefGlobal "<<ReferenceGlobalID;}
 };
 
 
@@ -78,7 +83,7 @@ public:
 		      Long64_t jentry);
 
 
-  LendaChannel DDASChannel2LendaChannel(ddaschannel* c,string name);
+  LendaChannel DDASChannel2LendaChannel(ddaschannel* c,MapInfo info);
   
   void RePackSoftwareTimes(LendaEvent *Event);
   
@@ -89,7 +94,7 @@ public:
 private:
   void BuildMaps();
   
-  void PutDDASChannelInBar(string fullName,LendaBar &theBar,ddaschannel *theChannel);
+  void PutDDASChannelInBar(MapInfo info,LendaBar &theBar,ddaschannel *theChannel);
 
   map<int,string> GlobalIDToFullLocal;
 

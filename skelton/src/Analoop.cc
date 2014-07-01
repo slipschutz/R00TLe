@@ -29,6 +29,27 @@ void Analoop::Begin(TTree *) {
   TString option = GetOption();
 }
 
+
+void Analoop::SlaveTerminate() {
+}
+
+void Analoop::Terminate() {
+  TIter next_object(fOutput);
+  TObject* obj;
+  while ((obj = next_object())) { 
+    obj->Clone();
+    fOutput->RecursiveRemove(obj);
+  }
+
+  this->ResetAbort();
+  signal_received = kFALSE;
+}
+
+
+
+
+
+
 void Analoop::SlaveBegin(TTree *) {
   TString option = GetOption();
 
@@ -49,25 +70,12 @@ void Analoop::SlaveBegin(TTree *) {
 }
 
 
-void Analoop::SlaveTerminate() {
-}
 
-void Analoop::Terminate() {
-  TIter next_object(fOutput);
-  TObject* obj;
-  while ((obj = next_object())) { 
-    obj->Clone();
-    fOutput->RecursiveRemove(obj);
-  }
-
-  this->ResetAbort();
-  signal_received = kFALSE;
-}
 
 
 //////////////////////////////////////////////////////////////////
 // This is where you fill histograms and make cuts on the data. //
-// Process is called for every entry in the ROOT tree	        //
+// Process is called for every entry in the ROOT tree or chain  //
 // 							        //
 // The tree contains two branches s800calc and lendaevent       //
 //////////////////////////////////////////////////////////////////
@@ -80,8 +88,11 @@ Bool_t Analoop::Process(Long64_t entry) {
     this->Abort("Signal received.", kAbortProcess);
   }
 
-// retrieve variables, process them, and fill histograms with them, etc. 
-  std::cout << entry << std::endl;
+  // retrieve variables, process them, and fill histograms with them, etc. 
+  if (entry % 10000 ==0 ){
+    std::cout <<"Entry in current tree "<< entry << std::endl;
+    
+  }
   // example...
   htest->Fill(s800calc->GetCRDC(0)->GetX());
 

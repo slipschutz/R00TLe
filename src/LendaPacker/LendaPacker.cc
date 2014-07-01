@@ -19,7 +19,7 @@ LendaPacker::LendaPacker(){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=true;
+  saveTraces=false;
   
   BuildMaps();
 }
@@ -159,10 +159,12 @@ void LendaPacker::BuildMaps(){
     string BarName=name.substr(0,name.size()-1);//The string minus last letter
     GlobalIDToBar[spot]=BarName;
     
+    tempInfo.GlobalID=spot;
     tempInfo.FullName = name;
     tempInfo.BarName = BarName;
 
-    
+    tempInfo.ReferenceName=ReferenceName;
+
 
     if (BarNameToUniqueBarNumber.count(BarName)==0){ //Isn't already there
       BarNameToUniqueBarNumber[BarName]=UniqueBarNumber;
@@ -193,18 +195,41 @@ void LendaPacker::BuildMaps(){
     temp->HasCorrections=true;
   }
   
-  for (auto ii : GlobalIDToMapInfo){
-    if (ii.second.HasCorrections){
-      cout<<ii.first<<" ";
-      ii.second.Print();
-      cout<<endl;
+  /////////////////////////////////////////////////////////////////////////////////////
+  // now that the maps have been built.  Loop over the main conatainer and determine //
+  // the global ID of the reference name.  If it is not in the map throw error	     //
+  /////////////////////////////////////////////////////////////////////////////////////
+  for (auto & ii : GlobalIDToMapInfo){
+    int GlobalID = ii.first;
+
+    if (FullLocalToGlobalID.count(ii.second.ReferenceName) !=0){
+      //If the name given as the reference channel is in the
+      //map some where
+      int RefGlobalID = FullLocalToGlobalID[ii.second.ReferenceName];
+      ii.second.GlobalID=GlobalID;
+      ii.second.ReferenceGlobalID=RefGlobalID;
+      
+    } else {
+      cout<<"Found a reference name in the map file that does not map to a channel"<<endl;
+      cout<<"The name was "<<ii.second.ReferenceName<<" it is from map info of "<<ii.second.FullName<<endl;
+      throw -12;
     }
   }
+
+  // for ( auto ii: GlobalIDToMapInfo){
+  //   cout <<ii.first<<" ";
+  //   ii.second.Print();
+  //   cout<<endl;
+  // }
+  for (auto i : BarNameToUniqueBarNumber){
+    cout<<i.second<<" "<<i.first<<endl;
+  }
+
 
 }
 
 
-LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
+LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
   CalcAll(c);//Preform all the waveform analysis
 
   /////////////////////////////////////////////////////////////////////////////
@@ -215,7 +240,12 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
 
   tempLenda.SetChannel(c->chanid);
   tempLenda.SetSlot(c->slotid);
-  tempLenda.SetGlobalID(CHANPERMOD*(c->slotid-2)+c->chanid);
+
+  tempLenda.SetGlobalID(info.GlobalID);
+  tempLenda.SetReferenceGlobalID(info.ReferenceGlobalID);
+
+  tempLenda.SetChannelName(info.FullName);
+  tempLenda.SetReferenceChannelName(info.ReferenceName);
 
   tempLenda.SetEnergy(thisEventsIntegral);
   tempLenda.SetPulseHeight(thisEventsPulseHeight);
@@ -248,18 +278,21 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,string name){
   tempLenda.SetNumZeroCrossings(numZeroCrossings);
   tempLenda.SetCFDResidual(CFDResidual);
 
-  // //Corrections should be Slope then Intercept then Timming offset
-  // Correction cor = FullNameToCorrection[name];
-  // tempLenda.SetCorrectedEnergy( thisEventsIntegral*cor.slope + cor.intercept);
-  // tempLenda.SetCorrectedTime( tempLenda.GetTime() + cor.timeOffSet);
-
+  
+  
+  if (info.HasCorrections){
+   tempLenda.SetCorrectedEnergy( thisEventsIntegral*info.EnergySlope + info.EnergyIntercept);
+   tempLenda.SetCorrectedTime( tempLenda.GetTime() + info.TOFOffset);
+   
+  }
   //RESET THE PACKERS VARIABLES
   Reset();
   //Return this packed channel
   return tempLenda;
 }
 
-void LendaPacker::PutDDASChannelInBar(string fullName,LendaBar &theBar,ddaschannel*theChannel){
+void LendaPacker::PutDDASChannelInBar(MapInfo info,LendaBar &theBar,ddaschannel*theChannel){
+  string fullName = info.FullName;
   string lastLetter = fullName.substr(fullName.size()-1,1);
 
   //All we need to do is determine whether this fullName coresponds to
@@ -267,10 +300,10 @@ void LendaPacker::PutDDASChannelInBar(string fullName,LendaBar &theBar,ddaschann
   
   if (lastLetter == "T" ){
     //IT IS A top PMT
-    LendaChannel temp = DDASChannel2LendaChannel(theChannel,fullName);
+    LendaChannel temp = DDASChannel2LendaChannel(theChannel,info);
     theBar.Tops.push_back(temp);
   } else if (lastLetter == "B"){
-    LendaChannel temp =DDASChannel2LendaChannel(theChannel,fullName);
+    LendaChannel temp =DDASChannel2LendaChannel(theChannel,info);
     theBar.Bottoms.push_back(temp);
   } else {
     cout<<"***************************************************************************"<<endl;
@@ -293,18 +326,24 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
   ////////////////////////////////////////////////////////////////////
   //////////////Get the ddaschannels form the DDASEVent///////////////
   vector <ddaschannel*> theDDASChannels = theDDASEvent->GetData();
+  
+  map <int,pair<Double_t,Double_t> > GlobalIDToReferenceTimes;
 
   for (int i=0;i<(int)theDDASChannels.size();i++){
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
     
-    map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(id);
+    map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(id); //Get the iterator from MAP
     string fullName;
     if ( it != GlobalIDToMapInfo.end()){ // the channel is in the map
       fullName = it->second.FullName;
+
       if (fullName.find("OBJ") != string::npos ){ //Special check for the Object Scintillators
 	//If the channel is one of the Object Scintillators
-	
+	LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
+	//store this time in reference time map for later
+	GlobalIDToReferenceTimes[id] = make_pair(Temp.GetTime(),Temp.GetCubicFitTime());
+	Event->TheObjectScintillators.push_back(Temp);//Store the Object Scint
       }else if (fullName == "IGNORE"){ //Special check for IGNORE
 	//Do nothing
       } else { //It is a LENDA BAR
@@ -319,22 +358,36 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 	  //Only look up the Bar Id the first time the bar is found
 	  int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
 	  tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
-	  PutDDASChannelInBar(fullName,tempBar,theDDASChannels[i]);//Build The tempBar
+	  PutDDASChannelInBar(it->second,tempBar,theDDASChannels[i]);//Build The tempBar
 	  ThisEventsBars[nameOfBar]=tempBar; //Copy the tempBar into thisEventsBars map
 	} else {
 	  //The bar has already had a channel in it from a previous iteration of this loop 
 	  //over DDAS Channels Instead of making a new bar take the already allocated one 
 	  //from the map and push this channel on to it
-	  PutDDASChannelInBar(fullName,ThisEventsBars[nameOfBar],theDDASChannels[i]);
+	  PutDDASChannelInBar(it->second,ThisEventsBars[nameOfBar],theDDASChannels[i]);
 	}
       }
     } else { // This is when the channel was not in the map
-      Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],"") );
+      Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],MapInfo()) );
     }
   }
+
+  
   ///Now put the bars into the Lenda Event by iterating over the temporary bar map
+  ///And Set the reference times for each LendaChannel
   for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();
        ii!=ThisEventsBars.end();ii++){
+    for (int t=0;t<ii->second.Tops.size();t++){
+      ii->second.Tops[t].SetReferenceTime(GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()].first);
+      ii->second.Tops[t].SetCubicReferenceTime(GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()].second);
+
+    }
+    for (int b=0;b<ii->second.Bottoms.size();b++){
+      ii->second.Bottoms[b].SetReferenceTime(GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()].first);
+      ii->second.Bottoms[b].SetCubicReferenceTime(GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()].second);
+
+    }
+
     Event->PushABar(ii->second);
   }
  

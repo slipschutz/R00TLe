@@ -26,6 +26,7 @@ public:
   inline Int_t GetChannel(){return _channel;}
   inline Int_t GetSlot(){return _slot;}
   inline Int_t GetGlobalID(){return _globalID;}
+  inline Int_t GetReferenceGlobalID(){return _refGlobalID;}
 
   inline Bool_t GetOverFlow(){return _overFlow;}
   inline Int_t GetNumZeroCrossings(){return _numZeroCrossings;}
@@ -62,10 +63,16 @@ public:
   vector <Double_t> GetCFD(){return _CFD;}
 
   inline Double_t GetCFDResidual(){return _CFDResidual;}
+  inline Double_t GetReferenceTime(){return _refTime;}
+  inline Double_t GetCubicReferenceTime(){return _cubicRefTime;}
+
+  string GetChannelName(){return _channelName;}
+  string GetReferenceChannelName(){return _referenceChannelName;}
 
   void SetChannel(Int_t v){_channel=v;}
   void SetSlot(Int_t v){_slot=v;}
   void SetGlobalID(Int_t v){_globalID=v;}
+  void SetReferenceGlobalID(Int_t v){_refGlobalID=v;}
 
   void SetOverFlow(Bool_t v){_overFlow=v;}
   void SetNumZeroCrossings(Int_t v){ _numZeroCrossings=v;}
@@ -103,12 +110,20 @@ public:
 
   void SetCFDResidual(Double_t v){_CFDResidual=v;}
 
+  void SetChannelName(string s){_channelName=s;}
+  void SetReferenceChannelName(string s){_referenceChannelName=s;}
+  
+  void SetReferenceTime(Double_t v){_refTime=v;}
+  void SetCubicReferenceTime(Double_t v){_cubicRefTime=v;}
+
   //  LendaChannel & operator=(const LendaChannel &);
 
 private:
   Int_t _channel;
   Int_t _slot;
   Int_t _globalID;
+  Int_t _refGlobalID;
+
   
   Bool_t _overFlow;
   Int_t _numZeroCrossings;
@@ -145,6 +160,12 @@ private:
 
   Double_t _CFDResidual;
 
+  string _channelName;
+  string _referenceChannelName;
+
+  Double_t _refTime;
+  Double_t _cubicRefTime;
+  
 public:
   ClassDef(LendaChannel,2);
 };

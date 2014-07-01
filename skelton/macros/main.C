@@ -12,9 +12,9 @@
 #include <sstream>
 #include <vector>
 #include <ctime>
-
-int main()
 #endif // __CINT__
+
+int main(TString OutPutName="temp.root")
 {
   // Load libraries necessary to compile Analoop.cc
   gSystem->AddDynamicPath("/users/e10003/R00TLe/lib");
@@ -29,7 +29,8 @@ int main()
   std::cout << "Creating TChain... ";
 
   // make a chain manually
-  ch->Add("./rootfiles/run-0177-00.root");
+  
+  ch->Add("./rootfiles/run-0341-00.root");
 
   std::cout << "Done." << std::endl;
   //ch->Print();
@@ -54,8 +55,9 @@ int main()
 
   //// store histograms 
   TString rootfilesdirname = install+"/users/"+user+"/histograms";
-  TString outfilename = rootfilesdirname + "/tmp.root";
+  TString outfilename = rootfilesdirname + "/"+OutPutName;
   TString writehistcommandstring = "WriteHist.C(\"" + outfilename + "\")";
+  cout<<"Command is "<<writehistcommandstring<<endl;
   gROOT->Macro(writehistcommandstring);
 
 

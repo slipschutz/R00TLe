@@ -27,11 +27,23 @@ int main(){
   ddaschannel *c1=new ddaschannel();
   ddaschannel *c2=new ddaschannel();
 
-  c1->slotid=3; c1->chanid=3;
-  c2->slotid=7; c2->chanid=3;
+  c1->slotid=2; c1->chanid=3;
+  c2->slotid=3; c2->chanid=3;
 
   c1->time=100;
   c2->time =102;
+
+  ddaschannel *obj1 = new ddaschannel;
+  obj1->chanid =15;
+  obj1->slotid=2;
+  obj1->time = 100;
+
+  ddaschannel *obj2 = new ddaschannel;
+  obj2->chanid =15;
+  obj2->slotid=3;
+  obj2->time=200;
+
+
 
   vector <UShort_t> fakeTrace1(248,300);
   vector <UShort_t> fakeTrace2(248,300);
@@ -55,13 +67,19 @@ int main(){
   fakeTrace2[125]=330;
   fakeTrace2[125]=310;
   fakeTrace2[126]=305;
-    
+  
+  c1->trace =fakeTrace1;
+  c2->trace =fakeTrace2;
 
+  obj1->trace=fakeTrace2;
+  obj2->trace=fakeTrace2;
 
 
   
   test4->GetData().push_back(c1);
   test4->GetData().push_back(c2);
+  test4->GetData().push_back(obj1);
+  test4->GetData().push_back(obj2);
 
   LendaEvent * e = new LendaEvent();
   
@@ -75,8 +93,8 @@ int main(){
     
     thePacker.MakeLendaEvent(e,test4,0);
     e->Finalize();
-        e->Clear();
-
+    e->Clear();
+    
     if (i % 10000 == 0){
       cout<<"I is "<<i<<endl;
     }

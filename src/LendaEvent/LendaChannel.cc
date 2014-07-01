@@ -13,7 +13,8 @@ void LendaChannel::Clear(){
   _channel=BAD_NUM;
   _slot=BAD_NUM;
   _globalID=BAD_NUM;
-  
+  _refGlobalID=BAD_NUM;
+
   _overFlow=0;
   _numZeroCrossings=BAD_NUM;
   
@@ -28,8 +29,8 @@ void LendaChannel::Clear(){
   _cubicFitTime=BAD_NUM;
   _correctedTime=BAD_NUM;
 
-  _timeLow=BAD_NUM;
-  _timeHigh=BAD_NUM;
+  _timeLow=0;
+  _timeHigh=0;
   
   _softwareCFD=BAD_NUM;
   _cubicCFD=BAD_NUM;
@@ -42,11 +43,17 @@ void LendaChannel::Clear(){
 
   _jentry=BAD_NUM;
 
+  _refTime=BAD_NUM;
+  _cubicRefTime=BAD_NUM;
+
   _trace.clear();
   _filter.clear();
   _CFD.clear();
 
   _CFDResidual=BAD_NUM;
+
+  _channelName="";
+  _referenceChannelName="";
 }
 
 // #include <iostream>

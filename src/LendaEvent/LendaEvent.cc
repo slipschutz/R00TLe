@@ -38,10 +38,9 @@ void LendaEvent::Clear(){
   TheObjectScintillators.clear();//Clear Vector of Obj scintillators
 
   NumUnMappedChannels=0;
+  NumObjectScintillators=0;
   UnMappedChannels.clear();
   
-  TOF=BAD_NUM;
-  CorrectedTOF=BAD_NUM;
 }
 void LendaEvent::Finalize(){
   int tot=0;
@@ -49,13 +48,11 @@ void LendaEvent::Finalize(){
     Bars[i].Finalize();
     tot=Bars[i].BarMultiplicity+tot;
   }
-  N=tot+NumUnMappedChannels;
+  NumObjectScintillators=TheObjectScintillators.size();
+  
+  N=tot+NumUnMappedChannels+NumObjectScintillators;
   NumOfChannelsInEvent=N;
   
-  if ( Bars.size()==1 ){//IF only one bar in Event
-    // TOF=Bars[0].GetAvgT() - TheObjectScintilator.GetTime();
-    // CorrectedTOF =Bars[0].GetCorrectedAvgT() -TheObjectScintilator.GetCorrectedTime();
-  }
 }
 
 

@@ -33,6 +33,7 @@ public:
   inline Int_t GetNumBottoms(){return NumBottoms;}
   inline Int_t GetBarMultiplicity(){return BarMultiplicity;}
 
+  inline Double_t GetCubicDt(){return CubicDt;}
   inline Double_t GetDt(){return Dt;}
   inline Double_t GetCOG(){return COG;}
   inline Double_t GetAvgEnergy(){return AvgEnergy;}
@@ -45,6 +46,14 @@ public:
   inline Double_t GetAvgT(){return AvgT;}
   inline Double_t GetCorrectedAvgT(){return AvgT;}
   
+  inline Double_t GetTopTOF(){return TopTOF;}
+  inline Double_t GetBottomTOF(){return BottomTOF;}
+
+  inline Double_t GetCubicTopTOF(){return CubicTopTOF;}
+  inline Double_t GetCubicBottomTOF(){return CubicBottomTOF;}
+
+  inline Double_t GetCorrectedTopTOF(){return CorrectedTopTOF;}
+  inline Double_t GetCorrrectedBottomTOF(){return CorrectedBottomTOF;}
 
   void SetBarId(Int_t v){BarId=v;}
   void SetName(string v){Name=v;}
@@ -65,9 +74,11 @@ public:
 
 private:
   Double_t Dt;//Top Time - Bottom Time
+  Double_t CubicDt;
   Double_t COG;//ET -EB/(ET+EB)
   Double_t AvgEnergy;//Sqrt(ET*EB)
   Double_t AvgPulseHeight;//Sqrt(PH_T*PH_B)
+
 
   Double_t AvgT;
   Double_t CorrectedAvgT;
@@ -75,7 +86,15 @@ private:
   Double_t CorrectedCOG;//Gain Corrected COG
   Double_t CorrectedDt;//Time Offset Corrected Dt
   Double_t CorrectedAvgEnergy;//Gain Corrected AvgE
-  
+
+  Double_t TopTOF; //Time of flight calculated from the TOP channel
+  Double_t BottomTOF; //Time of flight calculated from the Bottom channel
+
+  Double_t CubicTopTOF;
+  Double_t CubicBottomTOF;
+
+  Double_t CorrectedTopTOF;
+  Double_t CorrectedBottomTOF;
 
 public:
   ClassDef(LendaBar,1);
