@@ -5,3 +5,12 @@ bin*
 users/*
 shell/.*
 src/LendaPacker/*Test*
+*~
+*#
+*.d
+src/TimmingAnalyzer2Channel/TimmingAnalyzer
+src/TimmingAnalyzer2Channel/*.txt
+*.root
+*clang*
+*back*
+src/include/.*
