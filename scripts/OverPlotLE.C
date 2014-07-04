@@ -57,9 +57,6 @@ void OverPlotLE(Long64_t entry=0,int BarSpot=0){
       yBF[i]=event->Bars[BarSpot].Bottoms[0].GetFilter()[i];
       yBC[i]=event->Bars[BarSpot].Bottoms[0].GetCFD()[i];
 
-      yOT[i]=event->TheObjectScintilator.GetTrace()[i]-840;
-      yOF[i]=event->TheObjectScintilator.GetFilter()[i];
-      yOC[i]=event->TheObjectScintilator.GetCFD()[i];
       
 
     }
@@ -83,17 +80,21 @@ void OverPlotLE(Long64_t entry=0,int BarSpot=0){
 
 
 
-    c->cd();
+    c->cd(1);
     gr->Draw("AL*");
-    //    gr3->Draw("sameL*");
-    gr11->Draw("sameL*");
+    gr3->Draw("same");
 
-    c1->cd();
-    gr1->Draw("AL*");
-    c2->cd();
-    gr2->Draw("AL*");
-    gr13->Draw("sameL*");
-  }  
+    // gr3->Draw("same*L");
+    //    gr3->Draw("sameL*");
+    // gr11->Draw("sameL*");
+
+  //   c1->cd();
+  //   gr1->Draw("AL*");
+  //   c2->cd();
+  //   gr2->Draw("AL*");
+  //   gr13->Draw("sameL*");
+  } 
+  
 
 
   return 0;
