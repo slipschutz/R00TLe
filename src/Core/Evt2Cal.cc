@@ -106,8 +106,8 @@ int main(int argc, char* argv[])
    uint32_t size_of_ring_item;
    uint32_t type_of_ring_item;
 
-   Bool_t s800_hit;
-   Bool_t ddas_hit;
+   uint64_t s800_tstamp;
+   // uint64_t ddas_tstamp;
 
    // prepare a tree instead of DecodedEvent
    int nentries;
@@ -173,8 +173,10 @@ int main(int argc, char* argv[])
 	 case PHYSICS_EVENT:
 	    // bytes_read_in_body is used to check whether all the data in the body is read.
 	    bytes_read_in_body = 0;
-	    ddas_hit = kFALSE;
-	    s800_hit = kFALSE;
+
+            // initialize tstamp for S800
+	    s800_tstamp = -1;
+	    // ddas_tstamp = -1;
 
 	    // The first uint32_t is the total size of body in bytes_
 	    count_read  = fread(&total_size_of_body, sizeof(uint32_t), 1, infile);
@@ -229,7 +231,11 @@ int main(int argc, char* argv[])
 		     switch (type_of_ring_item) {
 			case PHYSICS_EVENT:
 			{
-			   // two sizeof(uint32_t)'s need to be subtracted from the size of ring item
+                           // Do not have to store ddas_tstamp in case this fragment is from DDAS,
+                           // since the time stamp is decoded from the data body and set in ddaschannel
+                           // ddas_tstamp = timestamp; // not necessary
+
+                           // two sizeof(uint32_t)'s need to be subtracted from the size of ring item
 			   count       = size_of_ring_item - 2*sizeof(uint32_t);
 			   count_read  = fread(buffer32, sizeof(int8_t), count, infile);
 			   bytes_read += count_read * sizeof(int8_t);
@@ -242,11 +248,14 @@ int main(int argc, char* argv[])
 			   dchan = new ddaschannel; // Needs to be careful with push_back with class object...
 			   dchan->UnpackChannelData(body_ptr);
 
+                           // std::cout << dchan->GetTimeLow() + dchan->GetTimeHigh() * TMath::Power(2,32) << "\t";
+                           // std::cout << (int)(s800_tstamp - ddas_tstamp)
+                           //           << std::endl;
+
 			   // Add decoded ddaschannel instance to fDDASEvent
 			   ddasevent->AddChannelData(dchan);
 			   // (ddasevent->GetData()).emplace_back(dchan); // This may also work...
 
-			   ddas_hit = kTRUE;
 			   break;
 
 			}
@@ -258,7 +267,6 @@ int main(int argc, char* argv[])
 			   count_read  = fread(buffer32, sizeof(int8_t), count, infile);
 			   bytes_read += count_read * sizeof(int8_t);
 		
-			   ddas_hit = kFALSE;
 			}
 		     }
 		     break;
@@ -268,6 +276,9 @@ int main(int argc, char* argv[])
 		     switch (type_of_ring_item) {
 			case PHYSICS_EVENT:
 			{
+                           // Store s800_tstamp in case this fragment is from S800.
+                           s800_tstamp = timestamp;
+                           
 			   // 16-bit event length (inclusive)
 			   count_read = fread(&evtlength, sizeof(uint16_t), 1, infile);
 			   if (count_read == 0) {
@@ -301,7 +312,6 @@ int main(int argc, char* argv[])
 
 			   // Add decoded S800 instance to fS800
 			   s800event->SetS800(*s800);
-			   s800_hit = kTRUE;
 			   break;
 			}
 			default:
@@ -312,7 +322,6 @@ int main(int argc, char* argv[])
 					 size_of_ring_item - 2 * sizeof(uint32_t),
 					 infile);
 			   bytes_read += (size_of_ring_item-2*sizeof(uint32_t))*sizeof(int8_t);
-			   s800_hit = kFALSE;
 			}
 		     }
 		  }
@@ -338,6 +347,20 @@ int main(int argc, char* argv[])
 		  // Build the calibrated S800 object from data in the uncalibrated S800 object
 		  // cal->S800Calculate(s800event->GetS800(),s800calc); // this should work
 		  s800calc->ApplyCalibration(s800event->GetS800(),cal); // this should work as well
+                  // Setting the timestamp
+                  s800calc->SetTS((long long int)s800_tstamp);
+
+                  // Just for check...
+                  /*
+		  for (uint i = 0; i < ddasevent->GetData().size(); i++) {
+                    dchan = ddasevent->GetData()[i];
+
+                    std::cout << "tstamp_diff:\t"
+                              << (int)(s800calc->GetTS()
+                                       - (dchan->GetTimeLow() + dchan->GetTimeHigh() * TMath::Power(2,32)))
+                              << std::endl;
+                  }
+                  */
 		  
 		  thePacker->MakeLendaEvent(lendaevent, ddasevent,nentries);
 		  
@@ -348,10 +371,11 @@ int main(int argc, char* argv[])
 		  // reinitialize
 		  s800event->Clear();
 
-		  for (int i=0;i<ddasevent->GetData().size();i++){
+                  // Avoiding memory leak
+		  for (uint i = 0; i < ddasevent->GetData().size(); i++) {
 		    delete ddasevent->GetData()[i];
 		  }
-		  ddasevent->GetData().clear();//Clearing Vector
+		  ddasevent->GetData().clear(); //Clearing Vector
 		  
 		  s800calc  ->Clear();
 		  lendaevent->Clear();
