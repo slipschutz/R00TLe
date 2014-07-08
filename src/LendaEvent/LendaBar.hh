@@ -28,7 +28,7 @@ public:
   void PushTopChannel(LendaChannel c){Tops.push_back(c);}
   void PushBottomChannel(LendaChannel c){Bottoms.push_back(c);}
 
-  inline string GetName(){return Name;}
+  inline string GetBarName(){return Name;}
   inline Int_t GetNumTops(){return NumTops;}
   inline Int_t GetNumBottoms(){return NumBottoms;}
   inline Int_t GetBarMultiplicity(){return BarMultiplicity;}
@@ -49,6 +49,8 @@ public:
   inline Double_t GetTopTOF(){return TopTOF;}
   inline Double_t GetBottomTOF(){return BottomTOF;}
 
+  inline Double_t GetAvgTOF(){return 0.5*(TopTOF+BottomTOF);}
+
   inline Double_t GetCubicTopTOF(){return CubicTopTOF;}
   inline Double_t GetCubicBottomTOF(){return CubicBottomTOF;}
 
@@ -56,9 +58,10 @@ public:
   inline Double_t GetCorrrectedBottomTOF(){return CorrectedBottomTOF;}
 
   void SetBarId(Int_t v){BarId=v;}
-  void SetName(string v){Name=v;}
+  void SetBarName(string v){Name=v;}
 
   void Clear();
+  void Clear(Option_t*){Clear();}
 
   string Name;//the name of the bar to make it unique
   Int_t BarId; //The Unique BarID Defined by the order in MapFile

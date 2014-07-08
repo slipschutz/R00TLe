@@ -57,10 +57,6 @@ void LendaEvent::Finalize(){
 
 
 
-void LendaEvent::Fatal(){
-  cout<<"This Method should not exist.  Don't call it"<<endl;
-}
-
 
 
 

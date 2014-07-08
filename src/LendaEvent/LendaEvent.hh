@@ -14,6 +14,7 @@ public:
   LendaEvent(); //Constructor 
 
   void Clear(); //Clear the Event.  Should be called after every write to a tree
+  void Clear(Option_t*){Clear();}
 
   void Finalize(); //Calculates convient Branches/leaves
 
@@ -34,7 +35,6 @@ public:
 
   vector <LendaChannel> TheObjectScintillators;
 
-  void Fatal();//Overload this stupid inherited method
   void WriteSettings(LendaSettings * theSettings);
 
 

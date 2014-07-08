@@ -23,7 +23,7 @@ public:
  ~LendaSettings();
   
   void PushLine(string);
-  void Print();
+  void print();
   inline vector <string>* GetInfoVector(){return &theInfo;}
 
 private:

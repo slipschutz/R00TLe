@@ -23,6 +23,8 @@ public:
 
   void Clear();
   
+  void Clear(Option_t *){Clear();}
+  
   inline Int_t GetChannel(){return _channel;}
   inline Int_t GetSlot(){return _slot;}
   inline Int_t GetGlobalID(){return _globalID;}

@@ -16,7 +16,7 @@ void LendaSettings::PushLine(string s){
   theInfo.push_back(s);
 }
 
-void LendaSettings::Print(){
+void LendaSettings::print(){
   cout<<"******Settings Information******"<<endl;
   for (int i=0;i<theInfo.size();i++){
     cout<<theInfo[i];
