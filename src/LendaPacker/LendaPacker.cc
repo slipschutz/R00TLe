@@ -1,4 +1,4 @@
-
+ 
 #include "LendaPacker.hh"
 
 
@@ -20,7 +20,7 @@ LendaPacker::LendaPacker(){
   //Such as the software CFDs and the energy values
 
   saveTraces=false;
-  
+ 
   BuildMaps();
 }
 
@@ -126,7 +126,7 @@ void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
   }
 }
 void LendaPacker::BuildMaps(){
-  cout<<"BUILDING MAPS"<<endl;
+
   stringstream stream;
   ifstream MapFile;
   ifstream CorrectionsFile;
@@ -225,7 +225,10 @@ void LendaPacker::BuildMaps(){
       int RefGlobalID = FullLocalToGlobalID[ii.second.ReferenceName];
       ii.second.GlobalID=GlobalID;
       ii.second.ReferenceGlobalID=RefGlobalID;
-      
+
+      theSettings->AddSettings(ii.second.FullName,ii.second.EnergySlope,
+			       ii.second.EnergyIntercept,ii.second.TOFOffset);
+    
     } else {
       cout<<"Found a reference name in the map file that does not map to a channel"<<endl;
       cout<<"The name was "<<ii.second.ReferenceName<<" it is from map info of "<<ii.second.FullName<<endl;
@@ -233,15 +236,8 @@ void LendaPacker::BuildMaps(){
     }
   }
 
-  // for ( auto ii: GlobalIDToMapInfo){
-  //   cout <<ii.first<<" ";
-  //   ii.second.Print();
-  //   cout<<endl;
-  // }
-  for (auto i : BarNameToUniqueBarNumber){
-    cout<<i.second<<" "<<i.first<<endl;
-  }
-
+  theSettings->SetBarIds(BarNameToUniqueBarNumber);
+  
 
 }
 

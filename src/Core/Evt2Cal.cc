@@ -25,6 +25,7 @@
 #include "S800Event.hh"
 #include "DDASEvent.hh"
 #include "LendaPacker.hh"
+#include "R00TLeSettings.hh"
 
 #include "S800Settings.hh"
 #include "S800Calibration.hh"
@@ -118,6 +119,8 @@ int main(int argc, char* argv[])
    //outtree->Branch("s800event", &s800event, 320000);
    //outtree->Branch("ddasevent", &ddasevent, 320000);
 
+   R00TLeSettings * TheR00TLeSettings = new R00TLeSettings();
+
    // S800Calc branch
    S800Calc*  s800calc    = new S800Calc;
    outtree->Branch("s800calc",   &s800calc,   320000);
@@ -127,6 +130,7 @@ int main(int argc, char* argv[])
    thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
+   thePacker->SetR00TLeSettings(TheR00TLeSettings);
    LendaEvent* lendaevent = new LendaEvent;
    outtree->Branch("lendaevent", &lendaevent, 320000);
 
@@ -435,7 +439,7 @@ int main(int argc, char* argv[])
   
    //Final cleanup and writing of files.
    outtree->Write("",TObject::kOverwrite);
-  
+   TheR00TLeSettings->Write();
    outfile->Close();
    // If outfile cannot be closed because the file size exceeds fgMaxTreeSize, try TTree::SetMaxTreeSize
 

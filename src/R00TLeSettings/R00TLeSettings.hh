@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
 using namespace std;
 
 class R00TLeSettings : public TNamed{
@@ -22,12 +23,17 @@ public:
   R00TLeSettings();
  ~R00TLeSettings();
   
-  void PushLine(string);
-  void print();
-  inline vector <string>* GetInfoVector(){return &theInfo;}
+
+  
+  void AddSettings(string Name,double slope,double inter,double toff);
+  void SetBarIds(map<string,int> v){BarIds=v;}
 
 private:
-  vector <string> theInfo;
+  map <string, double> TheTimmingOffSets;
+  map <string, double> TheEnergySlopes;
+  map <string, double> TheEnergyIntercepts;
+
+  map<string,int> BarIds;
 
 public:
   ClassDef(R00TLeSettings,1);

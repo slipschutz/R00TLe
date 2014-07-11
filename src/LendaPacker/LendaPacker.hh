@@ -34,6 +34,7 @@
 #include <fstream>
 #include "LendaEvent.hh"
 #include "DDASEvent.hh"
+#include "R00TLeSettings.hh"
 #include <math.h>
 #include <cstdlib>
 #include <unordered_map>
@@ -110,6 +111,8 @@ public:
   void PackEvent(LendaEvent* Event);
   void RePackEvent(LendaEvent* Event);
 
+  void SetR00TLeSettings(R00TLeSettings*v){theSettings=v;} 
+
 private:
   void BuildMaps();
   
@@ -149,7 +152,7 @@ private:
   Double_t start;
 
   Double_t CFDResidual;
-  
+  R00TLeSettings * theSettings;
 
 };
 
