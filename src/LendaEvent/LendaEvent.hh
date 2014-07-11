@@ -4,7 +4,7 @@
 #include "TObject.h" //Include ROOT
 #include <vector>
 #include <map>
-#include "LendaSettings.hh"
+
 #include "LendaBar.hh"
 using namespace std;
 
@@ -35,7 +35,6 @@ public:
 
   vector <LendaChannel> TheObjectScintillators;
 
-  void WriteSettings(LendaSettings * theSettings);
 
 
 private:

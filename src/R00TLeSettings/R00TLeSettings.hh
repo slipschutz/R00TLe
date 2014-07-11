@@ -15,12 +15,12 @@
 #include <iostream>
 using namespace std;
 
-class LendaSettings : public TNamed{
+class R00TLeSettings : public TNamed{
 
 
 public:
-  LendaSettings();
- ~LendaSettings();
+  R00TLeSettings();
+ ~R00TLeSettings();
   
   void PushLine(string);
   void print();
@@ -30,7 +30,7 @@ private:
   vector <string> theInfo;
 
 public:
-  ClassDef(LendaSettings,1);
+  ClassDef(R00TLeSettings,1);
 };
 
 

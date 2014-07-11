@@ -12,14 +12,6 @@ LendaEvent::LendaEvent(){
 
 }
 
-void LendaEvent::WriteSettings(LendaSettings * theSettings){
-  // theSettings->PushLine("####Settings From the LendaEvent####\n");
-  // stringstream line;
-  // line<<"TOF Fudge "<<TOFFudge<<endl;
-  // line<<"GammaPeakTime "<<GammaPeakTime<<endl;
-  // line<<"GammaPeakTimeLiqLiq "<<GammaPeakTimeLiqLiq<<endl;
-  // theSettings->PushLine(line.str());
-}
 
 
 void LendaEvent::Clear(){
