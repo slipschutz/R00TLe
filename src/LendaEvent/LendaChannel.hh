@@ -37,6 +37,7 @@ public:
   inline Double_t GetEnergy(){return _energy;}
   inline Double_t GetInternalEnergy(){return _internalEnergy;}
   inline Int_t GetPulseHeight(){return _pulseHeight;}
+  inline Int_t GetFilterHeight(){return _filterHeight;}
 
   inline Double_t GetTime(){return _time;}
   inline Double_t GetSoftTime(){return _softTime;}
@@ -83,6 +84,7 @@ public:
   void SetEnergy(Double_t v){ _energy=v;}
   void SetInternalEnergy(Double_t v){_internalEnergy=v;}
   void SetPulseHeight(Int_t v){ _pulseHeight=v;}
+  void SetFilterHeight(Int_t v){_filterHeight=v;}
 
   void SetTime(Double_t v){ _time=v;}
   void SetSoftTime(Double_t v){_softTime=v;}
@@ -134,6 +136,7 @@ private:
   Double_t _energy;
   Double_t _internalEnergy;
   Int_t _pulseHeight;
+  Int_t _filterHeight;
 
   Double_t _time;
   Double_t _softTime;

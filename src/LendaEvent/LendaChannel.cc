@@ -22,6 +22,7 @@ void LendaChannel::Clear(){
   _energy=BAD_NUM;
   _internalEnergy=BAD_NUM;
   _pulseHeight=BAD_NUM;
+  _filterHeight=BAD_NUM;
 
   _time=BAD_NUM;
   _softTime=BAD_NUM;
