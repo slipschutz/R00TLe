@@ -27,6 +27,8 @@
 #include "S800Settings.hh"
 #include "S800Calibration.hh"
 
+#include "R00TLeSettings.hh"
+
 #include "Utilities.hh"
 
 int main(int argc, char* argv[]) 
@@ -82,12 +84,14 @@ int main(int argc, char* argv[])
    }
    TTree* outtree   = new TTree("caltree","S800 and DDAS calibrated events");
 
+   R00TLeSettings * TheR00TLeSettings = new R00TLeSettings();
+
    // S800Calc branch
    S800Calc*  s800calc    = new S800Calc;
    outtree->Branch("s800calc",   &s800calc,   320000);
 
    // LendaEvent branch
-   LendaPacker *thePacker = new LendaPacker();
+   LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
    thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
@@ -153,7 +157,7 @@ int main(int argc, char* argv[])
    }
 
    outfile->Write();
-
+   TheR00TLeSettings->Write();
    delete intree;
    delete outtree;
 

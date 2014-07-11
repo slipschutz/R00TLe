@@ -126,11 +126,11 @@ int main(int argc, char* argv[])
    outtree->Branch("s800calc",   &s800calc,   320000);
 
    // LendaEvent branch
-   LendaPacker *thePacker = new LendaPacker();
+   LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
    thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
-   thePacker->SetR00TLeSettings(TheR00TLeSettings);
+
    LendaEvent* lendaevent = new LendaEvent;
    outtree->Branch("lendaevent", &lendaevent, 320000);
 
