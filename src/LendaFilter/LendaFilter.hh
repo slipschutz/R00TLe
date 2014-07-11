@@ -48,7 +48,8 @@ public:
 
   Double_t getGate(std::vector <UShort_t> &trace,int start,int L);
   
-  Double_t getMaxPulseHeight(std::vector <UShort_t> &trace);
+  Int_t getMaxPulseHeight(std::vector <UShort_t> &trace);
+  Int_t getMaxPulseHeight(std::vector <Double_t> &trace);
 
   double getFunc(TMatrixD, double);
   double getFunc(vector<double>&, double);

@@ -591,7 +591,7 @@ Double_t LendaFilter::getGate(std::vector <UShort_t> &trace,int start,int L){
 }
 
 
-Double_t LendaFilter::getMaxPulseHeight(vector <UShort_t> &trace){
+Int_t LendaFilter::getMaxPulseHeight(vector <UShort_t> &trace){
 
   int maxSpot=-1;
   Double_t max=0;
@@ -604,6 +604,22 @@ Double_t LendaFilter::getMaxPulseHeight(vector <UShort_t> &trace){
   }
   return max;
 }
+
+
+Int_t LendaFilter::getMaxPulseHeight(vector <Double_t> &trace){
+
+  int maxSpot=-1;
+  Double_t max=0;
+  for (int i=0;i<trace.size();i++){
+    if (trace[i]>max){
+      max=trace[i];
+      maxSpot=i;
+    }
+    
+  }
+  return max;
+}
+
 
 
 Int_t LendaFilter::getStartForPulseShape(Double_t SoftWareCFD,Int_t TraceDelay){
