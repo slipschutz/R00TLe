@@ -23,9 +23,9 @@ public:
   //to allow for 0 or more than one of each
   //channel to be stored
   vector <LendaChannel> Tops;
-  vector <LendaChannel> Bottoms;
+  vector <LendaChannel> Bottoms; 
   
-  void PushTopChannel(LendaChannel c){Tops.push_back(c);}
+  void PushTopChannel(LendaChannel c){Tops.push_back(c);} 
   void PushBottomChannel(LendaChannel c){Bottoms.push_back(c);}
 
   inline string GetBarName(){return Name;}
