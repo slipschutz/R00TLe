@@ -5,8 +5,18 @@
 // the various trace analysis routines (defined in the LendaFilter class) and saving //
 // them in the LendaEvent.  The Packer needs a cable map file which tells it which   //
 // DDAS channels to associate together into LendaBars.  Will Throw expception if     //
-// it cannot find this file.  							     //
-// 										     //
+// it cannot find this file.                                                         //
+//                                                                                   //  
+// The map file also provides the following information to packer:  The scattering   //
+// angle that the bar is at at, which other channel provides the time of flight      //
+// reference time.  The format of the MapFile is:                                    //
+//                                                                                   //
+// DDAS_slot_number DDAS_channel_number Bar_name_ending_in_T/B angle Name_of_refTime //
+//                                                                                   //
+// The reference time name must also be somewhere else in the mapfile so that the    //
+// Actual DDAS slot and channel can be determined for it                             // 
+//                                                                                   //
+//				                                                     //
 // Written by Sam Lipschutz Copyright 2014  					     //
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,9 +37,14 @@
 #include <math.h>
 #include <cstdlib>
 #include <unordered_map>
-#define CHANPERMOD 16
+#define CHANPERMOD 16  //Number of DDAS chans per DDAS module
 
 
+
+/////////////////////////////////////////////////////////////////
+// MapInfo is a Small Container class to hold the information  //
+// that is stored in the mapfile.  			       //
+/////////////////////////////////////////////////////////////////
 class MapInfo{
 public:
   MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
@@ -54,6 +69,10 @@ public:
 };
 
 
+
+////////////////////////////////////////////////////
+// The LendaPacker Class.  See Comment Box at top //
+////////////////////////////////////////////////////
 class LendaPacker {
 
 public:
@@ -119,7 +138,9 @@ private:
   Int_t numZeroCrossings;
   
   Double_t thisEventsIntegral;
-  Double_t thisEventsPulseHeight;
+  Int_t thisEventsPulseHeight;
+  Int_t thisEventsFilterHeight;
+
   Double_t longGate;
   Double_t shortGate;
   Double_t cubicCFD;

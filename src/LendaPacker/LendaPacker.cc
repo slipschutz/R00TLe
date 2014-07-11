@@ -47,11 +47,13 @@ LendaPacker::~LendaPacker(){
 
 void LendaPacker::Reset(){
 
+  //Clear the temporary filter vectors 
   thisEventsFF.clear();
   thisEventsCFD.clear();
   
-
+  //Reset packer variables
   thisEventsIntegral=0;
+  thisEventsFilterHeight=0;
   thisEventsPulseHeight=0;
   longGate=0;
   shortGate=0;
@@ -61,6 +63,7 @@ void LendaPacker::Reset(){
   start=0;
   numZeroCrossings=0;
   CFDResidual=0;
+  jentry=-1;
 
 }
 
@@ -73,35 +76,49 @@ void LendaPacker::CalcAll(ddaschannel*theChannel){
 
 void LendaPacker::CalcTimeFilters(ddaschannel*theChannel){
 
+  ///////////////////////////////////////////////////////////////////////////////////
+  // if there are trace present in the data preform timing related trace anaylsis  //
+  // routines									   //
+  ///////////////////////////////////////////////////////////////////////////////////
   if (theChannel->trace.size()!=0){
     theFilter.FastFilter(theChannel->trace,thisEventsFF,fFL,fFG); //run FF algorithim
     thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
     
     softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay; //find zeroCrossig of CFD
     
-    
-    //  softwareCFD=softwareCFD-floor(softwareCFD);
-    
-    
-    //  if (softwareCFD>1)
-    //  softwareCFD=softwareCFD-1;
-    //  softwareCFD=softwareCFD-floor(softwareCFD);
     cubicCFD = theFilter.GetZeroCubic(thisEventsCFD)-traceDelay;
     cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD)-traceDelay;
   }
 }
 void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
 
+  ////////////////////////////////////////////////////////////////////
+  // if there are traces present in the data preform energy related //
+  // trace analysis routines 					    //
+  ////////////////////////////////////////////////////////////////////
+
   if ( theChannel->trace.size()!=0){
+    
+    if ( thisEventsFF.size() == 0 ){
+      // the filter hasn't been calculated.  It is need for 
+      // long/short gate calculations and maxFilterValue
+      theFilter.FastFilter(theChannel->trace,thisEventsFF,fFL,fFG); //run FF algorithim
+      thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
+    }
+
+
     if (softwareCFD!=0)
+      //Software CFD already calculated
       start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
     else{
+      //Find zero crossing 
       softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay;
       start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
     }
 
     thisEventsPulseHeight=theFilter.getMaxPulseHeight(theChannel->trace);
-    
+    thisEventsFilterHeight=theFilter.getMaxPulseHeight(thisEventsFF);
+
     thisEventsIntegral = theFilter.getEnergy(theChannel->trace);
     longGate = theFilter.getGate(theChannel->trace,start,lg);
     shortGate = theFilter.getGate(theChannel->trace,start,sg);
@@ -250,6 +267,7 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
   tempLenda.SetEnergy(thisEventsIntegral);
   tempLenda.SetPulseHeight(thisEventsPulseHeight);
   tempLenda.SetInternalEnergy(c->energy);
+  tempLenda.SetFilterHeight(thisEventsFilterHeight);
 
   tempLenda.SetTime(c->time);
   tempLenda.SetTimeLow(c->timelow);
