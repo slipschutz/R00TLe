@@ -78,7 +78,7 @@ class LendaPacker {
 
 public:
 
-  LendaPacker(); //Defualt Constructor
+  LendaPacker(R00TLeSettings*); //Defualt Constructor
   ~LendaPacker();
   
   LendaFilter theFilter;
@@ -111,7 +111,6 @@ public:
   void PackEvent(LendaEvent* Event);
   void RePackEvent(LendaEvent* Event);
 
-  void SetR00TLeSettings(R00TLeSettings*v){theSettings=v;} 
 
 private:
   void BuildMaps();

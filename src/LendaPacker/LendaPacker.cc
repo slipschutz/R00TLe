@@ -2,7 +2,7 @@
 #include "LendaPacker.hh"
 
 
-LendaPacker::LendaPacker(){
+LendaPacker::LendaPacker(R00TLeSettings*v){
   ///Use bad Defaults to ensure that the calling program set 
   //everything
   fFL=-1; 
@@ -15,6 +15,8 @@ LendaPacker::LendaPacker(){
   sg2=-1;
   traceDelay=-1;
   jentry=-1;
+
+  theSettings=v;
 
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
@@ -226,9 +228,11 @@ void LendaPacker::BuildMaps(){
       ii.second.GlobalID=GlobalID;
       ii.second.ReferenceGlobalID=RefGlobalID;
 
-      theSettings->AddSettings(ii.second.FullName,ii.second.EnergySlope,
+      theSettings->AddCorrectionSettings(ii.second.FullName,ii.second.EnergySlope,
 			       ii.second.EnergyIntercept,ii.second.TOFOffset);
     
+      theSettings->AddMapSettings(ii.second.FullName,GlobalID,ii.second.ReferenceName,RefGlobalID);
+      
     } else {
       cout<<"Found a reference name in the map file that does not map to a channel"<<endl;
       cout<<"The name was "<<ii.second.ReferenceName<<" it is from map info of "<<ii.second.FullName<<endl;
