@@ -12,7 +12,7 @@ rootlogon(){
   gSystem->Load("libLendaEvent.so");
   gSystem->Load("libS800.so");
   gSystem->Load("libDDASEvent.so");
-  gSystem->Load("libLendaSettings.so");
+  gSystem->Load("libR00TLeSettings.so");
 
 return;
 }
