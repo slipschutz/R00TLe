@@ -103,10 +103,10 @@ fi
 
 if [ ! -L ./evtfiles ]; then
 echo "Making sym link to evt files"
-    ln -s /events/e10003/complete ./evtfiles
+    ln -s ${R00TLeEvtFilesPath} ./evtfiles
 fi
 
 if [ ! -L rootfiles ]; then
     echo "Making sym link to root files"
-    ln -s /events/e10003/rootfiles .
+    ln -s ${R00TLeRootFilesPath} ./rootfiles
 fi
