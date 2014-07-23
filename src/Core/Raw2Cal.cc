@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
    outtree->BranchRef();
 
    // Parameters and settings
-   TString prmdirname = gSystem->Getenv("ANAROOT_PRM");
+   TString prmdirname = gSystem->Getenv("R00TLe_PRM");
    TString prmfilename("Raw2Cal.prm");
    TString prmfilenamefull = prmdirname + "/" + prmfilename;
    std::ifstream prmfile(prmfilenamefull);

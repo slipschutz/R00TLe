@@ -134,7 +134,7 @@ void LendaPacker::BuildMaps(){
   ifstream CorrectionsFile;
 
   stringstream ss,ss1;
-  ss<<string(getenv("ANAROOT_PRM"));
+  ss<<string(getenv("R00TLe_PRM"));
   ss1<<ss.str();
 
   ss<<"/MapFile.txt";

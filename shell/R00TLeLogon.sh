@@ -43,7 +43,7 @@ if [ "$flag" == "" ]; then #failed
 fi
 
 echo "Setting enviorment Variables"
-export ANAROOT_PRM=/user/e10003/R00TLe/prm
+export R00TLe_PRM=${R00TLeInstall}/prm
 export R00TLe_User=$1
 cd $R00TLeInstall
 
