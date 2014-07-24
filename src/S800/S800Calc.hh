@@ -275,8 +275,10 @@ public:
   std::vector<Int_t> GetChan(){return fchan;}
 
 protected:
-  std::vector<Float_t> fcal; //! transient data member
-  std::vector<Int_t> fchan;  //! transient data member
+  std::vector<Float_t> fcal;
+  std::vector<Int_t> fchan;
+  //std::vector<Float_t> fcal; //! transient data member
+  //std::vector<Int_t> fchan;  //! transient data member
   Float_t fsum;
   Float_t fde;
   ClassDef(IC, 1);
