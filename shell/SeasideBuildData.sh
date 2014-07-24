@@ -26,14 +26,13 @@ if [ ${flag} == "" ]; then
 fi
 runNum=$(printf "%04d" $1)
 
-source R00TLeLogon.sh sam
-pwd
+export R00TLe_PRM=/user/lipschut/R00TLe/prm/
 if stat -t -- ${R00TLeEvtFilesPath}/run-${runNum}-*.evt >/dev/null 2>&1
 then
     for file in $(ls ${R00TLeEvtFilesPath}/run-${runNum}-??.evt)
     do
-	command="${R00TLeInstall}/bin/Evt2Cal $file ${R00TLeRootFilesPath}/$(basename $file .evt).root"
-	echo $command | qsub -N "R00TLeBuild" -m a -j oe -l walltime=01:00:00
+	command="${R00TLeInstall}/shell/RunEvt2Cal.sh $file ${R00TLeRootFilesPath}/$(basename $file .evt).root"
+	echo $command | qsub -N "R00TLeBuild" -m a -l walltime=01:00:00
     done
 else
     echo "Cannot find evt file for run $runNum "
