@@ -35,6 +35,10 @@ public:
 
   inline Double_t GetCubicDt(){return CubicDt;}
   inline Double_t GetDt(){return Dt;}
+
+  inline Double_t GetSyncDt(){return SyncDt;}
+  inline Double_t GetCubicSyncDt(){return CubicSyncDt;}
+
   inline Double_t GetCOG(){return COG;}
   inline Double_t GetAvgEnergy(){return AvgEnergy;}
   inline Double_t GetAvgPulseHeight(){return AvgPulseHeight;}
@@ -78,6 +82,11 @@ public:
 private:
   Double_t Dt;//Top Time - Bottom Time
   Double_t CubicDt;
+
+  //The Top Bottom time diffrence through the reference signal
+  Double_t SyncDt;
+  Double_t CubicSyncDt;
+
   Double_t COG;//ET -EB/(ET+EB)
   Double_t AvgEnergy;//Sqrt(ET*EB)
   Double_t AvgPulseHeight;//Sqrt(PH_T*PH_B)

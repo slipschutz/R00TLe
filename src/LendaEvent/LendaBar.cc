@@ -22,6 +22,11 @@ void LendaBar::Clear(){
   BarMultiplicity=0;
 
   Dt=BAD_NUM;
+  CubicDt=BAD_NUM;
+
+  SyncDt=BAD_NUM;
+  CubicSyncDt=BAD_NUM;
+  
   COG=BAD_NUM;
   AvgEnergy=BAD_NUM;
   AvgPulseHeight=BAD_NUM;
@@ -49,12 +54,28 @@ void LendaBar::Finalize(){
   NumBottoms=Bottoms.size();
   BarMultiplicity=NumTops+NumBottoms;
 
+  if (NumTops == 1 ){
+    TopTOF = Tops[0].GetTime()-Tops[0].GetReferenceTime();
+    CubicTopTOF = Tops[0].GetCubicFitTime()-Tops[0].GetCubicReferenceTime();
+    CorrectedTopTOF = Tops[0].GetCorrectedTime()-Tops[0].GetReferenceTime();
+  } 
+  if (NumBottoms == 1 ){
+    BottomTOF =Bottoms[0].GetTime()-Bottoms[0].GetReferenceTime();
+    CubicBottomTOF = Bottoms[0].GetCubicFitTime()-Bottoms[0].GetCubicReferenceTime();
+    CorrectedBottomTOF =Bottoms[0].GetCorrectedTime()-Bottoms[0].GetReferenceTime();
+  }
+
+
   //For simple events IE ones with only 1 Top and 1 Bottom
   //Caluclate some nice quantities
   if (NumTops==1 && NumBottoms==1){
     SimpleEventBit=1;
+
     Dt=Tops[0].GetTime()-Bottoms[0].GetTime();
     CubicDt=Tops[0].GetCubicFitTime()-Bottoms[0].GetCubicFitTime();
+
+    SyncDt =TopTOF-BottomTOF;
+    CubicSyncDt=CubicTopTOF-CubicBottomTOF;
 
     COG=(Tops[0].GetEnergy()-Bottoms[0].GetEnergy())/(Tops[0].GetEnergy()+Bottoms[0].GetEnergy());
     AvgEnergy=TMath::Sqrt(Tops[0].GetEnergy()*Bottoms[0].GetEnergy());
@@ -70,16 +91,6 @@ void LendaBar::Finalize(){
     CorrectedAvgT=0.5*(Tops[0].GetCorrectedTime()+Bottoms[0].GetCorrectedTime());
   }	  
   
-  if (NumTops == 1 ){
-    TopTOF = Tops[0].GetTime()-Tops[0].GetReferenceTime();
-    CubicTopTOF = Tops[0].GetCubicFitTime()-Tops[0].GetCubicReferenceTime();
-    CorrectedTopTOF = Tops[0].GetCorrectedTime()-Tops[0].GetReferenceTime();
-  } 
-  if (NumBottoms == 1 ){
-    BottomTOF =Bottoms[0].GetTime()-Bottoms[0].GetReferenceTime();
-    CubicBottomTOF = Bottoms[0].GetCubicFitTime()-Bottoms[0].GetCubicReferenceTime();
-    CorrectedBottomTOF =Bottoms[0].GetCorrectedTime()-Bottoms[0].GetReferenceTime();
-  }
 
   
 
