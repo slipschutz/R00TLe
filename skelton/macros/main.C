@@ -14,52 +14,52 @@
 #include <ctime>
 #endif // __CINT__
 
-int main(TString OutPutName="temp.root")
+
+int main(Int_t runNum=-1,TString OutPutName="temp.root")
 {
-  // Load libraries necessary to compile Analoop.cc
-  gSystem->AddDynamicPath("/users/e10003/R00TLe/lib");
-  gSystem->Load("libS800.so");
-  gSystem->Load("libLendaEvent.so");
-
-  gROOT->ProcessLine(".include /users/e10003/R00TLe/src/include");
-
-  //gDebug=2;
-
+  
   TChain* ch = new TChain("caltree");
   std::cout << "Creating TChain... ";
-
-  // make a chain manually
   
-  ch->Add("./rootfiles/run-0341-00.root");
-
+  if (runNum ==-1){
+    // if no runNum give make a chain manually
+    ch->Add("./rootfiles/run-0341-00.root");//Defualt run
+  } else {
+    stringstream ss;
+    ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-00.root";
+    ch->Add(ss.str().c_str());
+    if (OutPutName == "temp.root"){
+      ss.str("");
+      ss<<"HistogramsFromRun"<<runNum<<".root";
+      OutPutName=ss.str();      
+    }
+  }
   std::cout << "Done." << std::endl;
-  //ch->Print();
+
   
   std::cout << "List of files:" << std::endl;
   ch->GetListOfFiles()->Print();
-  TObjArray *fileElements = ch->GetListOfFiles();
-  TIter next(fileElements);
-  TChainElement *chEl=0;
-  Int_t nfiles = 0;
-  while (( chEl=(TChainElement*)next() )) {
-    nfiles++;
-    std::cout << "\t" << chEl->GetTitle() << std::endl;
-  }
 
-  //std::cout << ch->GetEntries() << " entries in ";
-  //std::cout << nfiles << " runs in total.\n" << std::endl;
   TString user =gSystem->Getenv("R00TLe_User");
   TString install =gSystem->Getenv("R00TLeInstall");
   TString src = install+"/users/"+user+"/src/Analoop.cc+O";
+  
+  ////////////////////////////////////////////////////////////////
+  // magic line that compiles and then runs the Analoop program //
+  // over the chain you have specified			        //
+  ////////////////////////////////////////////////////////////////
   ch->Process(src,"-g");
+
+  
 
   //// store histograms 
   TString rootfilesdirname = install+"/users/"+user+"/histograms";
   TString outfilename = rootfilesdirname + "/"+OutPutName;
-  TString writehistcommandstring = "WriteHist.C(\"" + outfilename + "\")";
-  cout<<"Command is "<<writehistcommandstring<<endl;
-  gROOT->Macro(writehistcommandstring);
+  cout<<"File will be saved in "<<outfilename<<endl;
+  
+  gROOT->ProcessLine(".L WriteHist.C");
+  WriteHist(outfilename);
 
-
+  
   ch->Delete();
 }

@@ -40,6 +40,8 @@ public:
   void AddMapSettings(string Name,int GlobalID,string RefName, int refGlobalID);
 
   void SetBarIds(map<string,int> v);
+  
+  inline Int_t GetNumBars(){return BarIds.size();}
 
 private:
   map <string, double> TheTimingOffsets;
