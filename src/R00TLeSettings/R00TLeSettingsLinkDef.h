@@ -5,6 +5,7 @@
 #pragma link C++ class vector< vector <Double_t> >+;
 #pragma link C++ class vector< vector <UShort_t> >+;
 #pragma link C++ class R00TLeSettings+;
+#pragma link C++ class vector<R00TLeSettings*>+;
 #endif
 
 

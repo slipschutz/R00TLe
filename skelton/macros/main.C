@@ -37,6 +37,36 @@ int main(Int_t runNum=-1,TString OutPutName="temp.root")
   std::cout << "Done." << std::endl;
 
   
+  ///////////////////////////////////////////////////////////////
+  // look for settings objects in each of the files 	       //
+  // in the chain.  Set their names as settings0 1 2...	       //
+  // for saving in the final histogram file	  	       //
+  ///////////////////////////////////////////////////////////////
+
+  vector <R00TLeSettings *> ListOfSettings;
+  TObjArray *fileElements=ch->GetListOfFiles();
+  TIter next(fileElements);
+  TChainElement *chEl=0;
+  int count=0;
+  while (( chEl=(TChainElement*)next() )) {
+    TFile f(chEl->GetTitle());
+    if ( f.GetListOfKeys()->Contains("TheSettings")) {
+      stringstream ss;
+      ss<<"Settings"<<count;
+      TString newName = ss.str().c_str();
+      R00TLeSettings *temp = (R00TLeSettings*)f.Get("TheSettings");
+      temp->SetName(newName);
+
+      ListOfSettings.push_back(temp);
+    } else {
+      cout<<"No Seetings object found in "<<chEl->GetTitle()<<endl;
+      exit(1);
+    }
+    count++;//Counter for settings Names 
+  }
+
+
+  
   std::cout << "List of files:" << std::endl;
   ch->GetListOfFiles()->Print();
 
@@ -58,7 +88,7 @@ int main(Int_t runNum=-1,TString OutPutName="temp.root")
   cout<<"File will be saved in "<<outfilename<<endl;
   
   gROOT->ProcessLine(".L WriteHist.C");
-  WriteHist(outfilename);
+  WriteHist(outfilename,ListOfSettings);
 
   
   ch->Delete();

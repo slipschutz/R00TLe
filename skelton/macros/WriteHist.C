@@ -1,6 +1,6 @@
 #include <iostream>
 
-void WriteHist(TString outfilename) {
+void WriteHist(TString outfilename,vector<R00TLeSettings*> settings) {
   if (!gDirectory) return;
   TDirectory* lastdirectory = gDirectory;
   TFile* outfile = TFile::Open(outfilename, "RECREATE");
@@ -9,6 +9,10 @@ void WriteHist(TString outfilename) {
     return;
   }
 
+  for (int i=0;i<settings.size();i++){
+    settings[i]->Write();
+  }
+  
   TList* list = lastdirectory->GetList() ;
   TIter next_object((TList*) list);
   TObject* obj ;
