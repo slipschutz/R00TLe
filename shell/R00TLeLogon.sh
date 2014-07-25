@@ -82,6 +82,7 @@ rm -f rootlogon.C
 #copy the skelton version of the rootlogon
 echo "Generating ROOT logon file..."
 cp ${R00TLeInstall}/skelton/rootlogon.C .
+cp ${R00TLeInstall}/skelton/rootlogoff.C .
 
 echo "rootlogon(){" >> temp_R00TLe
 echo "cout<<\"\\nHello $1,\"<<endl;" >>temp_R00TLe
