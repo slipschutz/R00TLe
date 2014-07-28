@@ -44,6 +44,7 @@ public:
   inline Double_t GetCubicTime(){return _cubicTime;}
   inline Double_t GetCubicFitTime(){return _cubicFitTime;}
   inline Double_t GetCorrectedTime(){return _correctedTime;}
+  inline Double_t GetCorrectedCubicFitTime(){return _correctedCubicFitTime;}
 
   inline UInt_t GetCFDTrigBit(){return _CFDTrigBit;}
   
@@ -91,6 +92,7 @@ public:
   void SetCubicTime(Double_t v){_cubicTime=v;}
   void SetCubicFitTime(Double_t v){_cubicFitTime=v;}
   void SetCorrectedTime(Double_t v){_correctedTime=v;}
+  void SetCorrectedCubicFitTime(Double_t v){_correctedCubicFitTime=v;}
 
   void SetTimeLow(UInt_t v){_timeLow=v;}
   void SetTimeHigh(UInt_t v){_timeHigh=v;}
@@ -144,6 +146,7 @@ private:
   Double_t _cubicFitTime;
 
   Double_t _correctedTime;
+  Double_t _correctedCubicFitTime;
   
   UInt_t _timeLow;
   UInt_t _timeHigh;

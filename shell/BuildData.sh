@@ -20,15 +20,19 @@ fi
 
 #runNum=$1;
 runNum=$(printf "%04d" $1)
-#if [ $runNum -lt 10 ] && [ $runNum -ge 0 ]; then
-#    runNum="000$runNum";
-#elif [ $runNum -ge 10 ] && [ $runNum -lt 100 ]; then
-#    runNum="00$runNum"
-#elif [ $runNum -ge 100 ] && [ $runNum -lt 1000 ]; then
-#    runNum="0$runNum"
-#elif [ $runNum -ge 1000 ]; then
-#    runNum=$runNum;
-#fi
+
+
+if [ -f ./rootfiles/run-${runNum}-*-RAW.root ]; then
+    echo "Build From Raw Root"
+    for file in $(ls ./rootfiles/run-${runNum}-*-RAW.root)
+    do
+
+	Raw2Cal $file ./$(echo $file | sed s/-RAW//g)
+    done
+    exit
+fi
+
+
 
 if stat -t -- ./evtfiles/run-${runNum}-*.evt >/dev/null 2>&1
 then

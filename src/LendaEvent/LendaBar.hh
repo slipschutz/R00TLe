@@ -54,12 +54,17 @@ public:
   inline Double_t GetBottomTOF(){return BottomTOF;}
 
   inline Double_t GetAvgTOF(){return 0.5*(TopTOF+BottomTOF);}
+  inline Double_t GetCorrectedAvgTOF(){return 0.5*(CorrectedTopTOF + CorrectedBottomTOF);}
 
   inline Double_t GetCubicTopTOF(){return CubicTopTOF;}
   inline Double_t GetCubicBottomTOF(){return CubicBottomTOF;}
 
   inline Double_t GetCorrectedTopTOF(){return CorrectedTopTOF;}
-  inline Double_t GetCorrrectedBottomTOF(){return CorrectedBottomTOF;}
+  inline Double_t GetCorrectedBottomTOF(){return CorrectedBottomTOF;}
+
+  inline Double_t GetCorrectedCubicTopTOF(){return CorrectedCubicTopTOF;}
+  inline Double_t GetCorrectedCubicBottomTOF(){return CorrectedCubicBottomTOF;}
+  
 
   void SetBarId(Int_t v){BarId=v;}
   void SetBarName(string v){Name=v;}
@@ -104,6 +109,11 @@ private:
 
   Double_t CubicTopTOF;
   Double_t CubicBottomTOF;
+  
+  Double_t CorrectedCubicTopTOF;
+  Double_t CorrectedCubicBottomTOF;
+  
+  
 
   Double_t CorrectedTopTOF;
   Double_t CorrectedBottomTOF;
