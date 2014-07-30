@@ -23,8 +23,16 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
 
   saveTraces=false;
  
+  
+}
+
+void LendaPacker::SetSettingFileNames(string MapFileName,string CorrectionsFileName){
+  _mapFileName=MapFileName;
+  _correctionsFileName=CorrectionsFileName;
+  
   BuildMaps();
 }
+
 
 void LendaPacker::SetFilter(Int_t _FL,Int_t _FG,Int_t _d,Int_t _w){
   fFL=_FL;
@@ -137,14 +145,14 @@ void LendaPacker::BuildMaps(){
   ss<<string(getenv("R00TLe_PRM"));
   ss1<<ss.str();
 
-  ss<<"/MapFile.txt";
-  ss1<<"/Corrections.txt";
+  ss<<"/"<<_mapFileName;
+  ss1<<"/"<<_correctionsFileName;
 
   MapFile.open(ss.str().c_str());
   if (!MapFile.is_open()){
     cout<<"Cable Map File not found"<<endl;
     cout<<"Looking in "<<ss.str()<<endl;
-    cout<<"Make a ./MapFile.txt"<<endl;
+    cout<<"Make a MapFile"<<endl;
     throw -1;
   }
 
@@ -152,7 +160,7 @@ void LendaPacker::BuildMaps(){
   if ( ! CorrectionsFile.is_open()){
     cout<<"Correction File not found"<<endl;
     cout<<"Looking in "<<ss1.str()<<endl;
-    cout<<"Make a ./Corrections.txt file"<<endl;
+    cout<<"Make a Corrections file"<<endl;
     throw -1;
   }
 
@@ -413,6 +421,66 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
   ThisEventsBars.clear();//Clear the temporary map of bars
 }
 
+void LendaPacker::RePackChannel(LendaChannel *channel){
+  
+  //Get The global ID stored in the LendaChannel
+  //Assuming now that only the corrections information is
+  //being repacked.  Not the Map information
+
+  int GlobalID = channel->GetGlobalID();
+  
+  map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(GlobalID); 
+  
+  if (it != GlobalIDToMapInfo.end() ){ //This global ID is in the map file
+    MapInfo info = it->second;//Get the mapinfo object from map
+
+    if (info.HasCorrections){ //Check to see if there are Corrections for this channel
+      channel->SetCorrectedEnergy( channel->GetEnergy()*info.EnergySlope + info.EnergyIntercept);
+      channel->SetCorrectedTime( channel->GetTime() + info.TOFOffset);
+      channel->SetCorrectedCubicFitTime( channel->GetCubicFitTime() + info.TOFOffset);
+
+    }
+  }
+
+
+  
+}
+
+void LendaPacker::ReMakeLendaEvent(LendaEvent* inEvent,LendaEvent* outEvent){
+  //
+  //  first copy the information in inEvent to outEvent
+  //
+  // Can't do this outEvent = new LendaEvent(*inEvent);
+  // OutEvent already newed for the tree and it's address can't change
+
+
+    
+  for (int i=0;i<inEvent->NumBars;i++){
+  
+    outEvent->PushABar(inEvent->Bars[i]); //Copy over the Bars to new event
+    
+    int numTops = outEvent->Bars[i].NumTops;
+    int numBottoms= outEvent->Bars[i].NumBottoms;
+  
+
+  
+    for (int t=0;t<numTops;t++){
+      RePackChannel(&outEvent->Bars[i].Tops[t]);
+      //      cout<<inEvent->Bars[i].Tops[t].GetGlobalID()<<" "<<outEvent->Bars[i].Tops[t].GetGlobalID()<<endl;
+    }
+    for (int b=0;b<numBottoms;b++){
+      RePackChannel(&outEvent->Bars[i].Bottoms[b]);
+    }
+  }
+  
+  //Copy over the Object Scihtillators
+
+  for (int i=0;i<inEvent->NumObjectScintillators;i++){
+    outEvent->TheObjectScintillators.push_back(inEvent->TheObjectScintillators[i]);
+  }
+  
+ 
+}
 
 
 void LendaPacker::PackEvent(LendaEvent * Event){

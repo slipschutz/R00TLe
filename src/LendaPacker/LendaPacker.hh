@@ -79,9 +79,12 @@ class LendaPacker {
 public:
 
   LendaPacker(R00TLeSettings*); //Defualt Constructor
+  
   ~LendaPacker();
   
   LendaFilter theFilter;
+
+  void SetSettingFileNames(string,string);
 
   void Reset();
 
@@ -101,7 +104,9 @@ public:
 
   void MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 		      Long64_t jentry);
-
+  
+  void ReMakeLendaEvent(LendaEvent*inEvent,LendaEvent*outEvent);
+  void RePackChannel(LendaChannel *);
 
   LendaChannel DDASChannel2LendaChannel(ddaschannel* c,MapInfo info);
   
@@ -129,6 +134,7 @@ private:
   
   map<string,LendaBar> ThisEventsBars;
 
+  string _mapFileName,_correctionsFileName;
 
   Bool_t saveTraces;
 
