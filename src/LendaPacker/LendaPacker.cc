@@ -308,8 +308,8 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
   
   if (info.HasCorrections){
    tempLenda.SetCorrectedEnergy( thisEventsIntegral*info.EnergySlope + info.EnergyIntercept);
-   tempLenda.SetCorrectedTime( tempLenda.GetTime() + info.TOFOffset);
-   tempLenda.SetCorrectedCubicFitTime( tempLenda.GetCubicFitTime() + info.TOFOffset);
+   tempLenda.SetCorrectedTime( tempLenda.GetTime() - info.TOFOffset);
+   tempLenda.SetCorrectedCubicFitTime( tempLenda.GetCubicFitTime() - info.TOFOffset);
    
   }
   //RESET THE PACKERS VARIABLES
@@ -436,8 +436,8 @@ void LendaPacker::RePackChannel(LendaChannel *channel){
 
     if (info.HasCorrections){ //Check to see if there are Corrections for this channel
       channel->SetCorrectedEnergy( channel->GetEnergy()*info.EnergySlope + info.EnergyIntercept);
-      channel->SetCorrectedTime( channel->GetTime() + info.TOFOffset);
-      channel->SetCorrectedCubicFitTime( channel->GetCubicFitTime() + info.TOFOffset);
+      channel->SetCorrectedTime( channel->GetTime() - info.TOFOffset);
+      channel->SetCorrectedCubicFitTime( channel->GetCubicFitTime() - info.TOFOffset);
 
     }
   }
