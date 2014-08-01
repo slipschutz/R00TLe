@@ -1,4 +1,4 @@
-TARGET   = ../../bin/Evt2Raw ../../bin/Raw2Cal ../../bin/Evt2Cal
+TARGET   = ../../bin/Evt2Raw ../../bin/Raw2Cal ../../bin/Evt2Cal ../../bin/Cal2Cal
 SUBLIBS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings LendaPacker LendaFilter
 LIBS     = $(addprefix -l, $(SUBLIBS))
 LIBDIR   = $(PWD)/../../lib/
@@ -28,3 +28,12 @@ include ../common.mk
 			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
 			../include/R00TLeSettings.hh  \
 			../include/Utilities.hh
+
+../../bin/Cal2Cal:	Cal2Cal.cc \
+			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
+			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
+			../include/DDASEvent.hh ../include/ddaschannel.hh \
+			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
+			../include/R00TLeSettings.hh \
+			../include/Utilities.hh
+

@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
    thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
-
+   thePacker->SetSettingFileNames("MapFile.txt","Corrections.txt");
    LendaEvent* lendaevent = new LendaEvent;
    outtree->Branch("lendaevent", &lendaevent, 320000);
 
