@@ -8,8 +8,8 @@ ROOTGLIBS  =   $(shell root-config --glibs) # does     include -lGui
 ROOTINC    = -I$(shell root-config --incdir)
 
 WARN_OPT   = -Wall -Wno-long-long #-pedantic 
-OPTIM_OPT  = -O2
-DEBUG_OPT  = -g
+OPTIM_OPT  = 
+DEBUG_OPT  = -g -pg
 POS_INDEP  = -fPIC
 LFLAGS     = $(DEBUG_OPT) $(POS_INDEP)
 CFLAGS     = $(LFLAGS) $(WARN_OPT) $(OPTIM_OPT)
@@ -23,6 +23,8 @@ GCHFILES   = $(wildcard *.gch)
 INCDIR     = ../include
 LDFLAGS    = -Wl,-rpath=$(LIBDIR)
 
+.SECONDARY: $(OBJS)
+
 .PHONY:    all clean
 all:       $(TARGET)
 clean:
@@ -30,11 +32,11 @@ clean:
 
 %.o: %.c
 	@echo "Compiling $<..."
-	@$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.cc %.hh
 	@echo "Compiling $<..."
-	@$(CXX) $(CFLAGS) $(CCFLAGS) -I$(INCDIR) -c $< -o $@
+	$(CXX) $(CFLAGS) $(CCFLAGS) -I$(INCDIR) -c $< -o $@
 
 ../../lib/lib%.so: $(OBJS)
 	@echo "Building Library $<..."
@@ -42,10 +44,10 @@ clean:
 
 ../../bin/%: %.cc
 	@echo "Building target $<..."
-	@$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) $(LDFLAGS) $< -o $@
+	$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) $(LDFLAGS) $< -o $@
 
 %Dictionary.o: %.hh %LinkDef.h
 	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
 	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p -I$(INCDIR) $^;
-	@$(CXX) $(CFLAGS) $(CCFLAGS) -I$(INCDIR) -c $(patsubst %.o,%.cc,$@)
+	$(CXX) $(CFLAGS) $(CCFLAGS) -I$(INCDIR) -c $(patsubst %.o,%.cc,$@)
 
