@@ -126,11 +126,21 @@ int main(int argc, char* argv[])
    
    Bool_t BadLastEvent=kFALSE;
    //Loop over the entirety of the input file.
-   while (!feof(infile) && !signal_received) {
+   while ( !signal_received) {
+     //first try and read something from the file
+     //if it is at the end then you must try and read
+     //from the file inorder for the eof bit to true
+     
 
       // The header of built ring item: 2 uint32_t's.
       // A 32-bit size of entire item (in bytes)
       count_read  = fread(&size_of_entire_item, sizeof(uint32_t), 1, infile);
+      if ( feof(infile) ){ // if the end of tile bit has been set
+        if ( bytes_read != info.fSize){
+          Error("Evt2Cal","Total number of bytes read %ld not equal to file size %lld at the end of file parsing",bytes_read,info.fSize);
+        }
+        break; //end main unpacking loop
+      }
       bytes_read += 1 * sizeof(uint32_t);
  
       // A 32-bit type of item (/usr/opt/nscldaq/10.2-104/include/DataFormat.h)
