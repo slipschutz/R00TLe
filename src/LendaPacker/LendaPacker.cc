@@ -29,7 +29,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
 void LendaPacker::SetSettingFileNames(string MapFileName,string CorrectionsFileName){
   _mapFileName=MapFileName;
   _correctionsFileName=CorrectionsFileName;
-  
+
   BuildMaps();
 }
 
@@ -528,6 +528,16 @@ void LendaPacker::PackEvent(LendaEvent * Event){
 
 
 void LendaPacker::RePackEvent(LendaEvent * Event){
+  stringstream stream;
+  ifstream MapFile;
+  ifstream CorrectionsFile;
+
+  stringstream ss,ss1;
+  ss<<string(getenv("R00TLe_PRM"));
+  ss1<<ss.str();
+
+  ss<<"/"<<_mapFileName;
+  ss1<<"/"<<_correctionsFileName;
 
 
 
@@ -587,6 +597,53 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
   //   Event->TheObjectScintilator.SetCubicCFD(tempCubicTime);
   //   Event->TheObjectScintilator.SetCubicTime(tempCubicTime+Basetime);
   // }
+
+
+}
+
+
+
+
+void LendaPacker::FindAndSetMapAndCorrectionsFileNames(int RunNumber){
+  /////////////////////////////////////////////////////////////////////////////
+  // Look for MapFiles named MapFileRunNuber.txt and correction files	     //
+  // name CorrectionsRunNumber.txt		      			     //
+  /////////////////////////////////////////////////////////////////////////////
+
+  stringstream filePath,mapFile,correctionsFile;
+  
+  ifstream testFile;
+
+  filePath<<string(getenv("R00TLe_PRM"));
+  filePath<<"/";
+
+  mapFile<<filePath.str()<<"MapFile"<<RunNumber<<".txt";  
+  correctionsFile<<filePath.str()<<"Corrections"<<RunNumber<<".txt";  
+  
+  string corName="Corrections.txt";
+  string mapName="MapFile.txt";
+
+  
+
+  testFile.open(mapFile.str().c_str());
+  if (testFile.good()){
+    stringstream s;
+    s<<"MapFile"<<RunNumber<<".txt";
+    mapName = s.str();
+  }
+  testFile.close();
+  
+  testFile.open(correctionsFile.str().c_str());
+  if (testFile.good()){
+    stringstream s;
+    s<<"Corrections"<<RunNumber<<".txt";
+    corName = s.str();
+  }
+  testFile.close();
+  
+  SetSettingFileNames(mapName,corName);
+
+
 
 
 }

@@ -44,27 +44,28 @@
 
 /////////////////////////////////////////////////////////////////
 // MapInfo is a Small Container class to hold the information  //
-// that is stored in the mapfile.  			       //
+// that is stored in the mapfile/Corrections file 	       //
 /////////////////////////////////////////////////////////////////
 class MapInfo{
 public:
+  //Constructor defaults all member variables to bad values
   MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
 	     TOFOffset(BAD_NUM),FullName(""),BarName(""),ReferenceName(""),
 	     HasCorrections(false),ReferenceGlobalID(BAD_NUM),
 	     GlobalID(BAD_NUM){;}
 
-  Double_t EnergySlope;
-  Double_t EnergyIntercept;
-  Double_t TOFOffset;
+  Double_t EnergySlope; //Slope for Energy Calibration of Light output
+  Double_t EnergyIntercept; //Intercept for energy calibration of light output
+  Double_t TOFOffset; //Constant time offset (clock tics) used in Corrected Times
   
-  string FullName;
-  string BarName;
-  string ReferenceName;
+  string FullName; //Full Channel Name
+  string BarName; //Name of Bar
+  string ReferenceName; //Full Reference channel Name
 
 
-  bool HasCorrections;
-  Int_t ReferenceGlobalID;
-  Int_t GlobalID;
+  bool HasCorrections; //Has corrections
+  Int_t ReferenceGlobalID; //Global DDAS ID of the reference channel
+  Int_t GlobalID; //Global ID of this Channel
   
   void Print(){cout<<FullName<<" "<<BarName<<" Slope "<<EnergySlope<<" Intercept "<<EnergyIntercept<<" Offset "<<TOFOffset<<" reference name "<<ReferenceName<<" RefGlobal "<<ReferenceGlobalID;}
 };
@@ -84,7 +85,7 @@ public:
   
   LendaFilter theFilter;
 
-  void SetSettingFileNames(string,string);
+  void SetSettingFileNames(string MapFileName,string CorrectionsFileName);
 
   void Reset();
 
@@ -116,6 +117,7 @@ public:
   void PackEvent(LendaEvent* Event);
   void RePackEvent(LendaEvent* Event);
 
+  void FindAndSetMapAndCorrectionsFileNames(int RunNumber);
 
 private:
   void BuildMaps();
@@ -155,8 +157,10 @@ private:
   Double_t cubicFitCFD;
   Double_t softwareCFD;
   Double_t start;
-
   Double_t CFDResidual;
+
+  
+  
   R00TLeSettings * theSettings;
 
 };
