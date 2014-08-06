@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
       loadBar(jentry, nentries, 1000, 50);
    }
 
-   outfile->Write();
+   outtree->Write("",TObject::kOverwrite);
    TheR00TLeSettings->Write();
    delete intree;
    delete outtree;
