@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <sys/stat.h>
+#include <cstdlib>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -38,8 +39,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-   if (argc != 3) {
-      Error("Evt2Cal","Usage: Evt2Cal InputFile OutputFile");
+   if (argc != 3  && argc !=4) {
+      Error("Evt2Cal","Usage: Evt2Cal InputFile OutputFile [RunNumber]");
       return 0;
    }
    
@@ -49,6 +50,11 @@ int main(int argc, char* argv[])
    sw->Start(kTRUE);
    signal(SIGINT,signalhandler);
 
+   Int_t RunNumber=-1;
+   if (argc == 4 ){ // A RunNumber was given
+     RunNumber = atoi(argv[3]);
+   }
+
    // Get the name of the input file from the arguments
    TString InputFile  = TString(argv[1]);
 
@@ -57,6 +63,7 @@ int main(int argc, char* argv[])
       Error("Evt2Cal", "Input file %s does not exist.", InputFile.Data());
       return 0;
    }
+
    // Open the input file.
    FILE *infile;
    infile = fopen(InputFile.Data(),"r");
@@ -130,7 +137,8 @@ int main(int argc, char* argv[])
    thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
-   thePacker->SetSettingFileNames("MapFile.txt","Corrections.txt");
+   thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);
+
    LendaEvent* lendaevent = new LendaEvent;
    outtree->Branch("lendaevent", &lendaevent, 320000);
 

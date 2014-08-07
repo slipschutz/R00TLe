@@ -1,6 +1,6 @@
  
 #include "LendaPacker.hh"
-
+#include "Utilities.hh"
 
 LendaPacker::LendaPacker(R00TLeSettings*v){
   ///Use bad Defaults to ensure that the calling program set 
@@ -29,6 +29,8 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
 void LendaPacker::SetSettingFileNames(string MapFileName,string CorrectionsFileName){
   _mapFileName=MapFileName;
   _correctionsFileName=CorrectionsFileName;
+
+  Info("LendaPacker","Using MapFile %s and CorrectionsFile %s",_mapFileName.c_str(),_correctionsFileName.c_str());
 
   BuildMaps();
 }

@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <cstdio>
 #include <sys/stat.h>
+#include <cstdlib>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -33,8 +34,8 @@
 
 int main(int argc, char* argv[]) 
 {
-   if (argc != 3) {
-      Error("Raw2Cal","Usage: Raw2Cal InputFile OutputFile");
+   if (argc != 3 && argc !=4) {
+      Error("Raw2Cal","Usage: Raw2Cal InputFile OutputFile [RunNumber]");
       return 0;
    }
 
@@ -43,6 +44,13 @@ int main(int argc, char* argv[])
    sw = new TStopwatch();
    sw->Start(kTRUE);
    signal(SIGINT, signalhandler);
+
+
+   Int_t RunNumber=-1;
+   if (argc == 4 ){ // A RunNumber was given
+     RunNumber = atoi(argv[3]);
+   }
+
 
    // Input file and tree
    TString InputFile  = TString(argv[1]);
@@ -95,6 +103,7 @@ int main(int argc, char* argv[])
    thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
+   thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);
    LendaEvent* lendaevent = new LendaEvent;
    outtree->Branch("lendaevent", &lendaevent, 320000);
 
