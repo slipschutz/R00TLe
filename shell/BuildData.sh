@@ -27,7 +27,7 @@ if [ -f ./rootfiles/run-${runNum}-*-RAW.root ]; then
     for file in $(ls ./rootfiles/run-${runNum}-*-RAW.root)
     do
 
-	Raw2Cal $file ./$(echo $file | sed s/-RAW//g)
+	Raw2Cal $file ./$(echo $file | sed s/-RAW//g) $runNum
     done
     exit
 fi
@@ -38,7 +38,7 @@ if stat -t -- ./evtfiles/run-${runNum}-*.evt >/dev/null 2>&1
 then
     for file in $(ls ./evtfiles/run-${runNum}-??.evt)
     do
-	Evt2Cal $file ./rootfiles/$(basename $file .evt).root
+	Evt2Cal $file ./rootfiles/$(basename $file .evt).root $runNum
     done
 else
     echo "Cannot find evt file for run $runNum "
