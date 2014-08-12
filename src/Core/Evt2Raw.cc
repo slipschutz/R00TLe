@@ -278,6 +278,7 @@ int main(int argc, char* argv[])
 				      InputFile.Data());
 			      continue;
 			   }
+			   s800->SetTS(timestamp);
 
 			   // Add decoded S800 instance to fS800
 			   s800event->SetS800(*s800);

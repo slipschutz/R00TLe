@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
       // Build the calibrated S800 object from data in the uncalibrated S800 object
       // cal->S800Calculate(s800event->GetS800(),s800calc); // this should work
       s800calc->ApplyCalibration(s800event->GetS800(),cal); // this should work as well
+      s800calc->SetTS(s800event->GetS800()->GetTS());
 
       thePacker->MakeLendaEvent(lendaevent, ddasevent,jentry);
       lendaevent->Finalize();
