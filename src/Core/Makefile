@@ -1,8 +1,8 @@
-TARGET   = ../../bin/Evt2Raw ../../bin/Raw2Cal ../../bin/Evt2Cal ../../bin/Cal2Cal ../../bin/Evt2CalStatic
-SUBLIBS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings LendaPacker LendaFilter
+TARGET   = ../../bin/Evt2Raw ../../bin/Raw2Cal ../../bin/Evt2Cal ../../bin/Cal2Cal ../../bin/Evt2CalStatic ../../bin/Evt2Scalars
+SUBLIBS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings LendaPacker LendaFilter Scalers
 LIBS     = $(addprefix -l, $(SUBLIBS))
 LIBDIR   = $(PWD)/../../lib/
-#LIBDIR   = /user/e10003/anaroot/lib/
+
 
 include ../common.mk
 
@@ -38,24 +38,6 @@ include ../common.mk
 			../include/Utilities.hh
 
 
-# ../../bin/Evt2CalStatic:	Evt2Cal.cc \
-# 			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
-# 			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
-# 			../include/DDASEvent.hh ../include/ddaschannel.hh \
-# 			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
-# 			../include/R00TLeSettings.hh \
-# 			../include/Utilities.hh ../S800/S800Event.o ../S800/S800.o ../S800/S800Calc.o ../S800/S800Settings.o \
-# 			../S800/S800Calibration.o ../DDASEvent/DDASEvent.o ../DDASEvent/ddaschannel.o \
-# 			../DDASEvent/DDASEventDictionary.o ../DDASEvent/ddaschannelDictionary.o \
-# 			../LendaPacker/LendaPacker.o ../LendaEvent/LendaEvent.o ../LendaEvent/LendaBar.o \
-# 			../LendaEvent/LendaChannel.o ../LendaEvent/LendaEventDictionary.o \
-# 			../LendaEvent/LendaBarDictionary.o ../LendaEvent/LendaChannelDictionary.o \
-# 			../LendaFilter/LendaFilter.o ../R00TLeSettings/R00TLeSettings.o \
-# 			../R00TLeSettings/R00TLeSettingsDictionary.o
-# 	$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) $^ -o $@ -I$(INCDIR)
-
-
-
 ../../bin/Evt2CalStatic:	Evt2Cal.cc \
 			 ../S800/S800Event.o ../S800/S800.o ../S800/S800Calc.o ../S800/S800Settings.o \
 			../S800/S800Calibration.o ../DDASEvent/DDASEvent.o ../DDASEvent/ddaschannel.o \
@@ -67,4 +49,7 @@ include ../common.mk
 			../LendaEvent/LendaBarDictionary.o ../LendaEvent/LendaChannelDictionary.o \
 			../LendaFilter/LendaFilter.o ../R00TLeSettings/R00TLeSettings.o \
 			../R00TLeSettings/R00TLeSettingsDictionary.o ../Utilities/Utilities.o
-	$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) $^ -o $@ -I$(INCDIR)
+	$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) $^ -o $@ $(INCDIR)
+
+
+../../bin/Evt2Scalars: Evt2Scalars.cc

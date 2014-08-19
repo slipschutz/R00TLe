@@ -20,8 +20,8 @@ DICTFILES  = $(wildcard *Dictionary.*)
 OBJFILES   = $(wildcard *.o)
 GCHFILES   = $(wildcard *.gch)
 
-INCDIR     = ../include
-LDFLAGS    = -Wl,-rpath=$(LIBDIR)
+INCDIR     = -I../include -I/usr/opt/nscldaq/10.2-105/include/
+LDFLAGS    = -Wl,-rpath=$(LIBDIR) -Wl,-rpath=/usr/opt.nscldaq/10.2-105/lib/
 
 .SECONDARY: $(OBJS)
 
@@ -32,22 +32,27 @@ clean:
 
 %.o: %.c
 	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.cc %.hh
 	@echo "Compiling $<..."
-	$(CXX) $(CFLAGS) $(CCFLAGS) -I$(INCDIR) -c $< -o $@
+	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $< -o $@
 
 ../../lib/lib%.so: $(OBJS)
 	@echo "Building Library $<..."
-	$(CXX) $(LFLAGS) $(SOFLAGS) -o $@ $^ -lc
+	@$(CXX) $(LFLAGS) $(SOFLAGS) -o $@ $^ -lc
 
 ../../bin/%: %.cc
 	@echo "Building target $<..."
-	$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) -L$(LIBDIR) $(LIBS) -I$(INCDIR) $(LDFLAGS) $< -o $@
+	@$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) -L$(LIBDIR) $(LIBS) $(INCDIR) $(LDFLAGS) $< -o $@
 
 %Dictionary.o: %.hh %LinkDef.h
 	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
-	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p -I$(INCDIR) $^;
-	$(CXX) $(CFLAGS) $(CCFLAGS) -I$(INCDIR) -c $(patsubst %.o,%.cc,$@)
+	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p $(INCDIR) $^;
+	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $(patsubst %.o,%.cc,$@)
+
+%Dictionary3.o: %.hh $(SPECIALHEADERS) %LinkDef.h
+	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
+	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p $(INCDIR) $^;
+	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $(patsubst %.o,%.cc,$@)
 
