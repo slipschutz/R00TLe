@@ -78,11 +78,11 @@ echo "Rint.History ${R00TLeInstall}/users/$1/.roothist">>.rootrc
 
 ###Make a rootlogon
 rm -f rootlogon.C
-
+rm -f rootlogoff.C
 #copy the skelton version of the rootlogon
 echo "Generating ROOT logon file..."
-cp ${R00TLeInstall}/skelton/rootlogon.C .
-cp ${R00TLeInstall}/skelton/rootlogoff.C .
+cp -f ${R00TLeInstall}/skelton/rootlogon.C .
+cp -f ${R00TLeInstall}/skelton/rootlogoff.C .
 
 echo "rootlogon(){" >> temp_R00TLe
 echo "cout<<\"\\nHello $1,\"<<endl;" >>temp_R00TLe

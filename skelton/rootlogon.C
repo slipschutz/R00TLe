@@ -16,7 +16,7 @@ rootlogon(){
   gSystem->Load("libLendaEvent.so");
   gSystem->Load("libS800.so");
   gSystem->Load("libDDASEvent.so");
-  gSystem->Load("libR00TLeSettings.so");
+  gSystem->Load("libLendaPacker.so");
 
 return;
 }
