@@ -1,23 +1,21 @@
-
-
 #ifndef __FILTER_HH
 #define __FILTER_HH
 
 
 #include <vector>
 #include <iostream>
-#include "TFile.h"
-#include "TMatrixD.h"
+
+#include "TMatrixT.h"
+#include "TObject.h"
+
 using namespace std;
 
-
-class LendaFilter {
-
+class LendaFilter : public TObject{
 
 public:
 
   LendaFilter();
-  
+  ~LendaFilter();
 
   
   void FastFilter(std::vector <UShort_t> &trace,
@@ -51,8 +49,8 @@ public:
   Int_t getMaxPulseHeight(std::vector <UShort_t> &trace);
   Int_t getMaxPulseHeight(std::vector <Double_t> &trace);
 
-  double getFunc(TMatrixD, double);
-  double getFunc(vector<double>&, double);
+  double getFunc(TMatrixT<Double_t>, double);
+  double getFunc(vector<double>&, double );
 
   Double_t numOfBadFits;
 
@@ -61,6 +59,7 @@ public:
 private:
 
 
-
+public:
+  ClassDef(LendaFilter,0);
 };
 #endif

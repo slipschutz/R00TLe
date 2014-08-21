@@ -6,7 +6,6 @@
 
 #include "LendaFilter.hh"
 
-#include "TFile.h"
 #include "TMath.h"
 #include "TGraph.h"
 #include "TFitResult.h"
@@ -18,6 +17,10 @@ using namespace std;
 LendaFilter::LendaFilter()
 {
   numOfBadFits=0;
+
+}
+LendaFilter::~LendaFilter()
+{
 
 }
 
@@ -302,7 +305,7 @@ Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
   int theSpotAbove = zeroCrossings[max];
 
   Double_t x[4];
-  TMatrixD Y(4,1);//a column vector
+  TMatrixT<Double_t> Y(4,1);//a column vector
   
   for (int i=0;i<4;i++){
     x[i]= theSpotAbove -1+ i; //first point is the one before zerocrossing
@@ -310,7 +313,7 @@ Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
   }
 
 
-  TMatrixD A(4,4);//declare 4 by 4 matrix
+  TMatrixT<Double_t> A(4,4);//declare 4 by 4 matrix
 
   for (int row=0;row<4;row++){
     for (int col=0;col<4;col++){
@@ -320,11 +323,11 @@ Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
 
   //  A.Print();
 
-  TMatrixD invertA = A.Invert();
+  TMatrixT<Double_t> invertA = A.Invert();
 
   // invertA.Print();
 
-  TMatrixD Coeffs(4,1);
+  TMatrixT<Double_t> Coeffs(4,1);
   Coeffs = invertA*Y;
   
   //cout<<"COEFFS are "<<endl;
@@ -364,7 +367,7 @@ Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
 
 
   return left;
- 
+
 }
 
 Double_t LendaFilter::GetZeroFitCubic(std::vector <Double_t> & CFD){
@@ -458,7 +461,7 @@ Double_t LendaFilter::GetZeroFitCubic(std::vector <Double_t> & CFD){
 
 
 
-double LendaFilter::getFunc(TMatrixD Coeffs,double x){
+double LendaFilter::getFunc(TMatrixT<Double_t> Coeffs,double x){
   double total =0;
   for (int i=0;i<4;i++){
     total = total + Coeffs[i][0]*TMath::Power(x,3-i);
