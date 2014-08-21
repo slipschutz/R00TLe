@@ -40,7 +40,7 @@ clean:
 
 ../../lib/lib%.so: $(OBJS)
 	@echo "Building Library $<..."
-	@$(CXX) $(LFLAGS) $(SOFLAGS) -o $@ $^ -lc
+	@$(CXX) $(LFLAGS) $(ROOTLIBS) $(SOFLAGS) -o $@ $^
 
 ../../bin/%: %.cc
 	@echo "Building target $<..."
@@ -49,7 +49,7 @@ clean:
 %Dictionary.o: %.hh %LinkDef.h
 	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
 	@$(ROOTCINT) -f $(patsubst %.o,%.cc,$@) -c -p $(INCDIR) $^;
-	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $(patsubst %.o,%.cc,$@)
+	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $(patsubst %.o,%.cc,$@) -o $@
 
 %Dictionary3.o: %.hh $(SPECIALHEADERS) %LinkDef.h
 	@echo "Compiling ROOT dictionary $(patsubst %.o,%.cc,$@)..."
