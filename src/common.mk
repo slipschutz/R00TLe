@@ -39,8 +39,8 @@ clean:
 	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $< -o $@
 
 ../../lib/lib%.so: $(OBJS)
-	@echo "Building Library $<..."
-	@$(CXX) $(LFLAGS) $(ROOTLIBS) $(SOFLAGS) -o $@ $^
+	@echo "Building Library $@..."
+	@$(CXX) $(LFLAGS) $(SPECIALLIBS) $(LDFLAGS) $(ROOTLIBS) $(SOFLAGS) -o $@ $^
 
 ../../bin/%: %.cc
 	@echo "Building target $<..."

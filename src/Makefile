@@ -1,5 +1,5 @@
 MAKE     = make
-LIBDIRS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings LendaPacker LendaFilter Scalers
+LIBDIRS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings  LendaFilter Scalers LendaPacker
 COREDIR  = Core
 #PROGRAMS = Evt2Tree RawEventLoop
 
