@@ -30,6 +30,7 @@ void LendaChannel::Clear(){
   _cubicFitTime=BAD_NUM;
   _correctedTime=BAD_NUM;
   _correctedCubicFitTime=BAD_NUM;
+  _correctedSoftTime=BAD_NUM;
 
   _timeLow=0;
   _timeHigh=0;
@@ -47,6 +48,7 @@ void LendaChannel::Clear(){
 
   _refTime=BAD_NUM;
   _cubicRefTime=BAD_NUM;
+  _softRefTime=BAD_NUM;
 
   _trace.clear();
   _filter.clear();
@@ -58,17 +60,3 @@ void LendaChannel::Clear(){
   _referenceChannelName="";
 }
 
-// #include <iostream>
-// using namespace std;
-// LendaChannel & LendaChannel::operator=(const LendaChannel & rhs){
-
-//   cout<<"Hello From the = operator"<<endl;
-//   cout<<"the rhs address is "<<&rhs<<endl;
-//   cout<<"this is "<<this<<endl;
-  
-//   this->_channel= rhs._channel;
-
-
-//   return *this;
-
-// }

@@ -45,6 +45,7 @@ public:
   inline Double_t GetCubicFitTime(){return _cubicFitTime;}
   inline Double_t GetCorrectedTime(){return _correctedTime;}
   inline Double_t GetCorrectedCubicFitTime(){return _correctedCubicFitTime;}
+  inline Double_t GetCorrectedSoftTime(){return _correctedSoftTime;}
 
   inline UInt_t GetCFDTrigBit(){return _CFDTrigBit;}
   
@@ -69,9 +70,14 @@ public:
   inline Double_t GetCFDResidual(){return _CFDResidual;}
   inline Double_t GetReferenceTime(){return _refTime;}
   inline Double_t GetCubicReferenceTime(){return _cubicRefTime;}
+  inline Double_t GetSoftReferenceTime(){return _softRefTime;}
 
   string GetChannelName(){return _channelName;}
   string GetReferenceChannelName(){return _referenceChannelName;}
+
+
+
+
 
   void SetChannel(Int_t v){_channel=v;}
   void SetSlot(Int_t v){_slot=v;}
@@ -93,6 +99,8 @@ public:
   void SetCubicFitTime(Double_t v){_cubicFitTime=v;}
   void SetCorrectedTime(Double_t v){_correctedTime=v;}
   void SetCorrectedCubicFitTime(Double_t v){_correctedCubicFitTime=v;}
+  void SetCorrectedSoftTime(Double_t v){_correctedSoftTime=v;}
+
 
   void SetTimeLow(UInt_t v){_timeLow=v;}
   void SetTimeHigh(UInt_t v){_timeHigh=v;}
@@ -121,7 +129,7 @@ public:
   
   void SetReferenceTime(Double_t v){_refTime=v;}
   void SetCubicReferenceTime(Double_t v){_cubicRefTime=v;}
-
+  void SetSoftReferenceTime(Double_t v){_softRefTime=v;}
   //  LendaChannel & operator=(const LendaChannel &);
 
 private:
@@ -147,7 +155,8 @@ private:
 
   Double_t _correctedTime;
   Double_t _correctedCubicFitTime;
-  
+  Double_t _correctedSoftTime;
+
   UInt_t _timeLow;
   UInt_t _timeHigh;
 
@@ -172,10 +181,11 @@ private:
   string _referenceChannelName;
 
   Double_t _refTime;
+  Double_t _softRefTime;
   Double_t _cubicRefTime;
   
 public:
-  ClassDef(LendaChannel,2);
+  ClassDef(LendaChannel,4);
 };
 
 
