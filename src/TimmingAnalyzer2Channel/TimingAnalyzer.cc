@@ -26,44 +26,51 @@
 
 #include <ctime>
 #include <iomanip>
-#include "LendaSettings.hh"
+
 #include "LendaPacker.hh"
 
 #include "TFitResult.h"
 #include "TF1.h"
 #define BAD_NUM -10008
 
+#include "R00TLeSettings.hh"
 
 using namespace std;
 
 
 int main(int argc, char **argv){
 
+  R00TLeSettings aSettings;
   //Make a packer object
-  LendaPacker *thePacker = new LendaPacker();
+  LendaPacker *thePacker = new LendaPacker(&aSettings);
   
+
   
 
   //prepare files 
   ////////////////////////////////////////////////////////////////////////////////////
-  TFile *inFile = new TFile("~/stagearea/rootfiles/run-0245-00.root");
+  TChain *inT=new TChain("caltree");
+  
+  TFile *inFile = new TFile("/mnt/analysis/e10003//rootfiles/run-0396-00.root");
   TTree* inT = (TTree*)inFile->Get("caltree");
   Long64_t nentry=(Long64_t) (inT->GetEntries());
   cout <<"The number of entires is : "<< nentry << endl ;
   
+  thePacker->FindAndSetMapAndCorrectionsFileNames(396);
+
 
   // Openning output Tree and output file
   ////////////2////////////////////////////////////////////////////////////////////////
   TFile *outFile = new TFile("Result.root","recreate");
   
-  int FL_low=3;
-  int FL_high=10;
+  int FL_low=1;
+  int FL_high=5;
   int FG_low=0;
   int FG_high=5;
   int w_low=0;
   int w_high=4;
-  int d_low=3;
-  int d_high=10;
+  int d_low=1;
+  int d_high=7;
 
   Double_t cor[3];
   Double_t cubicCor[3];
@@ -85,55 +92,66 @@ int main(int argc, char **argv){
   vector <TH1F*> TheCubicHistogramsCor(NumberOfFilterSets);
   vector <TH1F*> TheHistogramsCor(NumberOfFilterSets);
 
+  vector <TH2F*> TheEnergiesVsTR(NumberOfFilterSets);
+
   map < string, int> MapOfRejectedEvents;
 
   stringstream nameStream;
   int count =0;
-  int xlow=-9;
-  int xhigh=-7;
+  int xlow=-10;
+  int xhigh=10;
+  int nBins=400;
+
   for (int FL=FL_low;FL<FL_high;FL++){
     for (int FG=FG_low;FG<FG_high;FG++){
       for (int w=w_low;w<w_high;w++){
 	for (int d=d_low;d<d_high;d++){
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d;
-	  TheHistograms[count]=new TH1F(nameStream.str().c_str(),"Title",100,xlow,xhigh);
+	  TheHistograms[count]=new TH1F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh);
 	  MapOfRejectedEvents[nameStream.str()]=0;
 
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"cubic";
-	  TheCubicHistograms[count]=new TH1F(nameStream.str().c_str(),"Title",100,xlow,xhigh);
+	  TheCubicHistograms[count]=new TH1F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh);
 	  //	  MapOfRejectedEvents[nameStream.str()]=0;
 
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"cor";
-	  TheHistogramsCor[count]=new TH1F(nameStream.str().c_str(),"Title",100,xlow,xhigh);
+	  TheHistogramsCor[count]=new TH1F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh);
 	  //      MapOfRejectedEvents[nameStream.str()]=0;
 
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"cubicCor";
-	  TheCubicHistogramsCor[count]=new TH1F(nameStream.str().c_str(),"Title",100,xlow,xhigh);
+	  TheCubicHistogramsCor[count]=new TH1F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh);
 	  //	  MapOfRejectedEvents[nameStream.str()]=0;
 
+	  nameStream.str("");
+	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"_vsEnergy";
+	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,500,0,100000);
+	  //	  MapOfRejectedEvents[nameStream.str()]=0;
+	  
 	  count++;
 	}
       }
     }
   }
 
-  TH1F * InternalTimes = new TH1F("InternalTimes","",100,xlow,xhigh);
-  TH1F * SoftTimes = new TH1F("SoftTimes","",100,xlow,xhigh);
+  TH1F * InternalTimes = new TH1F("InternalTimes","",nBins,xlow,xhigh);
+  TH1F * SoftTimes = new TH1F("SoftTimes","",nBins,xlow,xhigh);
 
 
   
   // set input tree branvh variables and addresses
   ////////////////////////////////////////////////////////////////////////////////////
   
-  //Specify the output branch
-  LendaEvent* Event = new LendaEvent();
-  inT->SetBranchAddress("lendaevent",&Event);
+  //Specify the  branch
+  LendaEvent* inEvent = new LendaEvent();
+  inT->SetBranchAddress("lendaevent",&inEvent);
   //  outT->BranchRef();
   
+  LendaEvent *outEvent = new LendaEvent();
+
   //non branch timing variables 
      ////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,30 +168,38 @@ int main(int argc, char **argv){
   double timeRate=0;
   bool timeFlag=true;
   startTime = clock();
-  nentry=10000;
+  //  nentry=30000;
   for (Long64_t jentry=0; jentry<nentry;jentry++) { // Main analysis loop
 
 
     inT->GetEntry(jentry); // Get the event from the input tree 
-    if (Event->N ==2 ){
+    if (inEvent->NumBars ==1&&inEvent->Bars[0].SimpleEventBit &&inEvent->Bars[0].Name=="SV01"){
       //Loop over the all the filters in the same way as above
-      SoftTimes->Fill(Event->Bars[0].Tops[0].GetSoftTime()-Event->Bars[0].Bottoms[0].GetSoftTime());
+      SoftTimes->Fill(inEvent->Bars[0].GetCorrectedAvgTOF());
+      InternalTimes->Fill(inEvent->Bars[0].GetCorrectedAvgTOF());
       int count =0;
       for (int FL=FL_low;FL<FL_high;FL++){
 	for (int FG=FG_low;FG<FG_high;FG++){
 	  for (int w=w_low;w<w_high;w++){
 	    for (int d=d_low;d<d_high;d++){
 	      thePacker->SetFilter(FL,FG,d,w);
-	      thePacker->RePackSoftwareTimes(Event);
+	      thePacker->ReMakeLendaEvent(inEvent,outEvent);
+	      outEvent->Finalize();
 	      //	      TheHistograms[count]->Fill(0.5*(Event->softTimes[0]+Event->softTimes[1]-Event->softTimes[2]-Event->softTimes[3]));
-	      TheHistograms[count]->Fill(Event->Bars[0].Tops[0].GetSoftTime()-Event->Bars[0].Bottoms[0].GetSoftTime());
-	      TheCubicHistograms[count]->Fill(Event->Bars[0].Tops[0].GetCubicTime()-Event->Bars[0].Bottoms[0].GetSoftTime());
+	      
+	      if (outEvent->Bars[0].GetAvgPulseHeight()/16384 >0.07){
+		TheHistograms[count]->Fill(outEvent->Bars[0].GetCorrectedAvgSoftTOF());
+		TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
+	      }
+	      TheEnergiesVsTR[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()),
+					   outEvent->Bars[0].GetAvgEnergy());
+	      //	      TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
 	      // Double_t GOE=Event->GOE;
 	      // Double_t cor1 = cor[0]*GOE + cor[1]*GOE*GOE + cor[2]*GOE*GOE*GOE;
 	      // Double_t cor2 = cubicCor[0]*GOE + cubicCor[1]*GOE*GOE + cubicCor[2]*GOE*GOE*GOE;
 	      // TheHistogramsCor[count]->Fill(Event->softTimes[0]-Event->softTimes[1]-cor1);
 	      // TheCubicHistogramsCor[count]->Fill(Event->cubicFitTimes[0]-Event->cubicFitTimes[1]-cor2);
-		
+	      outEvent->Clear();
 	      count++;
 	    }
 	  }
@@ -182,7 +208,7 @@ int main(int argc, char **argv){
     
       // InternalTimes->Fill(0.5*(Event->times[0]+Event->times[1]-
       //  			       Event->times[2]-Event->times[3]));
-      InternalTimes->Fill(Event->Bars[0].Tops[0].GetTime()-Event->Bars[0].Bottoms[0].GetTime());
+ 
       
     }
     //Periodic printing
@@ -212,7 +238,7 @@ int main(int argc, char **argv){
   int NumOfHistVectors=theVecs.size();
 
 
-  TF1 * aGauss = new TF1("aGauss","gaus",xlow,xhigh);
+  TF1 * aGauss = new TF1("aGauss","gaus",-0.3,0.3);
   TFitResultPtr result;
   Int_t status;
   vector <vector<double> > theResolutions(NumOfHistVectors);
@@ -233,7 +259,7 @@ int main(int argc, char **argv){
 
   for (int i=0;i<NumOfHistVectors;i++){
     for (int j=0;j<NumberOfFilterSets;j++){
-      result = theVecs[i][j]->Fit("aGauss","QSNR");
+      result = theVecs[i][j]->Fit("aGauss","QSR");
       status=result;
       if (status==0){
 	theResolutions[i][j]=result->Value(2)*2.35*4;
