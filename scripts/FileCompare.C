@@ -75,8 +75,11 @@ void FileCompare(TString file1Name,TString file2Name){
     file1Tree->GetEntry(i);
     file2Tree->GetEntry(i);
     
-    if (Event1->N != Event2->N){
+    if (!(Event1 == Event2)){
+      cout<<"FOUND DIFFERENT EVENTS"<<endl;
+      cout<<"ON i="<<i<<endl;
       DumpEvents(Event1,Event2);
+      
     }
 
     if ( i %1000==0){

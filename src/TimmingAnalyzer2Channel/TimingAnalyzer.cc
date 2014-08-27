@@ -50,13 +50,18 @@ int main(int argc, char **argv){
   //prepare files 
   ////////////////////////////////////////////////////////////////////////////////////
   TChain *inT=new TChain("caltree");
-  
-  TFile *inFile = new TFile("/mnt/analysis/e10003//rootfiles/run-0396-00.root");
-  TTree* inT = (TTree*)inFile->Get("caltree");
+
+  inT->Add("./rootfiles/run-0394-00.root");
+  inT->Add("./rootfiles/run-0398-00.root");
+  inT->Add("./rootfiles/run-0397-00.root");
+  inT->Add("./rootfiles/run-0396-00.root");
+  inT->Add("./rootfiles/run-0399-00.root");
+
+
   Long64_t nentry=(Long64_t) (inT->GetEntries());
   cout <<"The number of entires is : "<< nentry << endl ;
   
-  thePacker->FindAndSetMapAndCorrectionsFileNames(396);
+
 
 
   // Openning output Tree and output file
@@ -64,13 +69,13 @@ int main(int argc, char **argv){
   TFile *outFile = new TFile("Result.root","recreate");
   
   int FL_low=1;
-  int FL_high=5;
+  int FL_high=10;
   int FG_low=0;
   int FG_high=5;
   int w_low=0;
   int w_high=4;
   int d_low=1;
-  int d_high=7;
+  int d_high=10;
 
   Double_t cor[3];
   Double_t cubicCor[3];
@@ -162,15 +167,35 @@ int main(int argc, char **argv){
 
   //  vector <Sl_Event*> CorrelatedEvents(4,NULL);
   //  map <Long64_t,bool> mapOfUsedEntries;//Used to prevent double counting
-  
+
+
+
   clock_t startTime;
   clock_t otherTime;
   double timeRate=0;
   bool timeFlag=true;
   startTime = clock();
-  //  nentry=30000;
+  
+  TString previousFile="";
   for (Long64_t jentry=0; jentry<nentry;jentry++) { // Main analysis loop
+    
+    if (inT->GetCurrentFile()->GetName() !=previousFile){
+      cout<<"NEWFILE"<<endl;
+      cout<<"Prev: "<<previousFile<<endl;
+      cout<<"Curr: "<<inT->GetCurrentFile()->GetName()<<endl;
+	
+      previousFile=inT->GetCurrentFile()->GetName();
 
+
+      string name = previousFile.Data();
+      //run-0###-00.root
+      cout<<"\n\n\n";
+      int index = name.find("run-");
+      name=  name.substr(index+5,3);
+      int RunNum=atoi(name.c_str());
+      thePacker->FindAndSetMapAndCorrectionsFileNames(RunNum);
+
+    }
 
     inT->GetEntry(jentry); // Get the event from the input tree 
     if (inEvent->NumBars ==1&&inEvent->Bars[0].SimpleEventBit &&inEvent->Bars[0].Name=="SV01"){
@@ -185,8 +210,8 @@ int main(int argc, char **argv){
 	      thePacker->SetFilter(FL,FG,d,w);
 	      thePacker->ReMakeLendaEvent(inEvent,outEvent);
 	      outEvent->Finalize();
-	      //	      TheHistograms[count]->Fill(0.5*(Event->softTimes[0]+Event->softTimes[1]-Event->softTimes[2]-Event->softTimes[3]));
-	      
+
+	    
 	      if (outEvent->Bars[0].GetAvgPulseHeight()/16384 >0.07){
 		TheHistograms[count]->Fill(outEvent->Bars[0].GetCorrectedAvgSoftTOF());
 		TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
