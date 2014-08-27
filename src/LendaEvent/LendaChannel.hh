@@ -131,6 +131,8 @@ public:
   void SetCubicReferenceTime(Double_t v){_cubicRefTime=v;}
   void SetSoftReferenceTime(Double_t v){_softRefTime=v;}
   //  LendaChannel & operator=(const LendaChannel &);
+  
+  Bool_t operator==(const LendaChannel & RHS);
 
 private:
   Int_t _channel;

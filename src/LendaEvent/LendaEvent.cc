@@ -50,5 +50,40 @@ void LendaEvent::Finalize(){
 
 
 
+Bool_t LendaEvent::operator==(const LendaEvent & RHS){
 
+  //First Calculated quantities
+  bool CalcValuesEqual=true;
+  
+  if (this->N == RHS.N&&
+      this->NumBars == RHS.NumBars &&
+      this->NumOfChannelsInEvent==RHS.NumOfChannelsInEvent&&
+      this->NumUnMappedChannels==RHS.NumUnMappedChannels&&
+      this->NumObjectScintillators==RHS.NumObjectScintillators){
+    CalcValuesEqual=true;
+  }else {
+    return false;
+  }
+
+  for (int i=0;i<Bars.size();i++){
+    if (!(this->Bars[i] == RHS.Bars[i])){
+      return false;
+    }
+  }
+  
+  for (int i=0;i<TheObjectScintillators.size();i++){
+    if (!(this->TheObjectScintillators[i]==RHS.TheObjectScintillators[i])){
+      return false;
+    }
+  }
+  
+  for (int i=0;i<UnMappedChannels.size();i++){
+    if (!(this->UnMappedChannels[i]==RHS.UnMappedChannels[i])){
+      return false;
+    }
+  }
+
+  return true;
+  
+}
 

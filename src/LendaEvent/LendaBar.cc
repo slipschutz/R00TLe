@@ -108,3 +108,72 @@ void LendaBar::Finalize(){
   
 
 }
+
+
+Bool_t LendaBar::operator==(const LendaBar & RHS){
+
+  Bool_t CalcValuesEqual=true;
+  //check to see if the Calculated values are equal
+  //Things like Dt, AvgT
+  if (this->Dt==RHS.Dt&&
+      this->CubicDt==RHS.CubicDt&&
+      this->SyncDt==RHS.SyncDt&&
+      this->CubicSyncDt==RHS.CubicSyncDt&&
+      this->COG==RHS.COG&&
+      this->AvgEnergy==RHS.AvgEnergy&&
+      this->AvgPulseHeight==RHS.AvgPulseHeight&&
+      this->CorrectedCOG==RHS.CorrectedCOG&&
+      this->CorrectedDt==RHS.CorrectedDt&&
+      this->CorrectedAvgEnergy==RHS.CorrectedAvgEnergy&&
+      this->AvgT==RHS.AvgT&&
+      this->CorrectedAvgT==RHS.CorrectedAvgT&&
+      this->BarId==RHS.BarId&&
+      this->TopTOF==RHS.TopTOF&&
+      this->BottomTOF==RHS.BottomTOF&&
+      this->CorrectedTopTOF==RHS.CorrectedTopTOF&&
+      this->CorrectedBottomTOF==RHS.CorrectedBottomTOF&&
+      this->CorrectedCubicTopTOF==RHS.CorrectedCubicTopTOF&&
+      this->CorrectedCubicBottomTOF==RHS.CorrectedCubicBottomTOF&&
+      this->CorrectedSoftTopTOF==RHS.CorrectedSoftTopTOF&&
+      this->CorrectedSoftBottomTOF==RHS.CorrectedSoftBottomTOF){
+    CalcValuesEqual=true;
+  }else{
+    //The calculated valeus are not equal
+    //Can return false
+    return false;
+  }
+
+  
+  
+
+  Bool_t UnderlyingChannelsEqual=true;
+  //Check to see if the Top/Bottom channels are
+  //Equal.
+  for (int i=0;i<Tops.size();i++){
+    if (!(this->Tops[i] == RHS.Tops[i])){
+      UnderlyingChannelsEqual=false;
+    }
+  }
+  if (!UnderlyingChannelsEqual){
+    return false;
+  }
+
+  for (int i=0;i<Bottoms.size();i++){
+    if (!(this->Bottoms[i] == RHS.Bottoms[i])){
+      UnderlyingChannelsEqual=false;
+    }
+  }
+
+  if (!UnderlyingChannelsEqual){
+    return false;
+  }
+
+  //Final check
+  if (CalcValuesEqual && UnderlyingChannelsEqual){
+    return true;
+  }
+
+
+}
+
+

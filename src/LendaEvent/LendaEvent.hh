@@ -35,7 +35,7 @@ public:
 
   vector <LendaChannel> TheObjectScintillators;
 
-
+  Bool_t operator==(const LendaEvent & RHS);
 
 private:
 

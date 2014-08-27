@@ -60,3 +60,45 @@ void LendaChannel::Clear(){
   _referenceChannelName="";
 }
 
+
+Bool_t LendaChannel::operator==(const LendaChannel & RHS){
+
+  if (this->_channel==RHS._channel&&
+      this->_slot==RHS._slot&&
+      this->_globalID==RHS._globalID&&
+      this->_refGlobalID==RHS._refGlobalID&&
+      this->_overFlow==RHS._overFlow&&
+      this->_numZeroCrossings==RHS._numZeroCrossings&&
+      this->_correctedEnergy==RHS._correctedEnergy&&
+      this->_energy==RHS._energy&&
+      this->_internalEnergy==RHS._internalEnergy&&
+      this->_pulseHeight==RHS._pulseHeight&&
+      this->_filterHeight==RHS._filterHeight&&
+      this->_time==RHS._time&&
+      this->_softTime==RHS._softTime&&
+      this->_cubicTime==RHS._cubicTime&&
+      this->_cubicFitTime==RHS._cubicFitTime&&
+      this->_correctedTime==RHS._correctedTime&&
+      this->_correctedCubicFitTime==RHS._correctedCubicFitTime&&
+      this->_correctedSoftTime==RHS._correctedSoftTime&&
+      this->_timeLow==RHS._timeLow&&
+      this->_timeHigh==RHS._timeHigh&&
+      this->_softwareCFD==RHS._softwareCFD&&
+      this->_cubicCFD==RHS._cubicCFD&&
+      this->_cubicFitCFD==RHS._cubicFitCFD&&
+      this->_internalCFD==RHS._internalCFD&&
+      this->_CFDTrigBit==RHS._CFDTrigBit&&
+      this->_shortGate==RHS._shortGate&&
+      this->_longGate==RHS._longGate&&
+      this->_jentry==RHS._jentry&&
+      this->_refTime==RHS._refTime&&
+      this->_cubicRefTime==RHS._cubicRefTime&&
+      this->_softRefTime==RHS._softRefTime&&
+      this->_CFDResidual==RHS._CFDResidual&&
+      this->_channelName==RHS._channelName&&
+      this->_referenceChannelName==RHS._referenceChannelName){
+    return true;
+  }else {
+    return false;
+  }
+}

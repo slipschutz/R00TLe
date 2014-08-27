@@ -88,7 +88,7 @@ public:
 
   void Finalize();//Method to calcualte things like Dt, COG, AvgE, TOF
   
-  
+  Bool_t operator==(const LendaBar & RHS);
 
 private:
   Double_t Dt;//Top Time - Bottom Time
