@@ -71,15 +71,15 @@ void FileCompare(TString file1Name,TString file2Name){
   file2Tree->SetBranchAddress("lendaevent",&Event2);
     
 
-  for (Long64_t i=0;i<numEntries1;i++){
+  for (Long64_t i=1;i<numEntries1;i++){
     file1Tree->GetEntry(i);
     file2Tree->GetEntry(i);
     
-    if (!(Event1 == Event2)){
+    if (!(*Event1 == *Event2)){
       cout<<"FOUND DIFFERENT EVENTS"<<endl;
       cout<<"ON i="<<i<<endl;
-      DumpEvents(Event1,Event2);
-      
+      //      DumpEvents(Event1,Event2);
+      //      i=numEntries1+10;
     }
 
     if ( i %1000==0){

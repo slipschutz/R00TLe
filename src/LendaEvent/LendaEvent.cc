@@ -62,6 +62,7 @@ Bool_t LendaEvent::operator==(const LendaEvent & RHS){
       this->NumObjectScintillators==RHS.NumObjectScintillators){
     CalcValuesEqual=true;
   }else {
+    cout<<"Event Failed"<<endl;
     return false;
   }
 

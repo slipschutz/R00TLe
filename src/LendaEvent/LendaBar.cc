@@ -1,6 +1,7 @@
 
 
 
+
 /////////////////////////////////////////////////////////
 // This is the source file for the LendaBar ROOT class //
 /////////////////////////////////////////////////////////
@@ -88,14 +89,19 @@ void LendaBar::Finalize(){
     CubicSyncDt=CubicTopTOF-CubicBottomTOF;
 
     COG=(Tops[0].GetEnergy()-Bottoms[0].GetEnergy())/(Tops[0].GetEnergy()+Bottoms[0].GetEnergy());
-    AvgEnergy=TMath::Sqrt(Tops[0].GetEnergy()*Bottoms[0].GetEnergy());
+
+    if ( Tops[0].GetEnergy() >0 && Bottoms[0].GetEnergy()>0){
+      AvgEnergy=TMath::Sqrt(Tops[0].GetEnergy()*Bottoms[0].GetEnergy());
+    }
+
     AvgPulseHeight=TMath::Sqrt(Tops[0].GetPulseHeight()*Bottoms[0].GetPulseHeight());
     
     CorrectedCOG=(Tops[0].GetCorrectedEnergy()-Bottoms[0].GetCorrectedEnergy())/(Tops[0].GetCorrectedEnergy()+Bottoms[0].GetCorrectedEnergy());
     CorrectedDt=Tops[0].GetCorrectedTime()-Bottoms[0].GetCorrectedTime();
 
-    CorrectedAvgEnergy=TMath::Sqrt(Tops[0].GetCorrectedEnergy()*Bottoms[0].GetCorrectedEnergy());
-    
+    if ( Tops[0].GetCorrectedEnergy()>0 && Bottoms[0].GetCorrectedEnergy()>0){
+      CorrectedAvgEnergy=TMath::Sqrt(Tops[0].GetCorrectedEnergy()*Bottoms[0].GetCorrectedEnergy());
+    }
     
     AvgT=0.5*(Tops[0].GetTime() + Bottoms[0].GetTime());
     CorrectedAvgT=0.5*(Tops[0].GetCorrectedTime()+Bottoms[0].GetCorrectedTime());
@@ -120,59 +126,50 @@ Bool_t LendaBar::operator==(const LendaBar & RHS){
       this->SyncDt==RHS.SyncDt&&
       this->CubicSyncDt==RHS.CubicSyncDt&&
       this->COG==RHS.COG&&
-      this->AvgEnergy==RHS.AvgEnergy&&
+      // this->AvgEnergy==RHS.AvgEnergy&&
       this->AvgPulseHeight==RHS.AvgPulseHeight&&
       this->CorrectedCOG==RHS.CorrectedCOG&&
-      this->CorrectedDt==RHS.CorrectedDt&&
-      this->CorrectedAvgEnergy==RHS.CorrectedAvgEnergy&&
+      this->CorrectedDt==RHS.CorrectedDt &&
+      //this->CorrectedAvgEnergy==RHS.CorrectedAvgEnergy&&
       this->AvgT==RHS.AvgT&&
       this->CorrectedAvgT==RHS.CorrectedAvgT&&
       this->BarId==RHS.BarId&&
       this->TopTOF==RHS.TopTOF&&
-      this->BottomTOF==RHS.BottomTOF&&
-      this->CorrectedTopTOF==RHS.CorrectedTopTOF&&
-      this->CorrectedBottomTOF==RHS.CorrectedBottomTOF&&
-      this->CorrectedCubicTopTOF==RHS.CorrectedCubicTopTOF&&
-      this->CorrectedCubicBottomTOF==RHS.CorrectedCubicBottomTOF&&
-      this->CorrectedSoftTopTOF==RHS.CorrectedSoftTopTOF&&
-      this->CorrectedSoftBottomTOF==RHS.CorrectedSoftBottomTOF){
+      this->BottomTOF==RHS.BottomTOF){
+      // this->CorrectedTopTOF==RHS.CorrectedTopTOF&&
+      // this->CorrectedBottomTOF==RHS.CorrectedBottomTOF&&
+      // this->CorrectedCubicTopTOF==RHS.CorrectedCubicTopTOF&&
+      // this->CorrectedCubicBottomTOF==RHS.CorrectedCubicBottomTOF&&
+      // this->CorrectedSoftTopTOF==RHS.CorrectedSoftTopTOF&&
+      // this->CorrectedSoftBottomTOF==RHS.CorrectedSoftBottomTOF){
     CalcValuesEqual=true;
   }else{
     //The calculated valeus are not equal
     //Can return false
+    cout<<"BAR Failed"<<endl;
+    this->Dump();
+    RHS.Dump();
     return false;
   }
 
   
-  
-
-  Bool_t UnderlyingChannelsEqual=true;
-  //Check to see if the Top/Bottom channels are
+   //Check to see if the Top/Bottom channels are
   //Equal.
   for (int i=0;i<Tops.size();i++){
     if (!(this->Tops[i] == RHS.Tops[i])){
-      UnderlyingChannelsEqual=false;
+      return false;
     }
   }
-  if (!UnderlyingChannelsEqual){
-    return false;
-  }
-
+  
   for (int i=0;i<Bottoms.size();i++){
     if (!(this->Bottoms[i] == RHS.Bottoms[i])){
-      UnderlyingChannelsEqual=false;
+      return false;
     }
   }
 
-  if (!UnderlyingChannelsEqual){
-    return false;
-  }
+  //If it has made it through all the checks return true
 
-  //Final check
-  if (CalcValuesEqual && UnderlyingChannelsEqual){
-    return true;
-  }
-
+  return true;
 
 }
 

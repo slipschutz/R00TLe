@@ -21,6 +21,8 @@ public:
   LendaChannel();
   ~LendaChannel();
 
+  void ShowDiff(const LendaChannel&);
+
   void Clear();
   
   void Clear(Option_t *){Clear();}
