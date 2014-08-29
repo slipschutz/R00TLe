@@ -69,8 +69,8 @@ Bool_t LendaChannel::operator==(const LendaChannel & RHS){
       this->_refGlobalID==RHS._refGlobalID&&
       this->_overFlow==RHS._overFlow&&
       this->_numZeroCrossings==RHS._numZeroCrossings&&
-      this->_correctedEnergy==RHS._correctedEnergy&&
-      this->_energy==RHS._energy&&
+      // this->_correctedEnergy==RHS._correctedEnergy&&
+      //      this->_energy==RHS._energy&&
       this->_internalEnergy==RHS._internalEnergy&&
       this->_pulseHeight==RHS._pulseHeight&&
       this->_filterHeight==RHS._filterHeight&&

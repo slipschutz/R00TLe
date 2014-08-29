@@ -123,12 +123,12 @@ Bool_t LendaBar::operator==(const LendaBar & RHS){
   //Things like Dt, AvgT
   if (this->Dt==RHS.Dt&&
       this->CubicDt==RHS.CubicDt&&
-      this->SyncDt==RHS.SyncDt&&
-      this->CubicSyncDt==RHS.CubicSyncDt&&
-      this->COG==RHS.COG&&
+      //this->SyncDt==RHS.SyncDt&&
+      //this->CubicSyncDt==RHS.CubicSyncDt&&
+      //      this->COG==RHS.COG&&
       // this->AvgEnergy==RHS.AvgEnergy&&
       this->AvgPulseHeight==RHS.AvgPulseHeight&&
-      this->CorrectedCOG==RHS.CorrectedCOG&&
+      // this->CorrectedCOG==RHS.CorrectedCOG&&
       this->CorrectedDt==RHS.CorrectedDt &&
       //this->CorrectedAvgEnergy==RHS.CorrectedAvgEnergy&&
       this->AvgT==RHS.AvgT&&
@@ -149,6 +149,7 @@ Bool_t LendaBar::operator==(const LendaBar & RHS){
     cout<<"BAR Failed"<<endl;
     this->Dump();
     RHS.Dump();
+    exit(1);
     return false;
   }
 
