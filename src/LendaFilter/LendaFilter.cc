@@ -552,8 +552,14 @@ Double_t LendaFilter::fitTrace(std::vector <UShort_t> & trace,Double_t sigma,Dou
   return mu;
 }
 
-Double_t LendaFilter::getEnergy(std::vector <UShort_t> &trace){
-  
+Double_t LendaFilter::GetEnergyOld(std::vector <UShort_t> &trace){
+  /////////////////////////////////////////////////////////////////////
+  // Basic Algorithm for extracting pulse integral from trace	     //
+  // uses first 10 points as background level. Sums up the	     //
+  // whole trace then subtracts background to background subtracted  //
+  // energy 							     //
+  /////////////////////////////////////////////////////////////////////
+
   Double_t thisEventsIntegral;
   Double_t sum=0;
   Double_t signalTotalIntegral=0;
@@ -573,7 +579,54 @@ Double_t LendaFilter::getEnergy(std::vector <UShort_t> &trace){
   return thisEventsIntegral;
 
 }
-Double_t LendaFilter::getGate(std::vector <UShort_t> &trace,int start,int L){
+
+Double_t LendaFilter::GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot){
+  
+  ////////////////////////////////////////////////////////////////////////////
+  // Slightly more complicated algorithm for getting energy of pulse.	    //
+  // Takes the first 20% of the trace as a background.  Then it takes only  //
+  // a window around the maximum spot as the pulse part of the trace.  This //
+  // helps with strange pulse where there might be additional structures in //
+  // the trace that would distort things (afterpulse, crazy noise..)	    //
+  ////////////////////////////////////////////////////////////////////////////
+
+  Double_t thisEventsIntegral;
+  Double_t sumBegin=0;
+  Double_t sumEnd=0;
+
+  Double_t signalIntegral=0;
+
+  int traceLength=trace.size();
+  int LengthForBackGround=0.2*traceLength;
+
+
+  for ( int i=0 ;i<LengthForBackGround;i++){
+    sumBegin = sumBegin + trace[i];
+    sumEnd = sumEnd + trace[traceLength-1-i];
+  }
+  sumBegin = sumBegin/LengthForBackGround;
+  sumEnd = sumEnd/LengthForBackGround;
+
+  Int_t windowForEnergy=20;
+
+  for (int i=MaxSpot-windowForEnergy;i< MaxSpot+windowForEnergy;++i) {
+    signalIntegral = trace[i]+ signalIntegral;
+  }
+
+  if (  signalIntegral - sumBegin *(2*windowForEnergy>0)){
+    thisEventsIntegral = signalIntegral - sumBegin *(2*windowForEnergy);
+  }  else{
+    thisEventsIntegral = BAD_NUM;
+  }
+
+
+  return thisEventsIntegral;
+
+}
+
+
+
+Double_t LendaFilter::GetGate(std::vector <UShort_t> &trace,int start,int L){
 
 
   int range =L;
@@ -594,38 +647,38 @@ Double_t LendaFilter::getGate(std::vector <UShort_t> &trace,int start,int L){
 }
 
 
-Int_t LendaFilter::getMaxPulseHeight(vector <UShort_t> &trace){
+Int_t LendaFilter::GetMaxPulseHeight(vector <UShort_t> &trace,Int_t& MaxSpot){
 
-  int maxSpot=-1;
+  int _maxSpot=-1;
   Double_t max=0;
   for (int i=0;i<trace.size();i++){
     if (trace[i]>max){
       max=trace[i];
-      maxSpot=i;
+      _maxSpot=i;
     }
     
   }
+  MaxSpot=_maxSpot;
   return max;
 }
 
 
-Int_t LendaFilter::getMaxPulseHeight(vector <Double_t> &trace){
+Int_t LendaFilter::GetMaxPulseHeight(vector <Double_t> &trace,Int_t& MaxSpot){
 
-  int maxSpot=-1;
+  int _maxSpot=-1;
   Double_t max=0;
   for (int i=0;i<trace.size();i++){
     if (trace[i]>max){
       max=trace[i];
-      maxSpot=i;
+      _maxSpot=i;
     }
-    
   }
+  MaxSpot=_maxSpot;
   return max;
 }
 
 
 
-Int_t LendaFilter::getStartForPulseShape(Double_t SoftWareCFD,Int_t TraceDelay){
-
-  return TMath::Floor(SoftWareCFD+TraceDelay-4);
+Int_t LendaFilter::GetStartForPulseShape(Int_t MaxSpot){
+    return (MaxSpot-4);
 }
