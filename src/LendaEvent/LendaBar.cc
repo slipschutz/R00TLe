@@ -85,8 +85,8 @@ void LendaBar::Finalize(){
     Dt=Tops[0].GetTime()-Bottoms[0].GetTime();
     CubicDt=Tops[0].GetCubicFitTime()-Bottoms[0].GetCubicFitTime();
 
-    SyncDt =TopTOF-BottomTOF;
-    CubicSyncDt=CubicTopTOF-CubicBottomTOF;
+    SyncDt =CorrectedTopTOF-CorrectedBottomTOF;
+    CubicSyncDt=CorrectedCubicTopTOF-CorrectedCubicBottomTOF;
 
     COG=(Tops[0].GetEnergy()-Bottoms[0].GetEnergy())/(Tops[0].GetEnergy()+Bottoms[0].GetEnergy());
 
