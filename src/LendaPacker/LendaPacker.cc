@@ -53,7 +53,7 @@ void LendaPacker::SetGates(Double_t _lg,Double_t _sg,Double_t _lg2,Double_t _sg2
 
 
 LendaPacker::~LendaPacker(){
-
+  Reset();
 
 }
 
@@ -80,20 +80,20 @@ void LendaPacker::Reset(){
 }
 
 void LendaPacker::CalcAll(ddaschannel*theChannel){
-   CalcTimeFilters(theChannel);
-   CalcEnergyGates(theChannel);
+   CalcTimeFilters(theChannel->trace);
+   CalcEnergyGates(theChannel->trace);
 }
 
 
 
-void LendaPacker::CalcTimeFilters(ddaschannel*theChannel){
+void LendaPacker::CalcTimeFilters(vector<UShort_t> & theTrace){
 
   ///////////////////////////////////////////////////////////////////////////////////
   // if there are trace present in the data preform timing related trace anaylsis  //
   // routines									   //
   ///////////////////////////////////////////////////////////////////////////////////
-  if (theChannel->trace.size()!=0){
-    theFilter.FastFilter(theChannel->trace,thisEventsFF,fFL,fFG); //run FF algorithim
+  if (theTrace.size()!=0){
+    theFilter.FastFilter(theTrace,thisEventsFF,fFL,fFG); //run FF algorithim
     thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
     
     softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay; //find zeroCrossig of CFD
@@ -102,38 +102,35 @@ void LendaPacker::CalcTimeFilters(ddaschannel*theChannel){
     cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD)-traceDelay;
   }
 }
-void LendaPacker::CalcEnergyGates(ddaschannel*theChannel){
+void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace){
 
   ////////////////////////////////////////////////////////////////////
   // if there are traces present in the data preform energy related //
   // trace analysis routines 					    //
   ////////////////////////////////////////////////////////////////////
 
-  if ( theChannel->trace.size()!=0){
-    
+  if ( theTrace.size()!=0){
     if ( thisEventsFF.size() == 0 ){
-      // the filter hasn't been calculated.  It is need for 
-      // long/short gate calculations and maxFilterValue
-      theFilter.FastFilter(theChannel->trace,thisEventsFF,fFL,fFG); //run FF algorithim
-      thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
+      // the filter hasn't been calculated.  It is need 
+      // To get the maximum Filter Height
+      theFilter.FastFilter(theTrace,thisEventsFF,fFL,fFG); //run FF algorithim
     }
+    
 
 
-    if (softwareCFD!=0)
-      //Software CFD already calculated
-      start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
-    else{
-      //Find zero crossing 
-      softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay;
-      start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
-    }
+    Int_t MaxSpotInTrace=0;
+    Int_t MaxSpotInFilter=0;
 
-    thisEventsPulseHeight=theFilter.getMaxPulseHeight(theChannel->trace);
-    thisEventsFilterHeight=theFilter.getMaxPulseHeight(thisEventsFF);
+    thisEventsPulseHeight=theFilter.GetMaxPulseHeight(theTrace,MaxSpotInTrace);
+    thisEventsFilterHeight=theFilter.GetMaxPulseHeight(thisEventsFF,MaxSpotInFilter);
 
-    thisEventsIntegral = theFilter.getEnergy(theChannel->trace);
-    longGate = theFilter.getGate(theChannel->trace,start,lg);
-    shortGate = theFilter.getGate(theChannel->trace,start,sg);
+    
+    start = theFilter.GetStartForPulseShape(MaxSpotInTrace);
+    
+    thisEventsIntegral = theFilter.GetEnergy(theTrace,MaxSpotInTrace);
+
+    longGate = theFilter.GetGate(theTrace,start,lg);
+    shortGate = theFilter.GetGate(theTrace,start,sg);
     
   }
 }
@@ -283,42 +280,53 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
   tempLenda.SetTimeLow(c->timelow);
   tempLenda.SetTimeHigh(c->timehigh);
   tempLenda.SetCFDTrigBit(c->GetCFDTriggerSourceBit());
-  
-  tempLenda.SetSoftTime(2*(c->timelow + c->timehigh * 4294967296.0) +softwareCFD);
-  tempLenda.SetCubicTime(2*(c->timelow + c->timehigh * 4294967296.0)+cubicCFD);
-  tempLenda.SetCubicFitTime(2*(c->timelow + c->timehigh * 4294967296.0)+cubicFitCFD);
-
-
-  tempLenda.SetSoftwareCFD(softwareCFD);
-  tempLenda.SetCubicCFD(cubicCFD);
-  tempLenda.SetCubicFitCFD(cubicFitCFD);
   tempLenda.SetInternalCFD(c->timecfd/32768.0);
+  
   
   if (saveTraces){
     tempLenda.SetTrace(c->trace);
-    tempLenda.SetFilter(thisEventsFF);
-    tempLenda.SetCFD(thisEventsCFD);
   }
-  tempLenda.SetLongGate(longGate);
-  tempLenda.SetShortGate(shortGate);
-  
-  tempLenda.SetJentry(jentry);
-  tempLenda.SetNumZeroCrossings(numZeroCrossings);
-  tempLenda.SetCFDResidual(CFDResidual);
 
-  
-  
-  if (info.HasCorrections){
-   tempLenda.SetCorrectedEnergy( thisEventsIntegral*info.EnergySlope + info.EnergyIntercept);
-   tempLenda.SetCorrectedTime( tempLenda.GetTime() - info.TOFOffset);
-   tempLenda.SetCorrectedCubicFitTime( tempLenda.GetCubicFitTime() - info.TOFOffset);
-   
-  }
+  PackCalculatedValues(&tempLenda,info);
+
   //RESET THE PACKERS VARIABLES
   Reset();
   //Return this packed channel
   return tempLenda;
 }
+
+void LendaPacker::PackCalculatedValues(LendaChannel* theChannel,MapInfo & info){
+  theChannel->SetSoftTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0) +softwareCFD);
+  theChannel->SetCubicTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+cubicCFD);
+  theChannel->SetCubicFitTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+cubicFitCFD);
+
+
+  theChannel->SetSoftwareCFD(softwareCFD);
+  theChannel->SetCubicCFD(cubicCFD);
+  theChannel->SetCubicFitCFD(cubicFitCFD);
+
+  
+  if (saveTraces){
+    theChannel->SetFilter(thisEventsFF);
+    theChannel->SetCFD(thisEventsCFD);
+  }
+  theChannel->SetLongGate(longGate);
+  theChannel->SetShortGate(shortGate);
+  
+  theChannel->SetJentry(jentry);
+  theChannel->SetNumZeroCrossings(numZeroCrossings);
+  theChannel->SetCFDResidual(CFDResidual);
+  
+  
+  if (info.HasCorrections){
+   theChannel->SetCorrectedEnergy( thisEventsIntegral*info.EnergySlope + info.EnergyIntercept);
+   theChannel->SetCorrectedTime( theChannel->GetTime() - info.TOFOffset);
+   theChannel->SetCorrectedSoftTime(theChannel->GetSoftTime()-info.TOFOffset);
+   theChannel->SetCorrectedCubicFitTime( theChannel->GetCubicFitTime() - info.TOFOffset);
+  }
+
+}
+
 
 void LendaPacker::PutDDASChannelInBar(MapInfo info,LendaBar &theBar,ddaschannel*theChannel){
   string fullName = info.FullName;
@@ -356,8 +364,9 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
   //////////////Get the ddaschannels form the DDASEVent///////////////
   vector <ddaschannel*> theDDASChannels = theDDASEvent->GetData();
   
-  map <int,pair<Double_t,Double_t> > GlobalIDToReferenceTimes;
-
+  map <int,RefTimeContainer > GlobalIDToReferenceTimes;
+  map<string,LendaBar> ThisEventsBars;
+  
   for (int i=0;i<(int)theDDASChannels.size();i++){
     //First Form the global ID of the channel
     int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
@@ -371,7 +380,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 	//If the channel is one of the Object Scintillators
 	LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
 	//store this time in reference time map for later
-	GlobalIDToReferenceTimes[id] = make_pair(Temp.GetTime(),Temp.GetCubicFitTime());
+	GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicFitTime());
 	Event->TheObjectScintillators.push_back(Temp);//Store the Object Scint
       }else if (fullName == "IGNORE"){ //Special check for IGNORE
 	//Do nothing
@@ -401,30 +410,39 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
     }
   }
 
-  
+
   ///Now put the bars into the Lenda Event by iterating over the temporary bar map
   ///And Set the reference times for each LendaChannel
-  for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();
-       ii!=ThisEventsBars.end();ii++){
-    for (int t=0;t<ii->second.Tops.size();t++){
-      ii->second.Tops[t].SetReferenceTime(GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()].first);
-      ii->second.Tops[t].SetCubicReferenceTime(GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()].second);
-
-    }
-    for (int b=0;b<ii->second.Bottoms.size();b++){
-      ii->second.Bottoms[b].SetReferenceTime(GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()].first);
-      ii->second.Bottoms[b].SetCubicReferenceTime(GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()].second);
-
-    }
-
-    Event->PushABar(ii->second);
-  }
+  FillReferenceTimesInEvent(Event,ThisEventsBars,GlobalIDToReferenceTimes);
  
   ThisEventsBars.clear();//Clear the temporary map of bars
 }
 
+
+void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBar>&ThisEventsBars, map <int,RefTimeContainer > & GlobalIDToReferenceTimes){
+
+  for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();ii!=ThisEventsBars.end();ii++){
+
+    for (int t=0;t<ii->second.Tops.size();t++){
+      RefTimeContainer * temp = &GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()];
+      ii->second.Tops[t].SetReferenceTime(temp->RefTime);
+      ii->second.Tops[t].SetSoftReferenceTime(temp->RefSoftTime);
+      ii->second.Tops[t].SetCubicReferenceTime(temp->RefCubicTime);
+    }
+    for (int b=0;b<ii->second.Bottoms.size();b++){
+      RefTimeContainer * temp = &GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()];
+      ii->second.Bottoms[b].SetReferenceTime(temp->RefTime);
+      ii->second.Bottoms[b].SetSoftReferenceTime(temp->RefSoftTime);
+      ii->second.Bottoms[b].SetCubicReferenceTime(temp->RefCubicTime);
+    }
+
+    Event->PushABar(ii->second);
+  }
+}
+
+
+
 void LendaPacker::RePackChannel(LendaChannel *channel){
-  
   //Get The global ID stored in the LendaChannel
   //Assuming now that only the corrections information is
   //being repacked.  Not the Map information
@@ -435,53 +453,67 @@ void LendaPacker::RePackChannel(LendaChannel *channel){
   
   if (it != GlobalIDToMapInfo.end() ){ //This global ID is in the map file
     MapInfo info = it->second;//Get the mapinfo object from map
-
-    if (info.HasCorrections){ //Check to see if there are Corrections for this channel
-      channel->SetCorrectedEnergy( channel->GetEnergy()*info.EnergySlope + info.EnergyIntercept);
-      channel->SetCorrectedTime( channel->GetTime() - info.TOFOffset);
-      channel->SetCorrectedCubicFitTime( channel->GetCubicFitTime() - info.TOFOffset);
+    
+    Reset();//Reseet the Packers variables
+    if ( channel->GetTrace().size() !=0 ){//There is a trace
+      vector<UShort_t> theTrace =channel->GetTrace();
+      CalcTimeFilters(theTrace);
+      CalcEnergyGates(theTrace);
 
     }
+    //Set the waveform analysis results to the channel.
+    //including things like energy cubic times and
+    //the corrected times and energies
+    PackCalculatedValues(channel,info);
   }
-
-
-  
+  Reset();
 }
 
 void LendaPacker::ReMakeLendaEvent(LendaEvent* inEvent,LendaEvent* outEvent){
   //
-  //  first copy the information in inEvent to outEvent
+  // first copy the information in inEvent to outEvent
   //
   // Can't do this outEvent = new LendaEvent(*inEvent);
   // OutEvent already newed for the tree and it's address can't change
 
 
+  map<string,LendaBar> ThisEventsBars;
     
   for (int i=0;i<inEvent->NumBars;i++){
-  
-    outEvent->PushABar(inEvent->Bars[i]); //Copy over the Bars to new event
     
-    int numTops = outEvent->Bars[i].NumTops;
-    int numBottoms= outEvent->Bars[i].NumBottoms;
-  
-
-  
+    int numTops = inEvent->Bars[i].NumTops;
+    int numBottoms= inEvent->Bars[i].NumBottoms;
+    
     for (int t=0;t<numTops;t++){
-      RePackChannel(&outEvent->Bars[i].Tops[t]);
-      //      cout<<inEvent->Bars[i].Tops[t].GetGlobalID()<<" "<<outEvent->Bars[i].Tops[t].GetGlobalID()<<endl;
+      RePackChannel(&inEvent->Bars[i].Tops[t]);
     }
-    for (int b=0;b<numBottoms;b++){
-      RePackChannel(&outEvent->Bars[i].Bottoms[b]);
-    }
-  }
-  
-  //Copy over the Object Scihtillators
 
+    for (int b=0;b<numBottoms;b++){
+      RePackChannel(&inEvent->Bars[i].Bottoms[b]);
+    }
+    ThisEventsBars[inEvent->Bars[i].Name]=inEvent->Bars[i];//Put the repacked bars into the ThisEventsBars
+  }
+
+  map <int,RefTimeContainer >  GlobalIDToReferenceTimes;
+  
   for (int i=0;i<inEvent->NumObjectScintillators;i++){
-    outEvent->TheObjectScintillators.push_back(inEvent->TheObjectScintillators[i]);
+    outEvent->TheObjectScintillators.push_back(inEvent->TheObjectScintillators[i]);//Copy a Obj Scint.
+    LendaChannel * thisObjectScintillator = &(outEvent->TheObjectScintillators[i]);
+    RePackChannel(thisObjectScintillator);
+    GlobalIDToReferenceTimes[thisObjectScintillator->GetGlobalID()]=RefTimeContainer(thisObjectScintillator->GetTime(),
+										     thisObjectScintillator->GetSoftTime(),
+										     thisObjectScintillator->GetCubicFitTime());
   }
   
- 
+  // for (auto & i : GlobalIDToReferenceTimes){
+  //   cout<<setprecision(20)<<i.first<<" "<<i.second.RefTime<<endl;
+  // }
+
+  
+  FillReferenceTimesInEvent(outEvent,ThisEventsBars,GlobalIDToReferenceTimes);
+
+
+  ThisEventsBars.clear();
 }
 
 

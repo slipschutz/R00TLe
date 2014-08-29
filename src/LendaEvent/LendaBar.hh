@@ -64,7 +64,12 @@ public:
 
   inline Double_t GetCorrectedCubicTopTOF(){return CorrectedCubicTopTOF;}
   inline Double_t GetCorrectedCubicBottomTOF(){return CorrectedCubicBottomTOF;}
-  
+
+  inline Double_t GetCorrectedAvgSoftTOF(){return 0.5*(CorrectedSoftTopTOF+CorrectedSoftBottomTOF);}
+
+  inline Double_t GetCorrectedSoftTopTOF(){return CorrectedSoftTopTOF;}
+  inline Double_t GetCorrectedSoftBottomTOF(){return CorrectedSoftBottomTOF;}
+
 
   void SetBarId(Int_t v){BarId=v;}
   void SetBarName(string v){Name=v;}
@@ -82,7 +87,8 @@ public:
   Bool_t SimpleEventBit; //true if bar has only 1 Top and 1 bottom
 
   void Finalize();//Method to calcualte things like Dt, COG, AvgE, TOF
-
+  
+  Bool_t operator==(const LendaBar & RHS);
 
 private:
   Double_t Dt;//Top Time - Bottom Time
@@ -113,13 +119,14 @@ private:
   Double_t CorrectedCubicTopTOF;
   Double_t CorrectedCubicBottomTOF;
   
-  
+  Double_t CorrectedSoftTopTOF;
+  Double_t CorrectedSoftBottomTOF;
 
   Double_t CorrectedTopTOF;
   Double_t CorrectedBottomTOF;
 
 public:
-  ClassDef(LendaBar,1);
+  ClassDef(LendaBar,2);
 };
 
 

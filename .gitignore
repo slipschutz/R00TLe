@@ -15,3 +15,6 @@ src/TimmingAnalyzer2Channel/*.txt
 *back*
 src/include/.*
 prm/Corrections.txt_compton_*
+FakeDataGenerator/
+LendaBundle/
+src/LendaFilter/build.sh

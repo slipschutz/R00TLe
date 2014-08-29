@@ -42,19 +42,20 @@ public:
   
   Double_t fitTrace(std::vector <UShort_t> &,Double_t, Double_t );
   
-  Double_t getEnergy(std::vector <UShort_t> &trace);
+  Double_t GetEnergyOld(std::vector <UShort_t> &trace);
+  Double_t GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot);
 
-  Double_t getGate(std::vector <UShort_t> &trace,int start,int L);
+  Double_t GetGate(std::vector <UShort_t> &trace,int start,int L);
   
-  Int_t getMaxPulseHeight(std::vector <UShort_t> &trace);
-  Int_t getMaxPulseHeight(std::vector <Double_t> &trace);
+  Int_t GetMaxPulseHeight(std::vector <UShort_t> &trace,Int_t &MaxSpot);
+  Int_t GetMaxPulseHeight(std::vector <Double_t> &trace,Int_t &MaxSpot);
 
   double getFunc(TMatrixT<Double_t>, double);
   double getFunc(vector<double>&, double );
 
   Double_t numOfBadFits;
 
-  Int_t getStartForPulseShape(Double_t SoftWareCFD,Int_t TraceDelay);
+  Int_t GetStartForPulseShape(Int_t MaxSpot);
 
 private:
 
