@@ -680,5 +680,9 @@ Int_t LendaFilter::GetMaxPulseHeight(vector <Double_t> &trace,Int_t& MaxSpot){
 
 
 Int_t LendaFilter::GetStartForPulseShape(Int_t MaxSpot){
+  if (MaxSpot-4 > 0){
     return (MaxSpot-4);
+  }else {
+    return 0;
+  }
 }

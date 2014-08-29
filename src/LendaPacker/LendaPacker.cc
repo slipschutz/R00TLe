@@ -110,30 +110,27 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace){
   ////////////////////////////////////////////////////////////////////
 
   if ( theTrace.size()!=0){
-    
     if ( thisEventsFF.size() == 0 ){
-      // the filter hasn't been calculated.  It is need for 
-      // long/short gate calculations and maxFilterValue
+      // the filter hasn't been calculated.  It is need 
+      // To get the maximum Filter Height
       theFilter.FastFilter(theTrace,thisEventsFF,fFL,fFG); //run FF algorithim
-      thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
     }
+    
 
 
-    if (softwareCFD!=0)
-      //Software CFD already calculated
-      start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
-    else{
-      //Find zero crossing 
-      softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay;
-      start = theFilter.getStartForPulseShape(softwareCFD,traceDelay);
-    }
+    Int_t MaxSpotInTrace=0;
+    Int_t MaxSpotInFilter=0;
 
-    thisEventsPulseHeight=theFilter.getMaxPulseHeight(theTrace);
-    thisEventsFilterHeight=theFilter.getMaxPulseHeight(thisEventsFF);
+    thisEventsPulseHeight=theFilter.GetMaxPulseHeight(theTrace,MaxSpotInTrace);
+    thisEventsFilterHeight=theFilter.GetMaxPulseHeight(thisEventsFF,MaxSpotInFilter);
 
-    thisEventsIntegral = theFilter.getEnergy(theTrace);
-    longGate = theFilter.getGate(theTrace,start,lg);
-    shortGate = theFilter.getGate(theTrace,start,sg);
+    
+    start = theFilter.GetStartForPulseShape(MaxSpotInTrace);
+    
+    thisEventsIntegral = theFilter.GetEnergy(theTrace,MaxSpotInTrace);
+
+    longGate = theFilter.GetGate(theTrace,start,lg);
+    shortGate = theFilter.GetGate(theTrace,start,sg);
     
   }
 }
