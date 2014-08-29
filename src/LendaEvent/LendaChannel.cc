@@ -88,8 +88,8 @@ Bool_t LendaChannel::operator==(const LendaChannel & RHS){
       this->_cubicFitCFD==RHS._cubicFitCFD&&
       this->_internalCFD==RHS._internalCFD&&
       this->_CFDTrigBit==RHS._CFDTrigBit&&
-      this->_shortGate==RHS._shortGate&&
-      this->_longGate==RHS._longGate&&
+      //      this->_shortGate==RHS._shortGate&&
+      //      this->_longGate==RHS._longGate&&
       this->_jentry==RHS._jentry&&
       this->_refTime==RHS._refTime&&
       this->_cubicRefTime==RHS._cubicRefTime&&
