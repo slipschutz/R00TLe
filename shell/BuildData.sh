@@ -21,8 +21,7 @@ fi
 #runNum=$1;
 runNum=$(printf "%04d" $1)
 
-
-if [ -f ./rootfiles/run-${runNum}-*-RAW.root ]; then
+if [ -f ./rootfiles/run-${runNum}-00-RAW.root ]; then
     echo "Build From Raw Root"
     for file in $(ls ./rootfiles/run-${runNum}-*-RAW.root)
     do

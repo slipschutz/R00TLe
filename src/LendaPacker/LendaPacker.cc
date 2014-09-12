@@ -21,7 +21,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=true;
+  saveTraces=false;
  
   
 }
