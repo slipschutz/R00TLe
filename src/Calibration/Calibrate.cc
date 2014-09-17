@@ -19,7 +19,7 @@
 
 using namespace std;
 
-
+double gErrorInCompton=0.03;
 map<TString,TGraphErrors*> theGraphs;//Global Container to hold the resulting Graphs of KeV_ee vs ADC
 
 Double_t Na1 = 341;
@@ -110,11 +110,12 @@ TH1D * Derivative(TH1D *theHisto){
 }
 
 
-Double_t FindPhotoPeak(TH1D* theHisto,Double_t MaxPoint,Double_t searchWindow,TString Name){
+vector<Double_t> FindPhotoPeak(TH1D* theHisto,Double_t MaxPoint,Double_t searchWindow,TString Name){
 
   if (theHisto->GetEntries() == 0){
     cout<<"Warning from FindPhotoPeak: No entries in histogram "<<theHisto->GetName()<<endl;
-    return -1;
+    vector<Double_t> d;
+    return d;
   }
   
 
@@ -155,12 +156,18 @@ Double_t FindPhotoPeak(TH1D* theHisto,Double_t MaxPoint,Double_t searchWindow,TS
     gROOT->GetListOfFunctions()->RecursiveRemove(gROOT->GetListOfFunctions()->FindObject(func_Name.str().c_str()));
   }
 
+  vector<Double_t> returnValues;
+
   if (Chi2ToFunction.size()> 0){  
     Chi2ToFunction.begin()->second->SetName(Name);
     theHisto->GetListOfFunctions()->Add(Chi2ToFunction.begin()->second);
-    return Chi2ToFunction.begin()->second->GetParameter(1);
+    
+    returnValues.push_back(Chi2ToFunction.begin()->second->GetParameter(1));
+    returnValues.push_back(Chi2ToFunction.begin()->second->GetParameter(2));
+    
+    return returnValues;
   }else {
-    return 0;
+    return returnValues;
   }
 }
 
@@ -305,10 +312,10 @@ void CalibrateNAData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
     if (theGraphs.count(BarName+"T") !=0 ){
 
       theGraphs[BarName+"T"]->SetPoint(0,x[0],gY[0]);
-      theGraphs[BarName+"T"]->SetPointError(0,0.05*x[0],0);
+      theGraphs[BarName+"T"]->SetPointError(0,gErrorInCompton*x[0],0);
 
       theGraphs[BarName+"T"]->SetPoint(1,x[1],gY[1]);
-      theGraphs[BarName+"T"]->SetPointError(1,0.05*x[1],0);
+      theGraphs[BarName+"T"]->SetPointError(1,gErrorInCompton*x[1],0);
     }else{
       cout<<"CRAP "<<endl;
     }
@@ -320,10 +327,10 @@ void CalibrateNAData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
     if (theGraphs.count(BarName+"B") !=0 ){
 
       theGraphs[BarName+"B"]->SetPoint(0,x[0],gY[0]);
-      theGraphs[BarName+"B"]->SetPointError(0,0.05*x[0],0);
+      theGraphs[BarName+"B"]->SetPointError(0,gErrorInCompton*x[0],0);
 
       theGraphs[BarName+"B"]->SetPoint(1,x[1],gY[1]);
-      theGraphs[BarName+"B"]->SetPointError(1,0.05*x[1],0);
+      theGraphs[BarName+"B"]->SetPointError(1,gErrorInCompton*x[1],0);
     }else{
       cout<<"CRAP "<<endl;
     }
@@ -443,28 +450,40 @@ void CalibrateAMData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
   Int_t AmWindow1=80;
   Int_t AmWindow2=220;
 
+  //FindPhotoPeak returns length 2 array.  result[0] = mean of gaussian result[1] =sigma of guassian
+
   if (theProjectionTop->GetEntries()!=0){
     if (binCenterFirstTop > 0){
-      Double_t temp = FindPhotoPeak(theProjectionTop,binCenterFirstTop,AmWindow1,BarName+"T_AmFirstFunc");
-      theGraphs[BarName+"T"]->SetPoint(2,temp,gY[2]);
-      theGraphs[BarName+"T"]->SetPointError(2,0.05*temp,0);
+      vector<Double_t> tempVal = FindPhotoPeak(theProjectionTop,binCenterFirstTop,AmWindow1,BarName+"T_AmFirstFunc");
+      if (tempVal.size()!=0){
+	theGraphs[BarName+"T"]->SetPoint(2,tempVal[0],gY[2]);
+	theGraphs[BarName+"T"]->SetPointError(2,tempVal[1],0);
+      }
     }
     if (binCenterSecondTop >0 ){
-      temp = FindPhotoPeak(theProjectionTop,binCenterSecondTop,AmWindow2,BarName+"T_AmSecondFunc");
-      theGraphs[BarName+"T"]->SetPoint(3,temp,gY[3]);
-      theGraphs[BarName+"T"]->SetPointError(3,0.05*temp,0);
+      vector<Double_t> tempVal = FindPhotoPeak(theProjectionTop,binCenterSecondTop,AmWindow2,BarName+"T_AmSecondFunc");
+      if (tempVal.size() != 0){
+	theGraphs[BarName+"T"]->SetPoint(3,tempVal[0],gY[3]);
+	theGraphs[BarName+"T"]->SetPointError(3,tempVal[1],0);
+      }
     }
   }
+
+
   if (theProjectionBottom->GetEntries()!=0){
     if (binCenterFirstBottom > 0 ){
-      Double_t temp = FindPhotoPeak(theProjectionBottom,binCenterFirstBottom,AmWindow1,BarName+"B_AmFirstFunc");
-      theGraphs[BarName+"B"]->SetPoint(2,temp,gY[2]);
-      theGraphs[BarName+"B"]->SetPointError(2,0.05*temp,0);
+      vector<Double_t> tempVal = FindPhotoPeak(theProjectionBottom,binCenterFirstBottom,AmWindow1,BarName+"B_AmFirstFunc");
+      if (tempVal.size() !=0){
+	theGraphs[BarName+"B"]->SetPoint(2,tempVal[0],gY[2]);
+	theGraphs[BarName+"B"]->SetPointError(2,tempVal[1],0);
+      }
     }
     if (binCenterSecondTop > 0 ){
-      temp = FindPhotoPeak(theProjectionBottom,binCenterSecondBottom,AmWindow2,BarName+"B_AmSecondFunc");
-      theGraphs[BarName+"B"]->SetPoint(3,temp,gY[3]);
-      theGraphs[BarName+"B"]->SetPointError(3,0.05*temp,0);
+      vector<Double_t> tempVal = FindPhotoPeak(theProjectionBottom,binCenterSecondBottom,AmWindow2,BarName+"B_AmSecondFunc");
+      if (tempVal.size() !=0){
+	theGraphs[BarName+"B"]->SetPoint(3,tempVal[0],gY[3]);
+	theGraphs[BarName+"B"]->SetPointError(3,tempVal[1],0);
+      }
     }
   }
 
@@ -550,20 +569,27 @@ void CalibrateCSData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
   if (theProjectionTop->GetEntries()!=0){
     Int_t TopMaxIndex = FindNextMax(BoxCarSmooth(theProjectionTop,3),0);
     Double_t binCenterTop = theProjectionTop->GetBinCenter(TopMaxIndex-SmoothFudge);
-
-    Double_t temp = FindPhotoPeak(theProjectionTop,binCenterTop,PhotoPeakWindow,BarName+"T_CsFirstFunc");
-    theGraphs[BarName+"T"]->SetPoint(4,temp,gY[4]);
-    theGraphs[BarName+"T"]->SetPointError(4,4*temp,0);
+    if (binCenterTop>0){
+      vector<Double_t> temp = FindPhotoPeak(theProjectionTop,binCenterTop,PhotoPeakWindow,BarName+"T_CsFirstFunc");
+      if (temp.size() !=0){
+	theGraphs[BarName+"T"]->SetPoint(4,temp[0],gY[4]);
+	theGraphs[BarName+"T"]->SetPointError(4,temp[1],0);
+      }
+    }
   }
   
-
+  /////////////////Bottom CHANNEL///////////////////////////////
   if (theProjectionBottom->GetEntries()!=0){
     Int_t BottomMaxIndex = FindNextMax(BoxCarSmooth(theProjectionBottom,3),0);
     Double_t binCenterBottom = theProjectionBottom->GetBinCenter(BottomMaxIndex-SmoothFudge);
 
-    Double_t temp = FindPhotoPeak(theProjectionBottom,binCenterBottom,PhotoPeakWindow,BarName+"B_CsFirstFunc");
-    theGraphs[BarName+"B"]->SetPoint(4,temp,gY[4]);
-    theGraphs[BarName+"B"]->SetPointError(4,4*temp,0);
+    if (binCenterBottom>0){
+      vector<Double_t> temp = FindPhotoPeak(theProjectionBottom,binCenterBottom,PhotoPeakWindow,BarName+"B_CsFirstFunc");
+      if (temp.size()!=0){
+	theGraphs[BarName+"B"]->SetPoint(4,temp[0],gY[4]);
+	theGraphs[BarName+"B"]->SetPointError(4,temp[1],0);
+      }
+    }
   }
 
   
@@ -571,11 +597,11 @@ void CalibrateCSData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
   Double_t edgeB = FindComptonEdge(theProjectionBottom,4000,20000,BarName+"B_CsFunc2");
 
   theGraphs[BarName+"T"]->SetPoint(5,edgeT,gY[5]);
-  theGraphs[BarName+"T"]->SetPointError(5,0.05*edgeT,0);
+  theGraphs[BarName+"T"]->SetPointError(5,gErrorInCompton*edgeT,0);
 
 
   theGraphs[BarName+"B"]->SetPoint(5,edgeB,gY[5]);
-  theGraphs[BarName+"B"]->SetPointError(5,0.05*edgeB,0);
+  theGraphs[BarName+"B"]->SetPointError(5,gErrorInCompton*edgeB,0);
 
 }
 
