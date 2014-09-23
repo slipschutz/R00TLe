@@ -250,6 +250,41 @@ Double_t LendaFilter::GetZeroCrossing(std::vector <Double_t> & CFD,Int_t & NumZe
 
 
 
+
+Double_t LendaFilter::GetZeroCrossingImproved(std::vector <Double_t> & CFD,Int_t & NumZeroCrossings,Double_t & residual){
+
+  Double_t softwareCFD;
+  std::vector <Double_t> thisEventsZeroCrossings(0);
+  Double_t MaxValue=0;
+  Int_t MaxIndex=-1;
+  int Window=40;
+
+  for (int j=(CFD.size()/2.0)-Window;j< (int) (CFD.size()/2.0)+Window;j++) { 
+    if (CFD[j] >= 0 && CFD[j+1] < 0 ){
+      //zero crossing point
+      softwareCFD =j + CFD[j] / ( CFD[j] + TMath::Abs(CFD[j+1]) );
+      thisEventsZeroCrossings.push_back(softwareCFD);
+      
+      //is this the biggest zero crossing point?
+      if (TMath::Abs(CFD[j] - CFD[j+1]) > MaxValue){
+	MaxValue=TMath::Abs(CFD[j] - CFD[j+1]);
+	MaxIndex =thisEventsZeroCrossings.size()-1;//Save the maximum spot
+	residual=CFD[j];
+      }
+
+    }
+  }
+
+
+  NumZeroCrossings=thisEventsZeroCrossings.size();
+  if (thisEventsZeroCrossings.size() == 0) // no Zero Crossing found
+    return BAD_NUM;
+  else
+  return thisEventsZeroCrossings[MaxIndex]; // take the max one
+}
+
+
+
 Double_t LendaFilter::GetZeroCrossingOp(std::vector <Double_t> & CFD,Int_t & NumZeroCrossings){
 
   Double_t softwareCFD=-10;
@@ -293,7 +328,7 @@ Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
   int end = (CFD.size()/2)+40;
 
   for (int i =begin;i<end;i++){
-    if (CFD[i]>0 && CFD[i+1]<0){
+    if (CFD[i]>=0 && CFD[i+1]<0){
       double val = CFD[i] - CFD[i+1];
       if ( val > max)
 	max = val;
@@ -382,7 +417,7 @@ Double_t LendaFilter::GetZeroFitCubic(std::vector <Double_t> & CFD){
   int end = (CFD.size()/2)+40;
 
   for (int i =begin;i<end;i++){
-    if (CFD[i]>0 && CFD[i+1]<0){
+    if (CFD[i]>=0 && CFD[i+1]<0){
       double val = CFD[i] - CFD[i+1];
       if ( val > max)
 	max = val;

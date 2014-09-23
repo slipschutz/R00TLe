@@ -35,6 +35,7 @@ public:
 
   
   Double_t GetZeroCrossing(std::vector <Double_t> &,Int_t &,Double_t&);
+  Double_t GetZeroCrossingImproved(std::vector <Double_t> &,Int_t &,Double_t&);
   Double_t GetZeroCrossingOp(std::vector <Double_t> &,Int_t &);
 
   Double_t GetZeroCubic(std::vector <Double_t> &);

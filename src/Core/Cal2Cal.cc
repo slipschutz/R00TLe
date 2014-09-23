@@ -33,8 +33,8 @@
 
 int main(int argc, char* argv[]) 
 {
-   if (argc != 5) {
-      Error("Cal2Cal","Usage: Cal2Cal InputFile OutputFile MapFile CorrectionsFile");
+   if (argc != 4) {
+      Error("Cal2Cal","Usage: Cal2Cal InputFile OutputFile RunNumber");
       return 0;
    }
 
@@ -43,6 +43,8 @@ int main(int argc, char* argv[])
    sw = new TStopwatch();
    sw->Start(kTRUE);
    signal(SIGINT, signalhandler);
+   
+   Int_t RunNumber = atoi(argv[3]);
 
    // Input file and tree
    TString InputFile  = TString(argv[1]);
@@ -64,11 +66,11 @@ int main(int argc, char* argv[])
    Long64_t nentries = intree->GetEntries();
    Info("Cal2Cal", "%lld entries in the input file", nentries);
 
-   string MapFileName = string(argv[3]);
-   string CorrectionsFileName = string(argv[4]);
+   // string MapFileName = string(argv[3]);
+   // string CorrectionsFileName = string(argv[4]);
    
-   cout<<"New Map file is "<<MapFileName<<endl;
-   cout<<"New Corrections file is "<<CorrectionsFileName<<endl;
+   // cout<<"New Map file is "<<MapFileName<<endl;
+   // cout<<"New Corrections file is "<<CorrectionsFileName<<endl;
    
 
    // S800Calc Input branch
@@ -97,10 +99,11 @@ int main(int argc, char* argv[])
 
    // LendaEvent branch
    LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
-   thePacker->SetFilter(6,0,6,0);
+   thePacker->SetFilter(2,6,1,4);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
-   thePacker->SetSettingFileNames(MapFileName,CorrectionsFileName);
+   thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);
+
    LendaEvent* lendaevent = new LendaEvent;
    outtree->Branch("lendaevent", &lendaevent, 320000);
 
@@ -163,7 +166,8 @@ int main(int argc, char* argv[])
       loadBar(jentry, nentries, 1000, 50);
    }
 
-   outfile->Write();
+   outtree->Write("",TObject::kOverwrite);
+
    TheR00TLeSettings->Write();
    delete intree;
    delete outtree;
