@@ -84,7 +84,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       temp[j]=event->Bars[BarNum].Bottoms[i].GetTrace()[j];
     }
     BottomTraces[i] = new TGraph(traceSize,x,temp);
-    BottomTraces[i]->SetTitle(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
+    BottomTraces[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" Trace")).c_str());
     BottomTraces[i]->SetName(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
 
     
@@ -92,7 +92,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       temp[j]=event->Bars[BarNum].Bottoms[i].GetCFD()[j];
     }
     BottomCFDs[i] = new TGraph(traceSize,x,temp);
-    BottomCFDs[i]->SetTitle(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
+    BottomCFDs[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" CFD")).c_str());
     BottomCFDs[i]->SetName(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
 
 
@@ -100,7 +100,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       temp[j]=event->Bars[BarNum].Bottoms[i].GetFilter()[j];
     }
     BottomFilters[i] = new TGraph(traceSize,x,temp);
-    BottomFilters[i]->SetTitle(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
+    BottomFilters[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" Filter")).c_str());
     BottomFilters[i]->SetName(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
 
 
@@ -113,14 +113,14 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       temp[j]=event->Bars[BarNum].Tops[i].GetTrace()[j];
     }
     TopTraces[i] = new TGraph(traceSize,x,temp);
-    TopTraces[i]->SetTitle(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
+    TopTraces[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" Trace")).c_str());
     TopTraces[i]->SetName(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
     
     for (int j=0;j<traceSize;j++){
       temp[j]=event->Bars[BarNum].Tops[i].GetCFD()[j];
     }
     TopCFDs[i] = new TGraph(traceSize,x,temp);
-    TopCFDs[i]->SetTitle(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
+    TopCFDs[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" CFD")).c_str());
     TopCFDs[i]->SetName(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
 
 
@@ -128,7 +128,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       temp[j]=event->Bars[BarNum].Tops[i].GetFilter()[j];
     }
     TopFilters[i] = new TGraph(traceSize,x,temp);
-    TopFilters[i]->SetTitle(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
+    TopFilters[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" Filter")).c_str());
     TopFilters[i]->SetName(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
 
  
