@@ -56,7 +56,7 @@ class MapInfo{
 public:
   //Constructor defaults all member variables to bad values
   MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
-	     TOFOffset(BAD_NUM),FullName(""),BarName(""),ReferenceName(""),
+	     TOFOffset(BAD_NUM),FullName(""),BarName(""),ReferenceName(""),BarAngle(BAD_NUM),
 	     HasCorrections(false),ReferenceGlobalID(BAD_NUM),
 	     GlobalID(BAD_NUM){;}
 
@@ -68,6 +68,7 @@ public:
   string BarName; //Name of Bar. Example: SL01
   string ReferenceName; //Full Reference channel Name. Example: OBJ1T
 
+  Double_t BarAngle;
 
   bool HasCorrections; //Flag to be set when there is correction information available
   Int_t ReferenceGlobalID; //Global DDAS ID of the reference channel
@@ -175,6 +176,9 @@ public:
 
   void FindAndSetMapAndCorrectionsFileNames(int RunNumber);
 
+  MapInfo GetMapInfo(string FullName);
+
+
 private:
   void BuildMaps();
   
@@ -193,6 +197,8 @@ private:
   map<int,string> GlobalIDToBar;
 
   map<string,int> BarNameToUniqueBarNumber;
+
+  map<string,Double_t> BarNameToBarAngle;
   
   map<int,MapInfo > GlobalIDToMapInfo;
   

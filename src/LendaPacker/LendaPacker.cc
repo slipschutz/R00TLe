@@ -13,7 +13,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
   sg=-1;
   lg2=-1;
   sg2=-1;
-  traceDelay=-1;
+  traceDelay=0;
   jentry=-1;
 
   theSettings=v;
@@ -21,7 +21,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=false;
+  saveTraces=true;
  
   
 }
@@ -96,10 +96,10 @@ void LendaPacker::CalcTimeFilters(vector<UShort_t> & theTrace){
     theFilter.FastFilter(theTrace,thisEventsFF,fFL,fFG); //run FF algorithim
     thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
     
-    softwareCFD=theFilter.GetZeroCrossing(thisEventsCFD,numZeroCrossings,CFDResidual)-traceDelay; //find zeroCrossig of CFD
+    softwareCFD=theFilter.GetZeroCrossingImproved(thisEventsCFD,numZeroCrossings,CFDResidual); //find zeroCrossig of CFD
     
-    cubicCFD = theFilter.GetZeroCubic(thisEventsCFD)-traceDelay;
-    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD)-traceDelay;
+    cubicCFD = theFilter.GetZeroCubic(thisEventsCFD);
+    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
   }
 }
 void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace){
@@ -134,6 +134,13 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace){
     
   }
 }
+
+MapInfo LendaPacker::GetMapInfo(string FullName){
+
+  return GlobalIDToMapInfo[FullLocalToGlobalID[FullName]];
+
+}
+
 void LendaPacker::BuildMaps(){
 
   stringstream stream;
@@ -190,8 +197,10 @@ void LendaPacker::BuildMaps(){
     tempInfo.BarName = BarName;
 
     tempInfo.ReferenceName=ReferenceName;
-
-
+    tempInfo.BarAngle=Angle;
+    if (Angle !=0){
+      BarNameToBarAngle[BarName]=Angle;
+    }
     if (BarNameToUniqueBarNumber.count(BarName)==0){ //Isn't already there
       BarNameToUniqueBarNumber[BarName]=UniqueBarNumber;
       UniqueBarNumber++;
@@ -245,10 +254,17 @@ void LendaPacker::BuildMaps(){
       cout<<"The name was "<<ii.second.ReferenceName<<" it is from map info of "<<ii.second.FullName<<endl;
       throw -12;
     }
+
+    if (ii.second.BarAngle == 0 ){//This channel doesn't have a Bar angle
+      //Get angle from the BarNameToBarAngle Map
+      
+      ii.second.BarAngle = BarNameToBarAngle[ii.second.BarName];
+    }
+    
   }
 
   theSettings->SetBarIds(BarNameToUniqueBarNumber);
-  
+
 
 }
 
@@ -392,7 +408,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 	//Check to see if this bar has been found in this event yet
 	if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
 	  //Put a bar object into a map to keep track of things
-	  LendaBar tempBar(nameOfBar);
+	  LendaBar tempBar(nameOfBar,it->second.BarAngle);
 	  //Only look up the Bar Id the first time the bar is found
 	  int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
 	  tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
@@ -590,7 +606,7 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
       theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
       tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
       Double_t Basetime = 2*(Event->Bars[i].Tops[t].GetTimeLow() + Event->Bars[i].Tops[t].GetTimeHigh() * 4294967296.0);
-      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
+      Double_t tempSoftTime=theFilter.GetZeroCrossingImproved(tempCFD,num,CFDResidual)-traceDelay;
       Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
       
       Event->Bars[i].Tops[t].SetSoftwareCFD(tempSoftTime);
@@ -605,7 +621,7 @@ void LendaPacker::RePackSoftwareTimes(LendaEvent *Event){
       theFilter.FastFilter(tempTrace,tempFF,fFL,fFG); //run FF algorithim
       tempCFD = theFilter.CFD(tempFF,fd,fw); //run CFD algorithim
       Double_t Basetime = 2*(Event->Bars[i].Bottoms[b].GetTimeLow() + Event->Bars[i].Bottoms[b].GetTimeHigh() * 4294967296.0);
-      Double_t tempSoftTime=theFilter.GetZeroCrossing(tempCFD,num,CFDResidual)-traceDelay;
+      Double_t tempSoftTime=theFilter.GetZeroCrossingImproved(tempCFD,num,CFDResidual)-traceDelay;
       Double_t tempCubicTime=theFilter.GetZeroCubic(tempCFD)-traceDelay;
       
       Event->Bars[i].Bottoms[b].SetSoftwareCFD(tempSoftTime);

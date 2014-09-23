@@ -16,7 +16,7 @@ using namespace std;
 class LendaBar : public TObject{
 public:
   LendaBar();
-  LendaBar(string s) {Clear(); Name=s;}
+  LendaBar(string s,Double_t a) {Clear(); Name=s;BarAngle=a;}
   ~LendaBar();
   
   //Storing a vector of Tops and bottoms
@@ -79,6 +79,8 @@ public:
 
   string Name;//the name of the bar to make it unique
   Int_t BarId; //The Unique BarID Defined by the order in MapFile
+  
+  Double_t BarAngle;
 
   Int_t NumTops;
   Int_t NumBottoms;
