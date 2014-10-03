@@ -81,8 +81,8 @@ rm -f rootlogon.C
 rm -f rootlogoff.C
 #copy the skelton version of the rootlogon
 echo "Generating ROOT logon file..."
-cp -f ${R00TLeInstall}/skelton/rootlogon.C .
-cp -f ${R00TLeInstall}/skelton/rootlogoff.C .
+cp -f ${R00TLeInstall}/skeleton/rootlogon.C .
+cp -f ${R00TLeInstall}/skeleton/rootlogoff.C .
 
 echo "rootlogon(){" >> temp_R00TLe
 echo "cout<<\"\\nHello $1,\"<<endl;" >>temp_R00TLe
@@ -95,10 +95,10 @@ mv -f temp_R00TLe rootlogon.C
 if [ -d src ] || [ -d macros ] || [ -d histograms ]; then
     echo "Found histogrmer already.  Won't over write"
 else 
-echo "Copying over skelton histogramer..."
-cp -r ${R00TLeInstall}/skelton/src/ .
-cp -r ${R00TLeInstall}/skelton/macros/ .
-cp -r ${R00TLeInstall}/skelton/histograms/ .
+echo "Copying over skeleton histogramer..."
+cp -r ${R00TLeInstall}/skeleton/src/ .
+cp -r ${R00TLeInstall}/skeleton/macros/ .
+cp -r ${R00TLeInstall}/skeleton/histograms/ .
 fi
 
 

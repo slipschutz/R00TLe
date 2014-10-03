@@ -21,7 +21,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=true;
+  saveTraces=false;
  
   
 }
@@ -298,7 +298,7 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
   tempLenda.SetCFDTrigBit(c->GetCFDTriggerSourceBit());
   tempLenda.SetInternalCFD(c->timecfd/32768.0);
   
-  
+
   if (saveTraces){
     tempLenda.SetTrace(c->trace);
   }
