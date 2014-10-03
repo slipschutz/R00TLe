@@ -51,11 +51,11 @@ int main(int argc, char **argv){
   ////////////////////////////////////////////////////////////////////////////////////
   TChain *inT=new TChain("caltree");
 
-  inT->Add("./rootfiles/run-0394-00.root");
-  inT->Add("./rootfiles/run-0398-00.root");
-  inT->Add("./rootfiles/run-0397-00.root");
-  inT->Add("./rootfiles/run-0396-00.root");
-  inT->Add("./rootfiles/run-0399-00.root");
+  inT->Add("./rootfiles/run-0406-??.root");
+  // inT->Add("./rootfiles/run-0398-00.root");
+  // inT->Add("./rootfiles/run-0397-00.root");
+  // inT->Add("./rootfiles/run-0396-00.root");
+  // inT->Add("./rootfiles/run-0399-00.root");
 
 
   Long64_t nentry=(Long64_t) (inT->GetEntries());
@@ -68,14 +68,14 @@ int main(int argc, char **argv){
   ////////////2////////////////////////////////////////////////////////////////////////
   TFile *outFile = new TFile("Result.root","recreate");
   
-  int FL_low=1;
-  int FL_high=10;
+  int FL_low=2;
+  int FL_high=8;
   int FG_low=0;
-  int FG_high=5;
+  int FG_high=4;
   int w_low=0;
   int w_high=4;
-  int d_low=1;
-  int d_high=10;
+  int d_low=2;
+  int d_high=8;
 
   Double_t cor[3];
   Double_t cubicCor[3];
@@ -91,7 +91,7 @@ int main(int argc, char **argv){
   /////////////////////////////
 
   int NumberOfFilterSets = (FL_high-FL_low)*(FG_high-FG_low)*(w_high-w_low)*(d_high-d_low);
-
+  cout<<"YOU ASKED FOR "<<NumberOfFilterSets <<" filter sets"<<endl;
   vector <TH1F*> TheHistograms(NumberOfFilterSets);
   vector <TH1F*> TheCubicHistograms(NumberOfFilterSets);
   vector <TH1F*> TheCubicHistogramsCor(NumberOfFilterSets);
@@ -105,7 +105,7 @@ int main(int argc, char **argv){
   int count =0;
   int xlow=-10;
   int xhigh=10;
-  int nBins=400;
+  int nBins=800;
 
   for (int FL=FL_low;FL<FL_high;FL++){
     for (int FG=FG_low;FG<FG_high;FG++){
@@ -133,7 +133,7 @@ int main(int argc, char **argv){
 
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"_vsEnergy";
-	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,500,0,100000);
+	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,16000,0,TMath::Power(2.0,14.0));
 	  //	  MapOfRejectedEvents[nameStream.str()]=0;
 	  
 	  count++;
@@ -146,7 +146,7 @@ int main(int argc, char **argv){
   TH1F * SoftTimes = new TH1F("SoftTimes","",nBins,xlow,xhigh);
 
 
-  
+  cout<<"DONE Initializing all the histograms"<<endl;
   // set input tree branvh variables and addresses
   ////////////////////////////////////////////////////////////////////////////////////
   
@@ -198,7 +198,8 @@ int main(int argc, char **argv){
     }
 
     inT->GetEntry(jentry); // Get the event from the input tree 
-    if (inEvent->NumBars ==1&&inEvent->Bars[0].SimpleEventBit &&inEvent->Bars[0].Name=="SV01"){
+    if (inEvent->NumBars ==2&&inEvent->Bars[0].SimpleEventBit &&inEvent->Bars[1].SimpleEventBit
+	&&inEvent->Bars[0].Name=="NL01" && inEvent->Bars[1].Name=="SL12"){
       //Loop over the all the filters in the same way as above
       SoftTimes->Fill(inEvent->Bars[0].GetCorrectedAvgTOF());
       InternalTimes->Fill(inEvent->Bars[0].GetCorrectedAvgTOF());
@@ -211,19 +212,28 @@ int main(int argc, char **argv){
 	      thePacker->ReMakeLendaEvent(inEvent,outEvent);
 	      outEvent->Finalize();
 
-	    
-	      if (outEvent->Bars[0].GetAvgPulseHeight()/16384 >0.07){
-		TheHistograms[count]->Fill(outEvent->Bars[0].GetCorrectedAvgSoftTOF());
-		TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
-	      }
-	      TheEnergiesVsTR[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()),
-					   outEvent->Bars[0].GetAvgEnergy());
+
+	      Double_t time=0.5*(outEvent->Bars[0].Tops[0].GetTime()+outEvent->Bars[0].Bottoms[0].GetTime()-
+				 outEvent->Bars[1].Tops[0].GetTime()-outEvent->Bars[1].Bottoms[0].GetTime());
+
+	      Double_t CubicTime=0.5*(outEvent->Bars[0].Tops[0].GetCubicTime()+outEvent->Bars[0].Bottoms[0].GetCubicTime()-
+				      outEvent->Bars[1].Tops[0].GetCubicTime()-outEvent->Bars[1].Bottoms[0].GetCubicTime());
+	      
+	      Double_t dt1 = outEvent->Bars[0].GetDt();
+	      
+	      Double_t cubicDt1 = outEvent->Bars[0].GetCubicDt();
+
+
+	      TheHistograms[count]->Fill(time);
+	      TheCubicHistograms[count]->Fill(CubicTime);
+	      
+	      TheEnergiesVsTR[count]->Fill(CubicTime+ 0.3*cubicDt1,outEvent->Bars[0].Tops[0].GetPulseHeight());
 	      //	      TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
 	      // Double_t GOE=Event->GOE;
 	      // Double_t cor1 = cor[0]*GOE + cor[1]*GOE*GOE + cor[2]*GOE*GOE*GOE;
 	      // Double_t cor2 = cubicCor[0]*GOE + cubicCor[1]*GOE*GOE + cubicCor[2]*GOE*GOE*GOE;
-	      // TheHistogramsCor[count]->Fill(Event->softTimes[0]-Event->softTimes[1]-cor1);
-	      // TheCubicHistogramsCor[count]->Fill(Event->cubicFitTimes[0]-Event->cubicFitTimes[1]-cor2);
+	      TheHistogramsCor[count]->Fill(time + 0.3 *dt1);
+	      TheCubicHistogramsCor[count]->Fill(CubicTime + 0.3*cubicDt1);
 	      outEvent->Clear();
 	      count++;
 	    }
@@ -263,7 +273,7 @@ int main(int argc, char **argv){
   int NumOfHistVectors=theVecs.size();
 
 
-  TF1 * aGauss = new TF1("aGauss","gaus",-0.3,0.3);
+  TF1 * aGauss = new TF1("aGauss","gaus",-3,3);
   TFitResultPtr result;
   Int_t status;
   vector <vector<double> > theResolutions(NumOfHistVectors);
@@ -287,7 +297,7 @@ int main(int argc, char **argv){
       result = theVecs[i][j]->Fit("aGauss","QSR");
       status=result;
       if (status==0){
-	theResolutions[i][j]=result->Value(2)*2.35*4;
+	theResolutions[i][j]=result->Value(2)*2.35*4/TMath::Sqrt(2);
 	cout<<"Res is "<<theResolutions[i][j]<<endl;
 	if (theResolutions[i][j]<BestRes){
 	  BestRes=theResolutions[i][j];
