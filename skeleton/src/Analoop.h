@@ -11,6 +11,8 @@
 //
 //////////////////////////////////////////////////////////
 
+
+//C++ Std library headers
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -18,9 +20,10 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
-
 #include <signal.h>
 
+
+//ROOT headers
 #include <TROOT.h>
 #include <TObject.h>
 #include <TSystem.h>
@@ -34,33 +37,56 @@
 #include <TEnv.h>
 #include <TCanvas.h>
 #include <TCutG.h>
-#include <TLorentzVector.h>
-#include <TLorentzRotation.h>
+///////////////////
 
+
+//Local From R00TLe Headers
 #include "S800Calc.hh"
 #include "LendaEvent.hh"
 #include "R00TLeSettings.hh"
 
-// forward declarations
-class TObject;
-class S800Calc;
-class CRDC;
-class IC;
-class TOF;
-class SCINT;
-class TRACK;
-class DDASEvent;
-class LendaEvent;
-
-// These variables are made global.
-S800Calc    *s800calc;
-LendaEvent  *lendaevent;
 
 // for signal handling
 Bool_t signal_received;
 
 class Analoop : public TSelector {
 public :
+
+  /****************************************/
+  /* This is where you declar histograms  */
+  /****************************************/
+  
+  //Declar vectors to hold standard quantities for 
+  //All of the Lenda Bars
+  vector <TH1F*> AvgEnergies;
+  vector <TH1F*> TopEnergies;
+  vector <TH1F*> BottomEnergies;
+  
+  vector <TH1F*> TopTOFs;
+  vector <TH1F*> BottomTOFs;
+  vector <TH1F*> AvgTOFs;
+  
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+/////////////////The casual user can ignore the vodoo magic below//////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+  // These variables are made global.
+  S800Calc    *s800calc;
+  LendaEvent  *lendaevent;
+  
+
    TTree    *fChain;   //! pointer to the analyzed TTree or TChain
    // List of branches
    TBranch  *b_s800calc;
@@ -101,28 +127,20 @@ public :
    TString filename;
 
    R00TLeSettings *TheSettings;
-   
-   /****************************************/
-   /* This is where you declar histograms  */
-   /****************************************/
-   
-   //Declar vectors to hold standard quantities for 
-   //All of the Bars 
-   vector <TH1F*> AvgEnergies;
-   vector <TH1F*> TopEnergies;
-   vector <TH1F*> BottomEnergies;
-
-   vector <TH1F*> TopTOFs;
-   vector <TH1F*> BottomTOFs;
-   vector <TH1F*> AvgTOFs;
-
-
-
-
+  
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
    
  public:
    ClassDef(Analoop, 0);
 };
+
+
+
+
 
 // For signal handler
 extern "C" {
