@@ -43,7 +43,7 @@ if [ "$flag" == "" ]; then #failed
 fi
 
 echo "Setting enviorment Variables"
-export R00TLe_PRM=${R00TLeInstall}/prm
+
 export R00TLe_User=$1
 cd $R00TLeInstall
 
@@ -58,7 +58,7 @@ else
     echo "User $1 found."
     echo "Switching to working directory..."
     cd users/$1 # change directory in to the users directory
-    return
+
 fi
 
 ##Should now be in the directory for the user
@@ -89,6 +89,22 @@ echo "cout<<\"\\nHello $1,\"<<endl;" >>temp_R00TLe
 
 
 cat rootlogon.C | awk ' {if ($0 !~/rootlogon()/){print}}' >> temp_R00TLe
+
+echo "gROOT->ProcessLine(\".include ${R00TLeInstall}/src/include\");">>temp_R00TLe
+
+for file in $(ls ${R00TLeInstall}/scripts/*.C) 
+do
+echo "gROOT->ProcessLine(\".L $file\" );" >> temp_R00TLe
+done
+
+# for file in $(ls ${R00TLeInstall}/users/$1/macros/*.C) 
+# do
+# echo "gROOT->ProcessLine(\".L $file\" );" >>temp_R00TLe
+# done
+
+
+echo "return;">>temp_R00TLe
+echo "}">>temp_R00TLe
 
 mv -f temp_R00TLe rootlogon.C
 

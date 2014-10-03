@@ -50,6 +50,7 @@ if [ "$flag" == "" ]; then #nothing found
     echo "export R00TLeInstall=$R00TLe_HEAD">>~/.bashrc
     echo "export R00TLeEvtFilesPath=${Path_To_Evt_Files}">>~/.bashrc
     echo "export R00TLeRootFilesPath=${Path_To_ROOT_Files}">>~/.bashrc
+    echo "export R00TLe_PRM=${R00TLeInstall}/prm">>~/.bashrc
     echo "alias root='root -l'">>~/.bashrc
     echo "alias R00TLeLogon.sh='source R00TLeLogon.sh'">>~/.bashrc
     printf "#End R00TLe settings\n">>~/.bashrc

@@ -13,10 +13,6 @@ rootlogon(){
   printf(" Nothing works, everything is broken. \n");
   printf("\033[0m\n");
 
-  gSystem->Load("libLendaEvent.so");
   gSystem->Load("libS800.so");
-  gSystem->Load("libDDASEvent.so");
   gSystem->Load("libLendaPacker.so");
 
-return;
-}
