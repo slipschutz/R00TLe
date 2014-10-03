@@ -140,7 +140,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
 
 
   free(temp);
-  gStyle->SetMarkerStyle(4);
+  gStyle->SetMarkerStyle(7);
   gStyle->UseCurrentStyle();
   for (int i=0;i<NumBottoms;i++){
     c->cd(2*i+1);
