@@ -10,8 +10,7 @@ if [ $# -eq 2 ] && [ "$1" == "-f" ]; then
     echo
     echo $2 >> $R00TLeInstall/users/.knownusers
     echo "User $2 Added to known Users"
-    echo "To Login as $2 run:"
-    echo "R00TLeLogon.sh $2"
+    R00TLeLogon.sh $2;
     return
 fi
 
