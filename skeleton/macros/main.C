@@ -26,7 +26,7 @@ int main(Int_t runNum=-1,TString OutPutName="temp.root")
     ch->Add("./rootfiles/run-0341-00.root");//Defualt run
   } else {
     stringstream ss;
-    ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-00.root";
+    ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-??.root";
     ch->Add(ss.str().c_str());
     if (OutPutName == "temp.root"){
       ss.str("");
