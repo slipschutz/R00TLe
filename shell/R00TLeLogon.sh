@@ -34,14 +34,14 @@ flag=$(env | grep "R00TLeInstall")
 
 if [ "$flag" == "" ]; then #failed
 
-    echo "Did not find R00TLeInstall enviroment variable"
+    echo "Did not find R00TLeInstall environment variable"
     echo "Run the Make Install for R00TLe"
     echo "Then source your .bashrc"
     return
 
 fi
 
-echo "Setting enviorment Variables"
+echo "Setting environment Variables"
 
 export R00TLe_User=$1
 cd $R00TLeInstall
