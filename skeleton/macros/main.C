@@ -15,7 +15,7 @@
 #endif // __CINT__
 
 
-int main(Int_t runNum=-1,TString OutPutName="temp.root")
+int main(Int_t runNum=-1,TString OutPutName="histograms/temp.root")
 {
   
   TChain* ch = new TChain("caltree");
@@ -28,15 +28,15 @@ int main(Int_t runNum=-1,TString OutPutName="temp.root")
     stringstream ss;
     ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-??.root";
     ch->Add(ss.str().c_str());
-    if (OutPutName == "temp.root"){
+    if (OutPutName == "histograms/temp.root"){
       ss.str("");
-      ss<<"HistogramsFromRun"<<runNum<<".root";
+      ss<<"histograms/HistogramsFromRun"<<runNum<<".root";
       OutPutName=ss.str();      
     }
   }
   std::cout << "Done." << std::endl;
 
-  
+
   ///////////////////////////////////////////////////////////////
   // look for settings objects in each of the files 	       //
   // in the chain.  Set their names as settings0 1 2...	       //
@@ -72,24 +72,27 @@ int main(Int_t runNum=-1,TString OutPutName="temp.root")
 
   TString user =gSystem->Getenv("R00TLe_User");
   TString install =gSystem->Getenv("R00TLeInstall");
-  TString src = install+"/users/"+user+"/src/Analoop.cc+O";
-  
+  TString src = install+"/users/"+user+"/src/Analoop.cc+g";
+
+
   ////////////////////////////////////////////////////////////////
-  // magic line that compiles and then runs the Analoop program //
+  // magic line that runs the Analoop program                   //
   // over the chain you have specified			        //
   ////////////////////////////////////////////////////////////////
-  ch->Process(src,"-g");
+
+
+
+  TSelector* myAnaloop = TSelector::GetSelector(src);
+
+  TList * list = new TList();
+  list->Add(ListOfSettings[0]);
+  myAnaloop->SetInputList(list);
+  
+  ch->Process(myAnaloop,OutPutName);
 
   
 
-  //// store histograms 
-  TString rootfilesdirname = install+"/users/"+user+"/histograms";
-  TString outfilename = rootfilesdirname + "/"+OutPutName;
-  cout<<"File will be saved in "<<outfilename<<endl;
-  
-  gROOT->ProcessLine(".L WriteHist.C");
-  WriteHist(outfilename,ListOfSettings);
 
-  
+  delete list;
   delete ch;
 }
