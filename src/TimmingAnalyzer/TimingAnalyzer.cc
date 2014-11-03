@@ -133,7 +133,7 @@ int main(int argc, char **argv){
 
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"_vsEnergy";
-	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,16000,0,TMath::Power(2.0,14.0));
+	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,4000,0,TMath::Power(2.0,14.0));
 	  //	  MapOfRejectedEvents[nameStream.str()]=0;
 	  
 	  count++;
@@ -243,7 +243,7 @@ int main(int argc, char **argv){
     
       // InternalTimes->Fill(0.5*(Event->times[0]+Event->times[1]-
       //  			       Event->times[2]-Event->times[3]));
- 
+      
       
     }
     //Periodic printing
@@ -259,7 +259,7 @@ int main(int argc, char **argv){
       cout<<"On Event "<<jentry<<" "<<((double)jentry)/(nentry)*100<<"% minutes remaining "<<(1.0/60)*timeRate*(nentry-jentry)<<" hours remaining "<<(1.0/3600)*timeRate*(nentry-jentry);
     }
     //cout<<right<<"On event "<<setw(9)<<jentry<<" "<<setprecision(2)<<setw(3)<<((double)jentry)/maxentry*100.0<<"% seconds remaining "<<setprecision(4)<<setw(6)<<timeRate*(maxentry-jentry)<<flush<<"\r";
-
+    
     
   }//End main analysis loop
   
@@ -321,8 +321,8 @@ int main(int argc, char **argv){
     }
   }
   out<<endl;
-
-
+  
+  
   //Close the file
   outFile->Write();
   outFile->Close();
