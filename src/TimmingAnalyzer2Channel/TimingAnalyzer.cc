@@ -71,24 +71,24 @@ int main(int argc, char **argv){
   int FL_low=2;
   int FL_high=8;
   int FG_low=0;
-  int FG_high=4;
+  int FG_high=5;
   int w_low=0;
-  int w_high=4;
+  int w_high=3;
   int d_low=2;
   int d_high=8;
 
-  Double_t cor[3];
-  Double_t cubicCor[3];
+  // Double_t cor[3];
+  // Double_t cubicCor[3];
 
-  //Run 399////////////////////
-  cubicCor[0]=-0.295741;
-  cubicCor[1]=0;
-  cubicCor[2]=0;
+  // //Run 399////////////////////
+  // cubicCor[0]=-0.295741;
+  // cubicCor[1]=0;
+  // cubicCor[2]=0;
   
-  cor[0]=-0.284785;
-  cor[1]=0;
-  cor[2]=0;
-  /////////////////////////////
+  // cor[0]=-0.284785;
+  // cor[1]=0;
+  // cor[2]=0;
+  // /////////////////////////////
 
   int NumberOfFilterSets = (FL_high-FL_low)*(FG_high-FG_low)*(w_high-w_low)*(d_high-d_low);
   cout<<"YOU ASKED FOR "<<NumberOfFilterSets <<" filter sets"<<endl;
@@ -133,7 +133,7 @@ int main(int argc, char **argv){
 
 	  nameStream.str("");
 	  nameStream<<"FL"<<FL<<"FG"<<FG<<"w"<<w<<"d"<<d<<"_vsEnergy";
-	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,16000,0,TMath::Power(2.0,14.0));
+	  TheEnergiesVsTR[count]=new TH2F(nameStream.str().c_str(),"Title",nBins,xlow,xhigh,4000,0,TMath::Power(2.0,14.0));
 	  //	  MapOfRejectedEvents[nameStream.str()]=0;
 	  
 	  count++;
@@ -168,6 +168,11 @@ int main(int argc, char **argv){
   //  vector <Sl_Event*> CorrelatedEvents(4,NULL);
   //  map <Long64_t,bool> mapOfUsedEntries;//Used to prevent double counting
 
+  Double_t cubicCor=-0.154953;
+  Double_t linCor=-0.153091;
+
+  Double_t cubicCor2=2.74170e-02;
+  Double_t linCor2=2.49526e-02;
 
 
   clock_t startTime;
@@ -219,21 +224,29 @@ int main(int argc, char **argv){
 	      Double_t CubicTime=0.5*(outEvent->Bars[0].Tops[0].GetCubicTime()+outEvent->Bars[0].Bottoms[0].GetCubicTime()-
 				      outEvent->Bars[1].Tops[0].GetCubicTime()-outEvent->Bars[1].Bottoms[0].GetCubicTime());
 	      
-	      Double_t dt1 = outEvent->Bars[0].GetDt();
-	      
-	      Double_t cubicDt1 = outEvent->Bars[0].GetCubicDt();
+	      Double_t DtBar0 = outEvent->Bars[0].GetDt();
+	      Double_t CubicDtBar0 = outEvent->Bars[0].GetCubicDt();
+
+	      Double_t DtBar1 = outEvent->Bars[1].GetDt();
+	      Double_t CubicDtBar1 = outEvent->Bars[1].GetCubicDt();
+
+
+
+	      Double_t DtCorrectedTDiff = time - linCor*DtBar0 - linCor2*DtBar1;
+	      Double_t CubicDtCorrectedTDiff = CubicTime - cubicCor*CubicDtBar0 - cubicCor2*CubicDtBar1;
+
 
 
 	      TheHistograms[count]->Fill(time);
 	      TheCubicHistograms[count]->Fill(CubicTime);
 	      
-	      TheEnergiesVsTR[count]->Fill(CubicTime+ 0.3*cubicDt1,outEvent->Bars[0].Tops[0].GetPulseHeight());
+	      TheEnergiesVsTR[count]->Fill(CubicDtCorrectedTDiff,outEvent->Bars[0].Tops[0].GetPulseHeight());
 	      //	      TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
 	      // Double_t GOE=Event->GOE;
 	      // Double_t cor1 = cor[0]*GOE + cor[1]*GOE*GOE + cor[2]*GOE*GOE*GOE;
 	      // Double_t cor2 = cubicCor[0]*GOE + cubicCor[1]*GOE*GOE + cubicCor[2]*GOE*GOE*GOE;
-	      TheHistogramsCor[count]->Fill(time + 0.3 *dt1);
-	      TheCubicHistogramsCor[count]->Fill(CubicTime + 0.3*cubicDt1);
+	      TheHistogramsCor[count]->Fill(DtCorrectedTDiff);
+	      TheCubicHistogramsCor[count]->Fill(CubicDtCorrectedTDiff);
 	      outEvent->Clear();
 	      count++;
 	    }

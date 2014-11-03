@@ -91,5 +91,5 @@ int main(Int_t runNum=-1,TString OutPutName="temp.root")
   WriteHist(outfilename,ListOfSettings);
 
   
-  ch->Delete();
+  delete ch;
 }
