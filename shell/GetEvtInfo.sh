@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $# -ne 1 ]; then
+    echo "Need to give a run Number"
+    exit
+fi
+
 runNum=$(printf "%04d" $1)
 theFile=${R00TLeEvtFilesPath}/run-${runNum}-00.evt
 if [ -f $theFile ]; then
