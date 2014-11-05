@@ -92,7 +92,8 @@ public :
    TBranch  *b_s800calc;
    TBranch  *b_lendaevent;
 
-   Analoop(TTree * /*tree*/ = 0) { }
+ Analoop(TTree * /*tree*/ = 0) : OutFileName("./DEFUALT.root")
+     { }
    virtual ~Analoop();
    virtual Int_t   Version() const {
       return 2;
@@ -127,7 +128,8 @@ public :
    TString filename;
 
    R00TLeSettings *TheSettings;
-  
+
+   TString OutFileName;
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////

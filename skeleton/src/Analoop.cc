@@ -9,32 +9,36 @@
 // ie when new is called for them	       //
 /////////////////////////////////////////////////
 void Analoop::SlaveBegin(TTree * t) {
-  
   TString option = GetOption();
+
+  
 
   // Set signal handler
   signal_received = kFALSE;
   signal(SIGINT, signalhandler);
 
 
-  ///////////////////////////////////////////////////////////////////
-  // Get the settings object from the file that the TChain is from //
-  ///////////////////////////////////////////////////////////////////
-  if (t->GetCurrentFile()->GetListOfKeys()->Contains("TheSettings")){
-    TheSettings=(R00TLeSettings*)t->GetCurrentFile()->Get("TheSettings");
-  } else {
-    cout<<"No Settings object found.  Exiting..."<<endl;
+  
+  //////////////////////////////////////////////////////////////////
+  // Look for a settings object in the Input list to the selector //
+  // if it is not there then all is lost			  //
+  //////////////////////////////////////////////////////////////////
+
+  TheSettings = (R00TLeSettings*) fInput->FindObject("Settings0");
+
+  //  TheSettings=(R00TLeSettings*)gDirectory->Get("TheSettings");
+  if (TheSettings != NULL){
+    cout<<"Found A R00TLeSettings Object!"<<endl;
+  }else{
+    cout<<"Could Not Find a R00TLeSettings Object.  Hard Exit"<<endl;
     exit(1);
-    return;
   }
-
-
 
 
   ////////////////////////////////////////////////////////////////////
   // make histograms for standard quantities (TOFs and PulsHeights) //
   ////////////////////////////////////////////////////////////////////
-
+  
   Int_t NumBars =-1;
   NumBars = TheSettings->GetNumBars();//The number of bars in this file from TheSettings
   
@@ -51,6 +55,9 @@ void Analoop::SlaveBegin(TTree * t) {
   int EMax=100000;
   int TOFBins=2000;
   int TOFMinMax=100;
+
+
+
 
   //For each Bar in the file make these standar histograms
   stringstream nameStream;
@@ -81,11 +88,10 @@ void Analoop::SlaveBegin(TTree * t) {
      
   }
 
-  ///////////////////////////////
-  // new more histograms here  //
+  // ///////////////////////////////
+  // // new more histograms here  //
   ///////////////////////////////
   
-
 
 
   // Add all the histograms to Output list of the Selector
@@ -102,6 +108,7 @@ void Analoop::SlaveBegin(TTree * t) {
 // The tree contains two branches s800calc and lendaevent       //
 //////////////////////////////////////////////////////////////////
 Bool_t Analoop::Process(Long64_t entry) {
+  //  cout<<"IN PROCESS "<<entry<<endl;
   fChain->GetTree()->GetEntry(entry);
   
   if (signal_received) {
@@ -160,10 +167,7 @@ Bool_t Analoop::Process(Long64_t entry) {
     }
   }//End for over bars in event
   
-  
-
-  
-  
+      
   return kTRUE;
 }
 
@@ -190,7 +194,7 @@ Analoop::~Analoop() {
 void Analoop::Init(TTree *tree) {
   s800calc    = new S800Calc();
   lendaevent  = new LendaEvent();
-  
+
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -198,43 +202,46 @@ void Analoop::Init(TTree *tree) {
   fChain->SetBranchAddress("s800calc",    &s800calc,    &b_s800calc);
   fChain->SetBranchAddress("lendaevent",  &lendaevent,  &b_lendaevent);
 
+  
   accum_nentries = 0;
 }
 
 Bool_t Analoop::Notify() {
-  filename = fChain->GetCurrentFile()->GetName();
-  Info(__FUNCTION__,"File: %s (%7.2f MB)",
-       filename.Data(),
-       fChain->GetTree()->GetTotBytes()/1024./1024.);
-  treenum = fChain->GetTreeNumber() + 1;
-  entrynum = fChain->GetChainEntryNumber(0);
+  if (fChain->GetCurrentFile() != NULL){
+    
+    filename = fChain->GetCurrentFile()->GetName();
 
-  nentries = fChain->GetTree()->GetEntries();
-  accum_nentries += nentries;
-  Info(__FUNCTION__,"%lld entries (%6.2f%%) in this tree",
-       nentries, (double)nentries / fChain->GetEntries() * 100.);
-  Info(__FUNCTION__,"%lld entries (%6.2f%%) up to this tree",
-       accum_nentries, (double)accum_nentries / fChain->GetEntries() * 100.);
+    Info("Notify","File: %s (%7.2f MB)", filename.Data(), fChain->GetTree()->GetTotBytes()/1024./1024.);
 
+    treenum = fChain->GetTreeNumber() + 1;
+    entrynum = fChain->GetChainEntryNumber(0);
+
+    nentries = fChain->GetTree()->GetEntries();
+    accum_nentries += nentries;
+    Info("Notify","%lld entries (%6.2f%%) in this tree",nentries, (double)nentries / fChain->GetEntries() * 100.);
+    Info("Notify","%lld entries (%6.2f%%) up to this tree",accum_nentries, (double)accum_nentries / fChain->GetEntries() * 100.);
+  }
   return kTRUE;
 }
 
 void Analoop::Begin(TTree *) {
   TString option = GetOption();
 
+  OutFileName=option;
 }
 
 
 void Analoop::SlaveTerminate() {
+
 }
 
 void Analoop::Terminate() {
-  TIter next_object(fOutput);
-  TObject* obj;
-  while ((obj = next_object())) { 
-    obj->Clone();
-    fOutput->RecursiveRemove(obj);
-  }
+
+
+  cout<<"\n Writing histograms to "<<OutFileName<<endl;
+  TFile out(OutFileName,"recreate");
+  fOutput->Write();//Write all the histograms to disk
+  out.Close();
 
   this->ResetAbort();
   signal_received = kFALSE;
