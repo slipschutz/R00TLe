@@ -25,7 +25,9 @@ if [ -f $theFile ]; then #THE FILE EXISTS
     startTime=$(head -1 TEMP__$i | awk ' {print $1 " " $2 " " $3 " " $4 " " $5}')
 
     title=$(head -2 TEMP__$i | tail -1 | awk 'BEGIN{FS=":"}{print $2}')
-    
+
+    title=$(echo $title | sed s/,/_/g)
+
     size=$(du -hc $theFile | tail -1 | awk ' {print $1}')
     
     numSegments=$(ls $fileStem* | wc -l)
