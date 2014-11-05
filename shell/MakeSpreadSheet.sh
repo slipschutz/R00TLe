@@ -28,7 +28,7 @@ if [ -f $theFile ]; then #THE FILE EXISTS
 
     title=$(echo $title | sed s/,/_/g)
 
-    size=$(du -hc $theFile | tail -1 | awk ' {print $1}')
+    size=$(du -Lhc $theFile | tail -1 | awk ' {print $1}')
     
     numSegments=$(ls $fileStem* | wc -l)
 
