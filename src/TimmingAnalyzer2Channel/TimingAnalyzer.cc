@@ -174,13 +174,14 @@ int main(int argc, char **argv){
   Double_t cubicCor2=2.74170e-02;
   Double_t linCor2=2.49526e-02;
 
+  
 
   clock_t startTime;
   clock_t otherTime;
   double timeRate=0;
   bool timeFlag=true;
   startTime = clock();
-  
+
   TString previousFile="";
   for (Long64_t jentry=0; jentry<nentry;jentry++) { // Main analysis loop
     
@@ -204,7 +205,7 @@ int main(int argc, char **argv){
 
     inT->GetEntry(jentry); // Get the event from the input tree 
     if (inEvent->NumBars ==2&&inEvent->Bars[0].SimpleEventBit &&inEvent->Bars[1].SimpleEventBit
-	&&inEvent->Bars[0].Name=="NL01" && inEvent->Bars[1].Name=="SL12"){
+	&&inEvent->Bars[0].Name=="NL01" && inEvent->Bars[1].Name=="SL12" && inEvent->Bars[1].Bottoms[0].GetPulseHeight()>2500){
       //Loop over the all the filters in the same way as above
       SoftTimes->Fill(inEvent->Bars[0].GetCorrectedAvgTOF());
       InternalTimes->Fill(inEvent->Bars[0].GetCorrectedAvgTOF());
@@ -237,16 +238,62 @@ int main(int argc, char **argv){
 
 
 
+
+
+	      Double_t B1T=outEvent->Bars[0].Tops[0].GetPulseHeight();
+	      Double_t B1B=outEvent->Bars[0].Bottoms[0].GetPulseHeight();
+	      Double_t B2T=outEvent->Bars[1].Tops[0].GetPulseHeight();
+	      Double_t B2B=outEvent->Bars[1].Bottoms[0].GetPulseHeight();
+
+
+
+	      Double_t B1TCorrection;
+	      Double_t B1BCorrection;
+
+	      Double_t B2TCorrection;
+	      Double_t B2BCorrection;
+
+	      if (B1T <2144){
+		B1TCorrection = -1.43105e-01- 4.99463e-05*B1T;//  -5.50384e-02 -1.00656e-04*B1T;
+	      } else{
+		B1TCorrection = -2.31805e-01- 1.03544e-05*B1T;//-2.27167e-01 -1.19302e-05*B1T;
+	      }
+
+	      if (B1B <1760){
+		B1BCorrection= -2.47406e-02+ 1.75182e-05*B1B;//  8.20157e-02-5.48125e-05*B1B;
+	      }else {
+		B1BCorrection=0;
+	      }
+
+	      if (B2T<2912){
+		B2TCorrection =-5.14813e-02 + 1.89819e-05*B2T;
+	      }else {
+		B2TCorrection =-5.52760e-03 + 5.11663e-06*B2T;
+	      }
+
+	      if (B2B<2112){
+		B2BCorrection=-7.39112e-02+3.99067e-05*B2B;
+	      }else {
+		B2BCorrection=-1.07857e-02+4.92465e-06*B2B;
+
+	      }
+
+
+
+
+
+
+
 	      TheHistograms[count]->Fill(time);
 	      TheCubicHistograms[count]->Fill(CubicTime);
 	      
-	      TheEnergiesVsTR[count]->Fill(CubicDtCorrectedTDiff,outEvent->Bars[0].Tops[0].GetPulseHeight());
+	      TheEnergiesVsTR[count]->Fill(CubicDtCorrectedTDiff-B1TCorrection-B1BCorrection-B2TCorrection-B2BCorrection,outEvent->Bars[1].Bottoms[0].GetPulseHeight());
 	      //	      TheCubicHistograms[count]->Fill(0.5*(outEvent->Bars[0].GetCorrectedCubicTopTOF()+outEvent->Bars[0].GetCorrectedCubicBottomTOF()));
 	      // Double_t GOE=Event->GOE;
 	      // Double_t cor1 = cor[0]*GOE + cor[1]*GOE*GOE + cor[2]*GOE*GOE*GOE;
 	      // Double_t cor2 = cubicCor[0]*GOE + cubicCor[1]*GOE*GOE + cubicCor[2]*GOE*GOE*GOE;
 	      TheHistogramsCor[count]->Fill(DtCorrectedTDiff);
-	      TheCubicHistogramsCor[count]->Fill(CubicDtCorrectedTDiff);
+	      TheCubicHistogramsCor[count]->Fill(CubicDtCorrectedTDiff-B1TCorrection-B1BCorrection-B2TCorrection-B2BCorrection);
 	      outEvent->Clear();
 	      count++;
 	    }
