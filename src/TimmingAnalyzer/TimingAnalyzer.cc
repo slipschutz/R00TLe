@@ -303,7 +303,7 @@ int main(int argc, char **argv){
     
       // InternalTimes->Fill(0.5*(Event->times[0]+Event->times[1]-
       //  			       Event->times[2]-Event->times[3]));
- 
+      
       
     }
     //Periodic printing
@@ -319,7 +319,7 @@ int main(int argc, char **argv){
       cout<<"On Event "<<jentry<<" "<<((double)jentry)/(nentry)*100<<"% minutes remaining "<<(1.0/60)*timeRate*(nentry-jentry)<<" hours remaining "<<(1.0/3600)*timeRate*(nentry-jentry);
     }
     //cout<<right<<"On event "<<setw(9)<<jentry<<" "<<setprecision(2)<<setw(3)<<((double)jentry)/maxentry*100.0<<"% seconds remaining "<<setprecision(4)<<setw(6)<<timeRate*(maxentry-jentry)<<flush<<"\r";
-
+    
     
   }//End main analysis loop
   
@@ -381,8 +381,8 @@ int main(int argc, char **argv){
     }
   }
   out<<endl;
-
-
+  
+  
   //Close the file
   outFile->Write();
   outFile->Close();
