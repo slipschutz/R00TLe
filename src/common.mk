@@ -20,7 +20,7 @@ DICTFILES  = $(wildcard *Dictionary.*)
 OBJFILES   = $(wildcard *.o)
 GCHFILES   = $(wildcard *.gch)
 
-INCDIR     = -I../include -I/usr/opt/nscldaq/10.2-105/include/
+INCDIR     = -I$(R00TLeInstall)/src/include -I/usr/opt/nscldaq/10.2-105/include/
 LDFLAGS    = -Wl,-rpath=$(LIBDIR) -Wl,-rpath=/usr/opt.nscldaq/10.2-105/lib/
 
 .SECONDARY: $(OBJS)
@@ -38,11 +38,11 @@ clean:
 	@echo "Compiling $<..."
 	@$(CXX) $(CFLAGS) $(CCFLAGS) $(INCDIR) -c $< -o $@
 
-../../lib/lib%.so: $(OBJS)
+$(R00TLeInstall)/lib/lib%.so: $(OBJS)
 	@echo "Building Library $@..."
 	@$(CXX) $(LFLAGS) $(SPECIALLIBS) $(LDFLAGS) $(ROOTLIBS) $(SOFLAGS) -o $@ $^
 
-../../bin/%: %.cc
+$(R00TLeInstall)/bin/%: %.cc
 	@echo "Building target $<..."
 	@$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) -L$(LIBDIR) $(LIBS) $(INCDIR) $(LDFLAGS) $< -o $@
 

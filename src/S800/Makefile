@@ -1,4 +1,4 @@
-TARGET     = ../../lib/libS800.so
+TARGET     = $(R00TLeInstall)/lib/libS800.so
 OBJS       = S800.o            S800Dictionary.o \
              S800Event.o       S800EventDictionary.o \
              S800Calc.o        S800CalcDictionary.o \
