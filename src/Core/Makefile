@@ -4,41 +4,51 @@ LIBS     = $(addprefix -l, $(SUBLIBS))
 LIBDIR   = $(R00TLeInstall)/lib/
 
 
-include ../common.mk
+include $(R00TLeInstall)/src/common.mk
 
-../../bin/Evt2Raw:	Evt2Raw.cc \
-			../include/DAQdefs.h \
-			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
-			../include/DDASEvent.hh ../include/ddaschannel.hh \
-			../include/Utilities.hh
+$(R00TLeInstall)bin/Evt2Raw:	Evt2Raw.cc \
+			$(R00TLeInstall)/src/include/DAQdefs.h \
+			$(R00TLeInstall)/src/include/S800Event.hh $(R00TLeInstall)/src/include/S800.hh \
+			$(R00TLeInstall)/src/include/S800defs.h \
+			$(R00TLeInstall)/src/include/DDASEvent.hh $(R00TLeInstall)/src/include/ddaschannel.hh \
+			$(R00TLeInstall)/src/include/Utilities.hh
 
-../../bin/Raw2Cal:	Raw2Cal.cc \
-			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
-			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
-			../include/DDASEvent.hh ../include/ddaschannel.hh \
-			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
-			../include/R00TLeSettings.hh \
-			../include/Utilities.hh
+$(R00TLeInstall)bin/Raw2Cal:	Raw2Cal.cc \
+			$(R00TLeInstall)/src/include/S800Event.hh $(R00TLeInstall)/src/include/S800.hh \
+			$(R00TLeInstall)/src/include/S800defs.h \
+			$(R00TLeInstall)/src/include/S800Calc.hh  $(R00TLeInstall)/src/include/S800Settings.hh \
+			$(R00TLeInstall)/src/include/S800Calibration.hh \
+			$(R00TLeInstall)/src/include/DDASEvent.hh $(R00TLeInstall)/src/include/ddaschannel.hh \
+			$(R00TLeInstall)/src/include/LendaPacker.hh $(R00TLeInstall)/src/include/LendaFilter.hh \
+			$(R00TLeInstall)/src/include/LendaEvent.hh \
+			$(R00TLeInstall)/src/include/R00TLeSettings.hh \
+			$(R00TLeInstall)/src/include/Utilities.hh
 
-../../bin/Evt2Cal:	Evt2Cal.cc \
-			../include/DAQdefs.h \
-			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
-			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
-			../include/DDASEvent.hh ../include/ddaschannel.hh \
-			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
-			../include/R00TLeSettings.hh  \
-			../include/Utilities.hh
+$(R00TLeInstall)bin/Evt2Cal:	Evt2Cal.cc \
+			$(R00TLeInstall)/src/include/DAQdefs.h \
+			$(R00TLeInstall)/src/include/S800Event.hh $(R00TLeInstall)/src/include/S800.hh 
+			$(R00TLeInstall)/src/include/S800defs.h \
+			$(R00TLeInstall)/src/include/S800Calc.hh  $(R00TLeInstall)/src/include/S800Settings.hh \
+			$(R00TLeInstall)/src/include/S800Calibration.hh \
+			$(R00TLeInstall)/src/include/DDASEvent.hh $(R00TLeInstall)/src/include/ddaschannel.hh \
+			$(R00TLeInstall)/src/include/LendaPacker.hh $(R00TLeInstall)/src/include/LendaFilter.hh \
+			$(R00TLeInstall)/src/include/LendaEvent.hh \
+			$(R00TLeInstall)/src/include/R00TLeSettings.hh  \
+			$(R00TLeInstall)/src/include/Utilities.hh
 
-../../bin/Cal2Cal:	Cal2Cal.cc \
-			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
-			../include/S800Calc.hh  ../include/S800Settings.hh ../include/S800Calibration.hh \
-			../include/DDASEvent.hh ../include/ddaschannel.hh \
-			../include/LendaPacker.hh ../include/LendaFilter.hh ../include/LendaEvent.hh \
-			../include/R00TLeSettings.hh \
-			../include/Utilities.hh
+$(R00TLeInstall)bin/Cal2Cal:	Cal2Cal.cc \
+			$(R00TLeInstall)/src/include/S800Event.hh $(R00TLeInstall)/src/include/S800.hh \
+			$(R00TLeInstall)/src/include/S800defs.h \
+			$(R00TLeInstall)/src/include/S800Calc.hh  $(R00TLeInstall)/src/include/S800Settings.hh \
+			$(R00TLeInstall)/src/include/S800Calibration.hh \
+			$(R00TLeInstall)/src/include/DDASEvent.hh $(R00TLeInstall)/src/include/ddaschannel.hh \
+			$(R00TLeInstall)/src/include/LendaPacker.hh $(R00TLeInstall)/src/include/LendaFilter.hh \
+			$(R00TLeInstall)/src/include/LendaEvent.hh \
+			$(R00TLeInstall)/src/include/R00TLeSettings.hh \
+			$(R00TLeInstall)/src/include/Utilities.hh
 
 
-# ../../bin/Evt2CalStatic:	Evt2Cal.cc \
+# $(R00TLeInstall)bin/Evt2CalStatic:	Evt2Cal.cc \
 # 			 ../S800/S800Event.o ../S800/S800.o ../S800/S800Calc.o ../S800/S800Settings.o \
 # 			../S800/S800Calibration.o ../DDASEvent/DDASEvent.o ../DDASEvent/ddaschannel.o \
 # 			../S800/lmfit.o ../S800/lmmin.o ../S800/lmcurve.o ../S800/S800CalcDictionary.o \
@@ -52,4 +62,4 @@ include ../common.mk
 # 	$(CXX) $(CFLAGS) $(CCFLAGS) $(ROOTLIBS) $^ -o $@ $(INCDIR)
 
 
-../../bin/Evt2Scalars: Evt2Scalars.cc
+$(R00TLeInstall)bin/Evt2Scalars: Evt2Scalars.cc

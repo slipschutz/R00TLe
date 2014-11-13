@@ -1,13 +1,14 @@
-TARGET   = ../../bin/Calibrate
+TARGET   = $(R00TLeInstall)/bin/Calibrate
 SUBLIBS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings LendaPacker LendaFilter Scalers
 LIBS     = $(addprefix -l, $(SUBLIBS))
-LIBDIR   = $(PWD)/../../lib/
+LIBDIR   = $(R00TLeInstall)/lib/
 
 
-include ../common.mk
+include $(R00TLeInstall)/src/common.mk
 
-../../bin/Calibrate: Calibrate.cc \
-			../include/DAQdefs.h \
-			../include/S800Event.hh ../include/S800.hh ../include/S800defs.h \
-			../include/DDASEvent.hh ../include/ddaschannel.hh \
-			../include/Utilities.hh
+$(TARET): Calibrate.cc \
+			$(R00TLeInstall)/src/include/DAQdefs.h \
+			$(R00TLeInstall)/src/include/S800Event.hh $(R00TLeInstall)/src/include/S800.hh \
+			 $(R00TLeInstall)/src/include/S800defs.h \
+			$(R00TLeInstall)/src/include/DDASEvent.hh $(R00TLeInstall)/src/include/ddaschannel.hh \
+			$(R00TLeInstall)/src/include/Utilities.hh
