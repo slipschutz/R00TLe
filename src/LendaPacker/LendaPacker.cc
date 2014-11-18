@@ -21,7 +21,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=false;
+  saveTraces=true;
  
   
 }
@@ -41,6 +41,8 @@ void LendaPacker::SetFilter(Int_t _FL,Int_t _FG,Int_t _d,Int_t _w){
   fFG=_FG;
   fd=_d;
   fw=_w;
+
+  theSettings->SetFilter(fFL,fFG,fd,fw);
 }
 
 void LendaPacker::SetGates(Double_t _lg,Double_t _sg,Double_t _lg2,Double_t _sg2){
