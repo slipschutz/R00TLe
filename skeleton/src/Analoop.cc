@@ -95,6 +95,8 @@ void Analoop::SlaveBegin(TTree * t) {
 
 
   // Add all the histograms to Output list of the Selector
+  // fOutput is a TSelectorList which will take ownership of
+  // an object when it is added
   fOutput->AddAll(gDirectory->GetList());
 }
 
@@ -245,4 +247,44 @@ void Analoop::Terminate() {
 
   this->ResetAbort();
   signal_received = kFALSE;
+}
+
+
+
+void Analoop::MakeHistogram(TString name,Int_t bins,Double_t xlow,Double_t xhigh){
+  
+  fOutput->AddLast( new TH1F(name,name,bins,xlow,xhigh));
+
+}
+
+
+void Analoop::FillHistogram(TString name,Float_t value){
+
+  TObject * object = fOutput->FindObject(name);
+
+  if (object == NULL){
+    Error("Analoop::FillHistogram",name+" not found");
+    return;
+  }
+  TString className=object->ClassName();
+  if (className !="TH1F"){
+    Error("Analoop::FillHistogram",name+" not a histogram");
+  }
+
+  ((TH1F*)object)->Fill(value);
+
+
+
+}
+
+
+void Analoop::MakeHistogram(Int_t HistNumber,Int_t bins,Double_t xlow,Double_t xhigh){
+  stringstream s;
+  s<<"h"<<HistNumber;
+  MakeHistogram(s.str().c_str(),bins,xlow,xhigh);
+}
+void Analoop::FillHistogram(Int_t HistNumber,Float_t value){
+  stringstream s;
+  s<<"h"<<HistNumber;
+  FillHistogram(s.str().c_str(),value);
 }
