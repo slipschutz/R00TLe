@@ -78,7 +78,7 @@ public:
   string GetReferenceChannelName(){return _referenceChannelName;}
 
 
-
+  inline Double_t GetOtherTime(){return _otherTime;}
 
 
   void SetChannel(Int_t v){_channel=v;}
@@ -133,6 +133,8 @@ public:
   void SetCubicReferenceTime(Double_t v){_cubicRefTime=v;}
   void SetSoftReferenceTime(Double_t v){_softRefTime=v;}
   //  LendaChannel & operator=(const LendaChannel &);
+
+  void SetOtherTime(Double_t v){_otherTime=v;}
   
   Bool_t operator==(const LendaChannel & RHS);
 
@@ -187,6 +189,8 @@ private:
   Double_t _refTime;
   Double_t _softRefTime;
   Double_t _cubicRefTime;
+
+  Double_t _otherTime;
   
 public:
   ClassDef(LendaChannel,4);

@@ -58,6 +58,9 @@ void LendaChannel::Clear(){
 
   _channelName="";
   _referenceChannelName="";
+
+  
+  _otherTime=BAD_NUM;
 }
 
 
