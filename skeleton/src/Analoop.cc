@@ -277,6 +277,49 @@ void Analoop::FillHistogram(TString name,Float_t value){
 
 }
 
+void Analoop::MakeHistogram(TString name,Int_t binsX,Double_t xlow,Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh){
+  fOutput->AddLast( new TH2F(name,name,binsX,xlow,xhigh,binsY,yLow,yHigh));
+}
+
+
+void Analoop::FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue){
+
+  TObject * object = fOutput->FindObject(name);
+  
+  if (object == NULL){
+    Error("Analoop::FillHistogram",name+" not found");
+    return;
+  }
+  TString className=object->ClassName();
+  if (className !="TH2F"){
+    Error("Analoop::FillHistogram",name+" not a histogram");
+  }
+
+  ((TH2F*)object)->Fill(Xvalue,Yvalue);
+
+}
+
+
+
+void Analoop::AutoHisto(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
+  
+  TObject * object = fOutput->FindObject(name);
+  if ( object == NULL) {//The histogram is not there 
+    MakeHistogram(name,bins,xlow,xhigh);
+  }
+  FillHistogram(name,value);
+}
+
+void Analoop::AutoHisto(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh){
+
+  TObject * object = fOutput->FindObject(name);
+  if ( object == NULL) {//The histogram is not there 
+    MakeHistogram(name,binsX,xlow,xhigh,binsY,yLow,yHigh);
+  }
+  FillHistogram(name,valueX,valueY);
+  
+}
+
 
 void Analoop::MakeHistogram(Int_t HistNumber,Int_t bins,Double_t xlow,Double_t xhigh){
   stringstream s;
@@ -288,3 +331,4 @@ void Analoop::FillHistogram(Int_t HistNumber,Float_t value){
   s<<"h"<<HistNumber;
   FillHistogram(s.str().c_str(),value);
 }
+

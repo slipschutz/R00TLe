@@ -6,7 +6,7 @@
 
 
 #include <sstream>
-TGraphErrors* MakeProjectionPlotWithIncreasingThresh(TH2F* h , Double_t Start=0,Double_t End=1,Double_t scale=1,TString plotG="AP",Int_t color=kBlack){
+TGraphErrors* MakeProjectionPlotWithIncreasingThresh(TH2F* h , Double_t Start=0,Double_t End=1,Int_t nPoints=50,Double_t scale=1,TString plotG="AP",Int_t color=kBlack){
 
 
   Int_t numYbins = h->GetNbinsY();
@@ -17,23 +17,26 @@ TGraphErrors* MakeProjectionPlotWithIncreasingThresh(TH2F* h , Double_t Start=0,
 
   Int_t PointCount=0;
 
-  Double_t window=5;
-  for (int i=0;i<100;i++){
+  Double_t window=0;
+  for (int i=0;i<nPoints;i++){
     dd.str("");
-    dd<<"hProj"<<i;
+
     Double_t ii =i;
-    Int_t StartBin = h->GetYaxis()->FindBin(Start + (ii/(100.0+window))*(End-Start));
+    Int_t StartBin = h->GetYaxis()->FindBin(Start + (ii/(nPoints))*(End-Start));
     //    Int_t EndBin = h->GetYaxis()->FindBin(Start + ((ii+window)/100.0)*(End-Start));
     Int_t EndBin = h->GetYaxis()->FindBin(End);
 
     cout<<"Start "<<StartBin<<" "<<EndBin<<endl;
+
+    dd<<"hProj"<<i;
+
     TH1D* temp = h->ProjectionX(dd.str().c_str(),StartBin,EndBin);
     
 
 
-    if (temp->GetEntries() > 0 ){
+    if (temp->GetEntries() > 400 ){
 
-      TFitResultPtr result = temp->Fit("gaus","QS");
+      TFitResultPtr result = temp->Fit("gaus","QSN","",-0.2,0.2);
       
       Int_t status = result;
       
@@ -46,9 +49,7 @@ TGraphErrors* MakeProjectionPlotWithIncreasingThresh(TH2F* h , Double_t Start=0,
 	PointCount++;
       }
     }
-    
-    //    gDirectory->RecursiveRemove(temp);
-    i=i+window;
+
   }//end loop over i
   gStyle->SetMarkerStyle(8);
   gStyle->SetMarkerSize(2);

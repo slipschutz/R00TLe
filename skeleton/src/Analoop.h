@@ -135,9 +135,15 @@ public :
    void MakeHistogram(TString name,Int_t bins,Double_t xlow,Double_t xhigh);
    void FillHistogram(TString name,Float_t value);
 
+   void MakeHistogram(TString name,Int_t binsX,Double_t xlow,Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
+   void FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue);
+   
+
    void MakeHistogram(Int_t HistNumber,Int_t bins,Double_t xlow,Double_t xhigh);
    void FillHistogram(Int_t HistNumber,Float_t value);
-   
+
+   void AutoHisto(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh);
+   void AutoHisto(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
