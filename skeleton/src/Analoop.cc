@@ -316,7 +316,7 @@ void Analoop::AutoHisto(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, 
   if ( object == NULL) {//The histogram is not there 
     MakeHistogram(name,binsX,xlow,xhigh,binsY,yLow,yHigh);
   }
-  FillHistogram(name,valueX,valueY);
+  FillHistogram(name,Xvalue,Yvalue);
   
 }
 
