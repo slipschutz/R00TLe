@@ -46,7 +46,7 @@ public:
   void SetFilter(int fl_, int fg_ ,int d_, int w_){fl=fl_;fg=fg_;d=d_;w=w_;}
   
   void PrintFilterSettings(){
-    cout<<"FL: "<<fg<<" FG: "<<fg<<" d: "<<d<<" w: "<<w<<endl;
+    cout<<"FL: "<<fl<<" FG: "<<fg<<" d: "<<d<<" w: "<<w<<endl;
   }
 
 private:
