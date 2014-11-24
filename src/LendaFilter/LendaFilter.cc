@@ -280,7 +280,7 @@ Double_t LendaFilter::GetZeroCrossingImproved(std::vector <Double_t> & CFD,Int_t
   if (thisEventsZeroCrossings.size() == 0) // no Zero Crossing found
     return BAD_NUM;
   else
-  return thisEventsZeroCrossings[MaxIndex]; // take the max one
+    return thisEventsZeroCrossings[MaxIndex]; // take the max one
 }
 
 

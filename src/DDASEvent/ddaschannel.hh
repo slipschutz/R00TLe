@@ -23,7 +23,8 @@
 #define LOWER12BITMASK          0xFFF  // Lower 12 bits
 #define BIT31MASK          0x80000000  // Bit 31 
 #define BIT30to16MASK      0x7FFF0000  // Bits 30 through 16
-
+#define BIT29to16MASK      0x3FFF0000
+#define BIT30MASK          0X40000000
 // number of words added to pixie16 channel event header when energy sums
 // and baselines are recorded
 #define SIZEOFESUMS                 4

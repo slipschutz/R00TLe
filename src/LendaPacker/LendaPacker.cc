@@ -298,7 +298,7 @@ LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
   tempLenda.SetTimeLow(c->timelow);
   tempLenda.SetTimeHigh(c->timehigh);
   tempLenda.SetCFDTrigBit(c->GetCFDTriggerSourceBit());
-  tempLenda.SetInternalCFD(c->timecfd/32768.0);
+  tempLenda.SetInternalCFD(c->timecfd/16384.0);
   
 
   if (saveTraces){
@@ -318,6 +318,8 @@ void LendaPacker::PackCalculatedValues(LendaChannel* theChannel,MapInfo & info){
   theChannel->SetCubicTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+cubicCFD);
   theChannel->SetCubicFitTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+cubicFitCFD);
 
+  Double_t Temp=cubicCFD-TMath::Floor(cubicCFD);
+  theChannel->SetOtherTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+Temp -theChannel->GetCFDTrigBit());
 
   theChannel->SetSoftwareCFD(softwareCFD);
   theChannel->SetCubicCFD(cubicCFD);
