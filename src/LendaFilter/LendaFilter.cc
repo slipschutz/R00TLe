@@ -634,22 +634,45 @@ Double_t LendaFilter::GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot){
   int traceLength=trace.size();
   int LengthForBackGround=0.2*traceLength;
 
+  Int_t windowForEnergy=20;
+
+  if ( MaxSpot - windowForEnergy < 0 ){
+    return BAD_NUM;
+  } else if (MaxSpot + windowForEnergy > (traceLength -1) ){
+    return BAD_NUM;
+  }
+
 
   for ( int i=0 ;i<LengthForBackGround;i++){
     sumBegin = sumBegin + trace[i];
     sumEnd = sumEnd + trace[traceLength-1-i];
   }
-  sumBegin = sumBegin/LengthForBackGround;
-  sumEnd = sumEnd/LengthForBackGround;
+  
+  Double_t BackGround=BAD_NUM;
 
-  Int_t windowForEnergy=20;
+  if (MaxSpot > LengthForBackGround && MaxSpot < (traceLength-LengthForBackGround) ){
+    //The peak is in the middle use the beginning of trace as background
+    BackGround=sumBegin/LengthForBackGround;    
+  } else if (MaxSpot < LengthForBackGround) {
+    //The peak is in the beginning of trace use end as background
+    BackGround=sumEnd/LengthForBackGround;
+  } else if (MaxSpot > (traceLength-LengthForBackGround)){
+    //Peak is at end use beginning for backaground
+    BackGround=sumBegin/LengthForBackGround;
+  } else{
+    //Something makes no sense
+    return BAD_NUM;
+  }
+
+
+
 
   for (int i=MaxSpot-windowForEnergy;i< MaxSpot+windowForEnergy;++i) {
     signalIntegral = trace[i]+ signalIntegral;
   }
 
-  if (  signalIntegral - sumBegin *(2*windowForEnergy>0)){
-    thisEventsIntegral = signalIntegral - sumBegin *(2*windowForEnergy);
+  if (  signalIntegral - BackGround *(2*windowForEnergy)>0){
+    thisEventsIntegral = signalIntegral - BackGround *(2*windowForEnergy);
   }  else{
     thisEventsIntegral = BAD_NUM;
   }
