@@ -58,6 +58,11 @@ public:
 
   Int_t GetStartForPulseShape(Int_t MaxSpot);
 
+
+  Int_t CalculateCFD(vector<UShort_t> trace,vector <Double_t> & );
+  vector <Double_t> GetNewFirmwareCFD(const vector<UShort_t> & trace, Int_t FL, Int_t FG, Int_t d, Int_t w);
+  Double_t GetNewFirmwareCFDWeight(Int_t CFDScaleFactor);
+
 private:
 
 
