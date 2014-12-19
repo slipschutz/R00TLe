@@ -859,10 +859,10 @@ vector <Double_t> LendaFilter::GetNewFirmwareCFD(const vector<UShort_t> & trace,
 
 
 
-  Int_t TFLength=6;//FL;
-  Int_t TFGap=0;//FG;
+  Int_t TFLength=FL;//FL;
+  Int_t TFGap=FG;//FG;
   Int_t CFDSF=0;//w;
-  Int_t CFDDelay=6;
+  Int_t CFDDelay=d;
 
   Double_t CFDWeight=GetNewFirmwareCFDWeight(w);
 

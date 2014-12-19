@@ -36,7 +36,7 @@ TGraphErrors* MakeProjectionPlotWithIncreasingThresh(TH2F* h , Double_t Start=0,
 
     if (temp->GetEntries() > 400 ){
 
-      TFitResultPtr result = temp->Fit("gaus","QSN","",-0.2,0.2);
+      TFitResultPtr result = temp->Fit("gaus","QSN","",-0.8,0.8);
       
       Int_t status = result;
       
