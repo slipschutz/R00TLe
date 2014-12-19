@@ -96,15 +96,13 @@ void LendaPacker::CalcTimeFilters(vector<UShort_t> & theTrace){
   ///////////////////////////////////////////////////////////////////////////////////
   if (theTrace.size()!=0){
     theFilter.FastFilter(theTrace,thisEventsFF,fFL,fFG); //run FF algorithim
-    //thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
-    
-    // thisEventsFF.clear();
+    // thisEventsCFD = theFilter.CFD(thisEventsFF,fd,fw); //run CFD algorithim
     thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,fFL,fFG,fd,fw);
 
     softwareCFD=theFilter.GetZeroCrossingImproved(thisEventsCFD,numZeroCrossings,CFDResidual); //find zeroCrossig of CFD
     
     cubicCFD = theFilter.GetZeroCubic(thisEventsCFD);
-    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
+    //    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
   }
 }
 void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace){
