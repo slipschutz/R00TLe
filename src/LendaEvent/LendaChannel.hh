@@ -16,45 +16,48 @@
 
 using namespace std;
 
+/**Lowest level container for DDAS information.  Each DDAS channel with have a coresponding LendaChannel object.
+   The channel by channel infomation for the module and the results of waveform analysis are saved in LendaChannels.
+   
+ */
 class LendaChannel : public TObject {
 public:
-  LendaChannel();
-  ~LendaChannel();
+  LendaChannel();///<Defualt Constructor
+  ~LendaChannel();///<Defualt Constructor
 
   void ShowDiff(const LendaChannel&);
 
-  void Clear();
+  void Clear();///<Resets all the values in the LendaChannel.  Should be called after every write to a tree
+  void Clear(Option_t *){Clear();}///<To suppress warnings about hidding clear in TObject
   
-  void Clear(Option_t *){Clear();}
+  inline Int_t GetChannel(){return _channel;}///<Gets DDAS channel number for this channel
+  inline Int_t GetSlot(){return _slot;}///<Gets DDAS slot number for this channel
+  inline Int_t GetGlobalID(){return _globalID;}///<Gets the Global DDAS id for this channel
+  inline Int_t GetReferenceGlobalID(){return _refGlobalID;}///<Gets the Global DDAS id for the reference channel
+
+  inline Bool_t GetOverFlow(){return _overFlow;}///<Gets bit to check for overflows in the trace
+  inline Int_t GetNumZeroCrossings(){return _numZeroCrossings;}///<Gets number of ZeroCrossings in digital CFD
+
+  inline Double_t GetCorrectedEnergy(){return _correctedEnergy;}///<Get Corrected energy (baseline subtracted pulse integral from trace)
+  inline Double_t GetEnergy(){return _energy;}///<Gets energy (baseline subtracted pulse integral from trace)
+  inline Double_t GetInternalEnergy(){return _internalEnergy;}///<Gets result from internal energy filter
+  inline Int_t GetPulseHeight(){return _pulseHeight;}///<Gets max pulse height in trace
+  inline Int_t GetFilterHeight(){return _filterHeight;}///<Gets max height in the fast filter
+
+  inline Double_t GetTime(){return _time;}///<Gets the internal timestamp from module 
+  inline Double_t GetSoftTime(){return _softTime;}///<Gets the offline timestamp from the linear algorithm
+  inline Double_t GetCubicTime(){return _cubicTime;}///<Gets the offline timestamp from the cubic algorithm
+  inline Double_t GetCubicFitTime(){return _cubicFitTime;}///<Gets the offline timestamp from the cubic fit algorithm
+  inline Double_t GetCorrectedTime(){return _correctedTime;}///<Gets the time shift corrected internal timestamp
+  inline Double_t GetCorrectedCubicFitTime(){return _correctedCubicFitTime;} ///<Gets the time shift corrected cubic fit timestamp
+  inline Double_t GetCorrectedSoftTime(){return _correctedSoftTime;}///<Gets the time shift corrected offline linear time stamp
+
+  inline UInt_t GetCFDTrigBit(){return _CFDTrigBit;}///<Gets the CFD trigbit that is provided by the module 
   
-  inline Int_t GetChannel(){return _channel;}
-  inline Int_t GetSlot(){return _slot;}
-  inline Int_t GetGlobalID(){return _globalID;}
-  inline Int_t GetReferenceGlobalID(){return _refGlobalID;}
-
-  inline Bool_t GetOverFlow(){return _overFlow;}
-  inline Int_t GetNumZeroCrossings(){return _numZeroCrossings;}
-
-  inline Double_t GetCorrectedEnergy(){return _correctedEnergy;}
-  inline Double_t GetEnergy(){return _energy;}
-  inline Double_t GetInternalEnergy(){return _internalEnergy;}
-  inline Int_t GetPulseHeight(){return _pulseHeight;}
-  inline Int_t GetFilterHeight(){return _filterHeight;}
-
-  inline Double_t GetTime(){return _time;}
-  inline Double_t GetSoftTime(){return _softTime;}
-  inline Double_t GetCubicTime(){return _cubicTime;}
-  inline Double_t GetCubicFitTime(){return _cubicFitTime;}
-  inline Double_t GetCorrectedTime(){return _correctedTime;}
-  inline Double_t GetCorrectedCubicFitTime(){return _correctedCubicFitTime;}
-  inline Double_t GetCorrectedSoftTime(){return _correctedSoftTime;}
-
-  inline UInt_t GetCFDTrigBit(){return _CFDTrigBit;}
-  
-  inline Double_t GetSoftwareCFD(){return _softwareCFD;}
-  inline Double_t GetCubicCFD(){return _cubicCFD;}
-  inline Double_t GetCubicFitCFD(){return _cubicFitCFD;}
-  inline Double_t GetInternalCFD(){return _internalCFD;}
+  inline Double_t GetSoftwareCFD(){return _softwareCFD;}///<Gets the sub clocktic postion of the zero crossing in the CFD starting from the beginning of the trace
+  inline Double_t GetCubicCFD(){return _cubicCFD;}///<Same as GetSoftwareCFD() except with the cubic algorithm
+  inline Double_t GetCubicFitCFD(){return _cubicFitCFD;}///<Same as GetSoftwareCFD() except with the cubic fit algorithm
+  inline Double_t GetInternalCFD(){return _internalCFD;}///<Sub clock tic portion of the internal time stamp.  Not from beginning of the trace
 
 
   inline Double_t GetShortGate(){return _shortGate;}
@@ -62,20 +65,20 @@ public:
 
   inline Long64_t GetJentry(){return _jentry;}
 
-  inline UInt_t GetTimeLow(){return _timeLow;}
-  inline UInt_t GetTimeHigh(){return _timeHigh;}
+  inline UInt_t GetTimeLow(){return _timeLow;}///<Low bits of the internal time stamp
+  inline UInt_t GetTimeHigh(){return _timeHigh;}///<High bits of the internal time stamp
 
-  vector <UShort_t> GetTrace(){return _trace;}
-  vector <Double_t> GetFilter(){return _filter;}
-  vector <Double_t> GetCFD(){return _CFD;}
+  vector <UShort_t> GetTrace(){return _trace;}///<Gets the trace if it was stored in the channel
+  vector <Double_t> GetFilter(){return _filter;}///<Gets the offline calculated fast filter if it was stored
+  vector <Double_t> GetCFD(){return _CFD;}///<Gets the offline calculated CFD if it was stored
 
-  inline Double_t GetCFDResidual(){return _CFDResidual;}
-  inline Double_t GetReferenceTime(){return _refTime;}
-  inline Double_t GetCubicReferenceTime(){return _cubicRefTime;}
-  inline Double_t GetSoftReferenceTime(){return _softRefTime;}
+  inline Double_t GetCFDResidual(){return _CFDResidual;}///<Not important
+  inline Double_t GetReferenceTime(){return _refTime;}///<Gets the internal timestamp for the reference channel
+  inline Double_t GetCubicReferenceTime(){return _cubicRefTime;}///<Gets cubic timestamp for the reference channel
+  inline Double_t GetSoftReferenceTime(){return _softRefTime;}///<Gets the offline caclulated linear timestamp for the reference channel
 
-  string GetChannelName(){return _channelName;}
-  string GetReferenceChannelName(){return _referenceChannelName;}
+  string GetChannelName(){return _channelName;}///<Gets the full channel name
+  string GetReferenceChannelName(){return _referenceChannelName;}///<Gets the full naem of the reference channel
 
 
   inline Double_t GetOtherTime(){return _otherTime;}
