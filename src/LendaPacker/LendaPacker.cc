@@ -3,8 +3,8 @@
 #include "Utilities.hh"
 
 LendaPacker::LendaPacker(R00TLeSettings*v){
-  ///Use bad Defaults to ensure that the calling program set 
-  //everything
+  ///Will use bad defaults to ensure that the calling program set 
+  ///all filter parameters
   fFL=-1; 
   fFG=-1;
   fd=-1;
