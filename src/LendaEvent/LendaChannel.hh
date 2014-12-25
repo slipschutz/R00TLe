@@ -48,7 +48,9 @@ public:
   inline Double_t GetSoftTime(){return _softTime;}///<Gets the offline timestamp from the linear algorithm
   inline Double_t GetCubicTime(){return _cubicTime;}///<Gets the offline timestamp from the cubic algorithm
   inline Double_t GetCubicFitTime(){return _cubicFitTime;}///<Gets the offline timestamp from the cubic fit algorithm
+
   inline Double_t GetCorrectedTime(){return _correctedTime;}///<Gets the time shift corrected internal timestamp
+  inline Double_t GetCorrectedCubicTime(){return _correctedCubicTime;}///<Gets the time shift corrected offline cubic time stamp
   inline Double_t GetCorrectedCubicFitTime(){return _correctedCubicFitTime;} ///<Gets the time shift corrected cubic fit timestamp
   inline Double_t GetCorrectedSoftTime(){return _correctedSoftTime;}///<Gets the time shift corrected offline linear time stamp
 
@@ -102,9 +104,11 @@ public:
   void SetSoftTime(Double_t v){_softTime=v;}
   void SetCubicTime(Double_t v){_cubicTime=v;}
   void SetCubicFitTime(Double_t v){_cubicFitTime=v;}
+
   void SetCorrectedTime(Double_t v){_correctedTime=v;}
   void SetCorrectedCubicFitTime(Double_t v){_correctedCubicFitTime=v;}
   void SetCorrectedSoftTime(Double_t v){_correctedSoftTime=v;}
+  void SetCorrectedCubicTime(Double_t v){_correctedCubicTime=v;}
 
 
   void SetTimeLow(UInt_t v){_timeLow=v;}
@@ -165,6 +169,7 @@ private:
   Double_t _correctedTime;
   Double_t _correctedCubicFitTime;
   Double_t _correctedSoftTime;
+  Double_t _correctedCubicTime;
 
   UInt_t _timeLow;
   UInt_t _timeHigh;

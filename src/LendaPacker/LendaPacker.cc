@@ -341,6 +341,7 @@ void LendaPacker::PackCalculatedValues(LendaChannel* theChannel,MapInfo & info){
    theChannel->SetCorrectedTime( theChannel->GetTime() - info.TOFOffset);
    theChannel->SetCorrectedSoftTime(theChannel->GetSoftTime()-info.TOFOffset);
    theChannel->SetCorrectedCubicFitTime( theChannel->GetCubicFitTime() - info.TOFOffset);
+   theChannel->SetCorrectedCubicTime( theChannel->GetCubicTime() - info.TOFOffset);
   }
 
 }
@@ -398,7 +399,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 	//If the channel is one of the Object Scintillators
 	LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
 	//store this time in reference time map for later
-	GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicFitTime());
+	GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicTime());
 	Event->TheObjectScintillators.push_back(Temp);//Store the Object Scint
       }else if (fullName == "IGNORE"){ //Special check for IGNORE
 	//Do nothing

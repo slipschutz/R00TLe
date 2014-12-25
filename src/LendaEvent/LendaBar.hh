@@ -126,6 +126,9 @@ private:
   
   Double_t CorrectedCubicTopTOF;
   Double_t CorrectedCubicBottomTOF;
+
+  Double_t CorrectedCubicFitTopTOF;
+  Double_t CorrectedCubicFitBottomTOF;
   
   Double_t CorrectedSoftTopTOF;
   Double_t CorrectedSoftBottomTOF;
