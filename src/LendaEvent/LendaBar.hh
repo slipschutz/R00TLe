@@ -61,7 +61,7 @@ public:
   inline Double_t GetAvgTOF(){return 0.5*(TopTOF+BottomTOF);}///<Average of TopTOF and BottomTOF
   inline Double_t GetCorrectedAvgTOF(){return 0.5*(CorrectedTopTOF + CorrectedBottomTOF);}///<Same as GetAvgTOF except timing shift corrections are applied
 
-  inline Double_t GetCubicTopTOF(){return CubicTopTOF;}///<Same was GetTopTOF() except calculated with cubic algorithm
+  inline Double_t GetCubicTopTOF(){return CubicTopTOF;}///<Same as GetTopTOF() except calculated with cubic algorithm
   inline Double_t GetCubicBottomTOF(){return CubicBottomTOF;}///<Same as GetBottomTOF() except calculated with cubic algorithm
 
   inline Double_t GetCorrectedTopTOF(){return CorrectedTopTOF;}///<Gets the TopTOF from internal timing with timing shift corrections applied
@@ -92,11 +92,11 @@ public:
   Int_t NumBottoms;///< The number of bottom channels in this bar
   Int_t BarMultiplicity;///<The total number times a channel fired in this bar in an event. 
   
-  Bool_t SimpleEventBit; ///<true if bar has only 1 Top and 1 bottom
+  Bool_t SimpleEventBit; ///<True if bar has only 1 Top and 1 bottom
 
   void Finalize();///<Calcuates convient quantities 
   
-  Bool_t operator==(const LendaBar & RHS);
+  Bool_t operator==(const LendaBar & RHS);///<Probably not up to date
 
 private:
   Double_t Dt;//Top Time - Bottom Time
