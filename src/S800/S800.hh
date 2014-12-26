@@ -9,7 +9,9 @@
 //#include "PacketIDdefs.h"
 #include "S800defs.h"
 
-// TIME OF FLIGHT
+/**Raw data structure for S800 time of flight information.
+
+ */
 class GTimeOfFlight : public TObject {
 public:
   GTimeOfFlight(){
@@ -59,7 +61,9 @@ protected:
   ClassDef(GTimeOfFlight, 1);
 };
 
-// TRIGGER
+/**Raw data structure for S800 trigger information
+
+ */
 class GTrigger : public TObject {
 public:
   GTrigger(){
@@ -102,7 +106,9 @@ protected:
   ClassDef(GTrigger, 1);
 };
 
-//SCINTILLATOR
+/**Raw data structure for S800 scintillator information.
+
+*/
 class GScintillator : public TObject {
 public:
   GScintillator(){
@@ -151,7 +157,8 @@ protected:
   ClassDef(GScintillator, 1);
 };
 
-//Hodoscope CsI(Na)
+/**Raw data structure for S800 Hodoscope single crystal CsI(Na).
+*/
 class GHodoscope : public TObject {
 public:
   GHodoscope() {
@@ -176,7 +183,9 @@ protected:
   ClassDef(GHodoscope, 1);
 };
 
-//IONCHAMBER
+/**Raw data structure for S800 Ion Chamber.
+
+ */
 class GIonChamber : public TObject {
 public:
   GIonChamber(){
@@ -205,7 +214,9 @@ protected:
   ClassDef(GIonChamber, 1);
 };
 
-//CRDC
+/**Raw data structure for S800 CRDC.  
+
+*/
 class GCrdc : public TObject {
 public:
   GCrdc(){
@@ -256,6 +267,13 @@ protected:
   ClassDef(GCrdc, 1);
 };
 
+/**Raw data structure for S800 as a whole.  Contains instances of 
+   GTimeOfFlight GTrigger GScintillator GIonChamber  GHodoscope.  S800
+   class will be a copy of the raw event information in the data stream.
+   
+   Contains methods to unpack the data for each of the S800's dectors 
+   for NSCL DAQ 10.02 format
+*/
 class S800 : public TObject {
 public:
   S800(){

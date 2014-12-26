@@ -43,6 +43,12 @@ public:
   
   inline Int_t GetNumBars(){return BarIds.size();}
 
+  void SetFilter(int fl_, int fg_ ,int d_, int w_){fl=fl_;fg=fg_;d=d_;w=w_;}
+  
+  void PrintFilterSettings(){
+    cout<<"FL: "<<fl<<" FG: "<<fg<<" d: "<<d<<" w: "<<w<<endl;
+  }
+
 private:
   map <string, double> TheTimingOffsets;
   map <string, double> TheEnergySlopes;
@@ -58,6 +64,8 @@ private:
   void BuildReverseMap();
   map<int,string> BarId2Name;
 
+
+  int fl,fg,w,d;
 
 public:
   ClassDef(R00TLeSettings,1);

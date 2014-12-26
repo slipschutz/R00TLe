@@ -1,11 +1,11 @@
-TARGET     = ../../lib/libS800.so
+TARGET     = $(R00TLeInstall)/lib/libS800.so
 OBJS       = S800.o            S800Dictionary.o \
              S800Event.o       S800EventDictionary.o \
              S800Calc.o        S800CalcDictionary.o \
              S800Settings.o    S800SettingsDictionary.o \
              S800Calibration.o lmmin.o lmcurve.o lmfit.o
 
-include ../common.mk
+include $(R00TLeInstall)/src/common.mk
 
 S800.o:	S800.cc S800.hh S800defs.h
 S800Event.o: S800Event.cc S800Event.hh S800.hh S800defs.h

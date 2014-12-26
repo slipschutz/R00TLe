@@ -107,13 +107,14 @@ echo "}">>temp_R00TLe
 
 mv -f temp_R00TLe rootlogon.C
 
-if [ -d src ] || [ -d macros ] || [ -d histograms ]; then
+if [ -d src ] || [ -d macros ] || [ -d histograms ] || [ -d TimingAnalyzer ]; then
     echo "Found histogrmer already.  Won't over write"
 else 
 echo "Copying over skeleton histogramer..."
 cp -r ${R00TLeInstall}/skeleton/src/ .
 cp -r ${R00TLeInstall}/skeleton/macros/ .
 cp -r ${R00TLeInstall}/skeleton/histograms/ .
+cp -r ${R00TLeInstall}/src/TimingAnalyzer/ .
 fi
 
 

@@ -1,4 +1,4 @@
-TARGET     = ../../lib/libUtilities.so
+TARGET     = $(R00TLeInstall)/lib/libUtilities.so
 OBJS       = Utilities.o
 
-include ../common.mk
+include $(R00TLeInstall)/src/common.mk

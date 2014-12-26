@@ -13,6 +13,10 @@
 #include <TObject.h>
 #include "ddaschannel.hh"
 
+
+/**
+Container class to hold correlated ddaschannel objects.  
+*/
 class DDASEvent : public TObject
 {
     private:

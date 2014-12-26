@@ -3,8 +3,8 @@
 #include "Utilities.hh"
 
 LendaPacker::LendaPacker(R00TLeSettings*v){
-  ///Use bad Defaults to ensure that the calling program set 
-  //everything
+  ///Will use bad defaults to ensure that the calling program set 
+  ///all filter parameters
   fFL=-1; 
   fFG=-1;
   fd=-1;
@@ -21,7 +21,7 @@ LendaPacker::LendaPacker(R00TLeSettings*v){
   Reset();//Reset the member variables that have to do with building Lenda Events
   //Such as the software CFDs and the energy values
 
-  saveTraces=false;
+  saveTraces=true;
  
   
 }
@@ -41,6 +41,8 @@ void LendaPacker::SetFilter(Int_t _FL,Int_t _FG,Int_t _d,Int_t _w){
   fFG=_FG;
   fd=_d;
   fw=_w;
+
+  theSettings->SetFilter(fFL,fFG,fd,fw);
 }
 
 void LendaPacker::SetGates(Double_t _lg,Double_t _sg,Double_t _lg2,Double_t _sg2){
@@ -339,6 +341,7 @@ void LendaPacker::PackCalculatedValues(LendaChannel* theChannel,MapInfo & info){
    theChannel->SetCorrectedTime( theChannel->GetTime() - info.TOFOffset);
    theChannel->SetCorrectedSoftTime(theChannel->GetSoftTime()-info.TOFOffset);
    theChannel->SetCorrectedCubicFitTime( theChannel->GetCubicFitTime() - info.TOFOffset);
+   theChannel->SetCorrectedCubicTime( theChannel->GetCubicTime() - info.TOFOffset);
   }
 
 }
@@ -396,7 +399,7 @@ void LendaPacker::MakeLendaEvent(LendaEvent *Event,DDASEvent *theDDASEvent,
 	//If the channel is one of the Object Scintillators
 	LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
 	//store this time in reference time map for later
-	GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicFitTime());
+	GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicTime());
 	Event->TheObjectScintillators.push_back(Temp);//Store the Object Scint
       }else if (fullName == "IGNORE"){ //Special check for IGNORE
 	//Do nothing

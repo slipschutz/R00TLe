@@ -26,7 +26,7 @@ if [ -f ./rootfiles/run-${runNum}-00-RAW.root ]; then
     for file in $(ls ./rootfiles/run-${runNum}-*-RAW.root)
     do
 
-	Raw2Cal $file ./$(echo $file | sed s/-RAW//g) $runNum
+	Raw2Cal $file ./$(echo $file | sed s/-RAW//g) $runNum & &>> ./forklog
     done
     exit
 fi

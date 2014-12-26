@@ -34,9 +34,9 @@
 
 using namespace std;
 
-/* Define a class that can accumulate ddas channels
-   to be sorted into true events. */
-
+/** Holds basic information for individual Pixie-16 channel. 
+    Written by Sean Liddick
+ */
 class ddaschannel : public TObject {
 public:
 
@@ -47,24 +47,24 @@ public:
   // Double_t, Int_t, Short_t, Bool_t, pointers
 
   /* Channel events always have the following info. */
-  Double_t time;              //< assembled time including cfd
-  Double_t cfd;               //< cfd time only
+  Double_t time;              ///< Assembled time including cfd from module
+  Double_t cfd;               ///< Cfd time only from module
 
-  UInt_t energy;              //< energy of event
-  UInt_t timehigh;            //< portion of timestamp
-  UInt_t timelow;             //< portion of timestamp
-  UInt_t timecfd;             //< portion of timestamp
+  UInt_t energy;              ///< Energy of event from energy filter
+  UInt_t timehigh;            ///< portion of timestamp
+  UInt_t timelow;             ///< portion of timestamp
+  UInt_t timecfd;             ///< portion of timestamp
 
-  Int_t channelnum;           //< obsolete
-  Int_t finishcode;           //< indicate whether event is 
-  Int_t channellength;        //<
+  Int_t channelnum;           ///< obsolete
+  Int_t finishcode;           ///< indicate whether event is 
+  Int_t channellength;        
   Int_t channelheaderlength;
   Int_t overflowcode;
-  Int_t chanid;
-  Int_t slotid;
-  Int_t crateid;
+  Int_t chanid;              ///<Channel in module
+  Int_t slotid;              ///<Slot in crate
+  Int_t crateid;             ///<Crate ID
   Int_t id;
-  UInt_t cfdtrigsourcebit;     //< cfd trigger source bit, 0- even, 1 - odd
+  UInt_t cfdtrigsourcebit;     ///< cfd trigger source bit, 0- even, 1 - odd
 
   Int_t tracelength;
 

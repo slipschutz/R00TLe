@@ -15,7 +15,7 @@ LendaEvent::LendaEvent(){
 
 
 void LendaEvent::Clear(){
-  ////REMEBER TO CLEAR THINGS THAT were thing.push_Back!!!!
+  //REMEBER TO CLEAR THINGS THAT were thing.push_Back!!!!
   
   //Clear the main information holder the bars vector
   

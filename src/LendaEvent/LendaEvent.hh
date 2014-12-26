@@ -8,32 +8,43 @@
 #include "LendaBar.hh"
 using namespace std;
 
+/**
+Main container class for DDAS inforamation in calibrated trees.
+A ROOT Dictionary is made from the class inorder to have it 
+available in the interpreter.
+*/
 class LendaEvent :  public TObject  {
 public:
 
-  LendaEvent(); //Constructor 
+  LendaEvent(); ///<Defualt Constructor 
 
-  void Clear(); //Clear the Event.  Should be called after every write to a tree
-  void Clear(Option_t*){Clear();}
+  void Clear(); ///<Clear the Event. Should be called after every write to a tree
+  void Clear(Option_t*){Clear();} ///<To suppress warnings about hidding clear in TObject
 
-  void Finalize(); //Calculates convient Branches/leaves
+  /**Finalize should be called before writing to a tree.
+     Finalize calculates convient quantities that will appear as 
+     branches and leaves in the tree.  Calls the finalize methods 
+     the Bars and ObjectScinitillators.
+   */
+  void Finalize(); 
 
-  vector <LendaBar> Bars; //The vector of LendaBars that contains the real event information
-  void PushABar(LendaBar aBar){Bars.push_back(aBar);NumBars++;}
 
-  vector <LendaChannel> UnMappedChannels;
-  void PushUnMappedChannel(LendaChannel c){UnMappedChannels.push_back(c);NumUnMappedChannels++;}
 
-  Int_t NumOfChannelsInEvent; //The Number of channels associated with this event  
-  Int_t N;//Same thing as NumOfChannelsInEvent
-  Int_t NumBars;//Number of bars in event.  Due to pileup could be different from N/2
+  void PushABar(LendaBar aBar){Bars.push_back(aBar);NumBars++;}///<Add a LendaBar to the LendaEvent
+  void PushUnMappedChannel(LendaChannel c){UnMappedChannels.push_back(c);NumUnMappedChannels++;}///<Add an unmapped channel to the event
 
-  Int_t NumUnMappedChannels;//Number of DDAS channels in the event that were not in the map file
+  vector <LendaBar> Bars; ///<The vector of LendaBars that contains main real event information
+  vector <LendaChannel> UnMappedChannels;///<vector of LendaChannels to hold any channels that are not mapped in the map file
+  vector <LendaChannel> TheObjectScintillators;///<Vector contain the lendachannels for the object scintillators
+
+  Int_t NumOfChannelsInEvent; ///<The Number of channels associated with this event  
+  Int_t N;///<Same thing as NumOfChannelsInEvent
+  Int_t NumBars;///<Number of bars in event.  Due to pileup and the object Scintillators  could be different from N/2
+
+  Int_t NumUnMappedChannels;///<Number of DDAS channels in the event that were not in the map file
   
-  Int_t NumObjectScintillators;//Number of ObjectScintillators
+  Int_t NumObjectScintillators;///<Number of ObjectScintillators
 
-
-  vector <LendaChannel> TheObjectScintillators;
 
   Bool_t operator==(const LendaEvent & RHS);
 
@@ -42,7 +53,7 @@ private:
 
   
 public:
-  ClassDef(LendaEvent, 21);
+  ClassDef(LendaEvent, 21);///<ROOT Macro for dictionary building
 };
 #endif
 
