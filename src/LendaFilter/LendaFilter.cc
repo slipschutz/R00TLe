@@ -280,7 +280,7 @@ Double_t LendaFilter::GetZeroCrossingImproved(std::vector <Double_t> & CFD,Int_t
   if (thisEventsZeroCrossings.size() == 0) // no Zero Crossing found
     return BAD_NUM;
   else
-  return thisEventsZeroCrossings[MaxIndex]; // take the max one
+    return thisEventsZeroCrossings[MaxIndex]; // take the max one
 }
 
 
@@ -744,3 +744,285 @@ Int_t LendaFilter::GetStartForPulseShape(Int_t MaxSpot){
     return 0;
   }
 }
+
+
+
+Int_t LendaFilter::CalculateCFD(vector<UShort_t> trace,vector<Double_t> &CFDOut) {
+  CFDOut.clear();
+  //  vector<Double_t> CFDOut;
+  Int_t TFLength=6;
+  Int_t TFGap=0;
+  Int_t CFDSF=4;
+  Int_t CFDDelay=6;
+  Double_t CFDWeight=0.5;
+  Int_t CFDThreshold=50;
+
+  Int_t CFDTime=0;
+  Int_t CFDTriggerPoint;
+
+  Double_t cfdvalue = -1;
+  Int_t cfdtrigpoint = -1;
+  Int_t A=0;
+  Int_t m=0;
+
+  Double_t S0;
+  Double_t S1;
+  Double_t S2;
+  Double_t S3;
+
+  
+  if(TFLength<0) {
+    cout<<"Set the Trigger Filter Length!"<<endl;
+    return -107;
+  }
+  if(TFGap<0) {
+    cout<<"Set the Trigger Filter Gap!"<<endl;
+    return -108;
+  }  
+  if(CFDSF <0) {
+    cout<<"Set CFD Scale Factor!"<<endl;
+    return -115;
+  }
+  if(CFDDelay <0) {
+    cout<<"Set CFD Delay!"<<endl;
+    return -116;
+  } 
+  
+  
+  if(trace.size() > 0) {
+    
+    //Calculate the CFD Response
+    for(m=0; m<(CFDDelay+TFLength+TFGap+1); m++) {
+      CFDOut.push_back(0);
+    }
+
+
+    
+    m=CFDDelay+2*TFLength+TFGap;
+
+
+    for(A=(m-CFDDelay-2*TFLength-TFGap); A<(m-CFDDelay-TFGap-TFLength); A++){
+      S3+=trace[A];
+    }
+    
+    for(A=(m-CFDDelay-TFLength); A<(m-CFDDelay); A++) {
+     S2+=trace[A];
+    }  
+
+    for(A=(m-2*TFLength-TFGap); A<(m-TFGap-TFLength); A++){
+      S1+=trace[A];
+    }
+
+    for(A=m-TFLength; A<m; A++){
+      S0+=trace[A];
+    }
+
+
+    for(m=(CFDDelay+2*TFLength+TFGap+1); m<(Int_t)(trace.size()); m++) {
+
+      S3=S3-trace[m-CFDDelay-2*TFLength-TFGap-1]+trace[m-CFDDelay-TFGap-TFLength-1];
+      S2=S2-trace[m-CFDDelay-TFLength-1]+trace[m-CFDDelay-1];
+      S1=S1-trace[m-2*TFLength-TFGap-1]+trace[m-TFGap-TFLength-1];
+      S0=S0-trace[m-TFLength-1]+trace[m-1];
+      
+
+      //      Int_t trash;cin>>trash;
+      
+      Double_t cfdvalue2 = CFDWeight*(S0-S1)-(S2-S3);
+      CFDOut.push_back(cfdvalue2);     
+    }
+
+    
+
+
+
+    
+  //   //Find the CFD over threshold point
+  //   for(m=0; m<(Int_t)trace.size(); m++) {
+  //     if(CFDOut[m-1]<=CFDThreshold && CFDOut[m]>CFDThreshold) {
+  // 	cfdtrigpoint = m-1;
+  // 	break;
+  //     }
+  //   }
+    
+  //   //Find the zero crossing after threshold and calculate time stamp
+  //   for(m=cfdtrigpoint; m<(Int_t)trace.size(); m++) {
+  //     if(CFDOut[m-1]>=0 && CFDOut[m]<0) {
+  // 	CFDTime = CFDOut[m-1]/(CFDOut[m-1]+fabs(CFDOut[m]));
+  // 	CFDTriggerPoint = m-1;
+  // 	break;
+  //     }
+  //     if(m >= (cfdtrigpoint+31)) {
+  // 	cout<<"Warning! CFD Faild to Zero Cross within 32 clock ticks of crossing the CFD Threshold!"<<endl;
+  // 	CFDTime = 0;
+  //     }
+  //   }    
+  }
+  
+  else {
+    cout<<"Trace is length 0!"<<endl;
+    return -105;
+  }
+  return 0;  
+}
+
+
+
+
+//Double_t LendaFilter::GetNewFirmwareCFD(vector<UShort_t> trace, Int_t FL, Int_t FG, Int_t d, Int_t w) {
+vector <Double_t> LendaFilter::GetNewFirmwareCFD(const vector<UShort_t> & trace, Int_t FL, Int_t FG, Int_t d, Int_t w){
+
+  vector<Double_t> CFDOut;
+  if(trace.size() == 0) {
+    CFDOut.resize(1,BAD_NUM);//Return a BAD CFD!
+    return CFDOut;
+  } else { //
+  
+  }
+
+
+
+  Int_t TFLength=FL;//FL;
+  Int_t TFGap=FG;//FG;
+  Int_t CFDSF=0;//w;
+  Int_t CFDDelay=d;
+
+  Double_t CFDWeight=GetNewFirmwareCFDWeight(w);
+
+  Int_t CFDThreshold=50;
+
+
+  Int_t CFDTime=0;
+  Int_t CFDTriggerPoint;
+
+
+  Int_t cfdtrigpoint = -1;
+  Int_t A=0;
+  Int_t m=0;
+
+
+  ///////////////////////////////////////////
+  // There are 4 sums in the CFD algorithm //
+  ///////////////////////////////////////////
+  Double_t S0=0;
+  Double_t S1=0;
+  Double_t S2=0;
+  Double_t S3=0;
+
+  for(m=0; m<(CFDDelay+2*TFLength+TFGap-1); m++) {
+    CFDOut.push_back(0);
+  }
+
+  // for(m=0; m<(CFDDelay+TFLength+TFGap+1); m++) {
+  //   CFDOut.push_back(0);
+  // }
+
+  
+    
+  m=CFDDelay+2*TFLength+TFGap;
+
+  for(A=(m-CFDDelay-2*TFLength-TFGap); A<(m-CFDDelay-TFGap-TFLength); A++){
+    S3+=trace[A];
+  }
+    
+  for(A=(m-CFDDelay-TFLength); A<(m-CFDDelay); A++) {
+    S2+=trace[A];
+  }  
+
+
+  for(A=(m-2*TFLength-TFGap); A<(m-TFGap-TFLength); A++){
+    S1+=trace[A];
+  }
+
+
+  for(A=m-TFLength; A<m; A++){
+    S0+=trace[A];
+  }
+
+  
+  //CFDOut.push_back(CFDWeight*(S0-S1)-(S2-S3));
+
+  for(m=(CFDDelay+2*TFLength+TFGap+1); m<(Int_t)(trace.size()); m++) {
+
+    //  CFDOut[m-1]= CFDWeight*(S0-S1)-(S2-S3);
+
+     
+    S3=S3-trace[m-CFDDelay-2*TFLength-TFGap-1]+trace[m-CFDDelay-TFGap-TFLength-1];
+    S2=S2-trace[m-CFDDelay-TFLength-1]+trace[m-CFDDelay-1];
+    S1=S1-trace[m-2*TFLength-TFGap-1]+trace[m-TFGap-TFLength-1];
+    S0=S0-trace[m-TFLength-1]+trace[m-1];
+
+    Double_t cfdvalue = CFDWeight*(S0-S1)-(S2-S3);
+
+    //    Double_t cfdvalue=S0-S1;
+    CFDOut.push_back(cfdvalue);     
+
+    //CFDOut[m-1]=(S0-S1);
+
+  }
+
+
+  // for (int i=0;i<CFDOut.size();i++){
+  //   cout<<CFDOut[i]<<endl;
+  // }
+
+  
+  return CFDOut;
+
+}
+
+
+
+/*  
+  //Find the CFD over threshold point
+  for(m=0; m<(Int_t)trace.size(); m++) {
+    if(CFDOut[m-1]<=CFDThreshold && CFDOut[m]>CFDThreshold) {
+      cfdtrigpoint = m-1;
+      break;
+    }
+  }
+    
+    //Find the zero crossing after threshold and calculate time stamp
+    for(m=cfdtrigpoint; m<(Int_t)trace.size(); m++) {
+      if(CFDOut[m-1]>=0 && CFDOut[m]<0) {
+	CFDTime = CFDOut[m-1]/(CFDOut[m-1]+fabs(CFDOut[m]));
+	CFDTriggerPoint = m-1;
+	break;
+      }
+      if(m >= (cfdtrigpoint+31)) {
+	cout<<"Warning! CFD Faild to Zero Cross within 32 clock ticks of crossing the CFD Threshold!"<<endl;
+	CFDTime = 0;
+      }
+    }    
+  }
+  
+  else {
+    cout<<"Trace is length 0!"<<endl;
+    return -105;
+  }
+  return 0;  
+}
+*/
+
+
+
+Double_t LendaFilter::GetNewFirmwareCFDWeight(Int_t CFDScaleFactor){
+
+  Double_t temp=(Double_t) CFDScaleFactor;
+  return (8.0-temp)/8.0;  
+}
+
+// //Set the CFD SF and Weighting Factor based on the CFD Scale 
+
+// Int_t LendaFilter::SetCFDSF(Int_t SF) {
+  
+//   // if(SF > CFDSFMax) {
+//   //   cout<<"CFD Scale Factor is too long!"<<endl;
+//   //   return -12;
+//   // }  
+//   // else {
+//   //   CFDSF = SF;
+//   //   CFDWeight = (double)(8.0-CFDSF)/8.0;
+//   // }
+//   return 0; 
+// }

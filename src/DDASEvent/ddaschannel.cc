@@ -152,15 +152,15 @@ void ddaschannel::SetTimeHigh(UInt_t data){
 }
 
 void ddaschannel::SetTimeCFD(UInt_t data){
-  timecfd = ((Int_t) ((data & BIT30to16MASK) >> 16));
+  timecfd = ((Int_t) ((data & BIT29to16MASK) >> 16));
 }
 
 void ddaschannel::SetCFDTriggerSourceBit(UInt_t data){
-  cfdtrigsourcebit = ((Int_t) ((data & BIT31MASK) >> 31 ));  //modified CP
+  cfdtrigsourcebit = ((Int_t) ((data & BIT30MASK) >> 30 ));  //modified CP
 }
 
 void ddaschannel::SetTime(){
-  time = timecfd/32768.0 + 2*(timelow + timehigh * 4294967296.0) - cfdtrigsourcebit;
+  time = timecfd/16384.0 + 2*(timelow + timehigh * 4294967296.0) - cfdtrigsourcebit;
 }
 
 void ddaschannel::SetEnergy(UInt_t data){
