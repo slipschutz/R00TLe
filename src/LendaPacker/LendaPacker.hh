@@ -168,7 +168,7 @@ public:
   void CalcAll(ddaschannel * theChannel);///<Call all waveform analysis routines
 
 
-  void SetFilter(Int_t,Int_t,Int_t,Int_t);///<Set parameters for the waveform timing analysis routines
+  void SetFilter(Int_t _FL,Int_t _FG ,Int_t _d,Int_t _w);///<Set parameters for the waveform timing analysis routines
   void SetGates(Double_t,Double_t,Double_t,Double_t);///<Set parameters for the waveform energy analysis routines
 
   inline void SetTraceDelay(Int_t x){traceDelay=x;}///<Set the trace delay value

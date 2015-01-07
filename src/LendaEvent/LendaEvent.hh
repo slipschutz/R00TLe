@@ -53,7 +53,7 @@ private:
 
   
 public:
-  ClassDef(LendaEvent, 21);///<ROOT Macro for dictionary building
+  ClassDef(LendaEvent, 22);///<ROOT Macro for dictionary building
 };
 #endif
 

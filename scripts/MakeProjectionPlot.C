@@ -36,7 +36,7 @@ TGraphErrors* MakeProjectionPlot(TH2F* h , Double_t Start=0,Double_t End=16000,I
 
     if (temp->GetEntries() > 0 ){
 
-      TFitResultPtr result = temp->Fit("gaus","QSN");
+      TFitResultPtr result = temp->Fit("gaus","QS");
       
       Int_t status = result;
       
