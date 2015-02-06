@@ -8,7 +8,6 @@ newestRunNum=$(echo $newestFile | awk ' BEGIN{FS="-"} {print $2+1-1}')
 
 
 
-
 #TITLE line
 echo "Run Number,Run Start Time,Run Title,Run Total Size,Number Of Run Segments"
 
@@ -20,7 +19,7 @@ fileStem=${R00TLeEvtFilesPath}/run-${runNum}
 theFile=${R00TLeEvtFilesPath}/run-${runNum}-00.evt
 
 if [ -f $theFile ]; then #THE FILE EXISTS 
-    /usr/opt/nscldaq/current/bin/dumper --source=file://$theFile | head -4 | tail -3 > TEMP__$i
+    /usr/opt/nscldaq/10.2-112/bin/dumper --source=file://$theFile | head -4 | tail -3 > TEMP__$i
 
     startTime=$(head -1 TEMP__$i | awk ' {print $1 " " $2 " " $3 " " $4 " " $5}')
 
