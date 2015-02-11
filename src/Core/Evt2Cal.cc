@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
 
    // LendaEvent branch
    LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
-   thePacker->SetFilter(3,0,3,3);
+   thePacker->SetFilter(6,0,6,0);
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
    thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);
