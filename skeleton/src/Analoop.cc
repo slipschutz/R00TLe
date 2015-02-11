@@ -169,7 +169,7 @@ Bool_t Analoop::Process(Long64_t entry) {
     }
   }//End for over bars in event
   
-      
+  
   return kTRUE;
 }
 
@@ -251,13 +251,18 @@ void Analoop::Terminate() {
 
 
 
+/**Make a 1D histogram with a Name
+
+ */
 void Analoop::MakeHistogram(TString name,Int_t bins,Double_t xlow,Double_t xhigh){
   
   fOutput->AddLast( new TH1F(name,name,bins,xlow,xhigh));
 
 }
 
+/**Fill a 1D histogram with a name
 
+ */
 void Analoop::FillHistogram(TString name,Float_t value){
 
   TObject * object = fOutput->FindObject(name);
@@ -273,15 +278,19 @@ void Analoop::FillHistogram(TString name,Float_t value){
 
   ((TH1F*)object)->Fill(value);
 
-
-
 }
 
+
+
+/**Makea 2D histogram with a Name
+ */
 void Analoop::MakeHistogram(TString name,Int_t binsX,Double_t xlow,Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh){
   fOutput->AddLast( new TH2F(name,name,binsX,xlow,xhigh,binsY,yLow,yHigh));
 }
 
 
+/**Fill a 2D histogram with a Name
+ */
 void Analoop::FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue){
 
   TObject * object = fOutput->FindObject(name);
@@ -298,6 +307,7 @@ void Analoop::FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue){
   ((TH2F*)object)->Fill(Xvalue,Yvalue);
 
 }
+
 
 
 
@@ -321,14 +331,17 @@ void Analoop::AutoHisto(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, 
 }
 
 
-void Analoop::MakeHistogram(Int_t HistNumber,Int_t bins,Double_t xlow,Double_t xhigh){
+void Analoop::AutoHisto(Int_t HistNumber,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
   stringstream s;
   s<<"h"<<HistNumber;
-  MakeHistogram(s.str().c_str(),bins,xlow,xhigh);
+  AutoHisto(s.str().c_str(),value,bins,xlow,xhigh);
+
 }
-void Analoop::FillHistogram(Int_t HistNumber,Float_t value){
+void Analoop::AutoHisto(Int_t HistNumber,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t ylow,Double_t yhigh){
   stringstream s;
   s<<"h"<<HistNumber;
-  FillHistogram(s.str().c_str(),value);
+  AutoHisto(s.str().c_str(),Xvalue,Yvalue,binsX,xlow,xhigh,binsY,ylow,yhigh);
+
 }
+
 

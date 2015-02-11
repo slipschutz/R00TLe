@@ -131,7 +131,7 @@ public :
 
    TString OutFileName;
 
-
+   //Histogramming methods with hisogram names 
    void MakeHistogram(TString name,Int_t bins,Double_t xlow,Double_t xhigh);
    void FillHistogram(TString name,Float_t value);
 
@@ -139,11 +139,28 @@ public :
    void FillHistogram(TString name,Float_t Xvalue,Float_t Yvalue);
    
 
-   void MakeHistogram(Int_t HistNumber,Int_t bins,Double_t xlow,Double_t xhigh);
-   void FillHistogram(Int_t HistNumber,Float_t value);
 
    void AutoHisto(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh);
    void AutoHisto(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
+
+   void AutoHisto(Int_t HistNumber,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh);
+   void AutoHisto(Int_t HistNumber,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t yLow,Double_t yHigh);
+   
+
+   void Hist(Int_t HistNumber,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
+     AutoHisto(HistNumber,value,bins,xlow,xhigh);}
+   void Hist(Int_t HistNumber,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t ylow,Double_t yhigh){
+     AutoHisto(HistNumber,Xvalue,Yvalue,binsX,xlow,xhigh,binsY,ylow,yhigh);
+   }
+
+   void Hist(TString name,Float_t value,Int_t bins, Double_t xlow, Double_t xhigh){
+     AutoHisto(name,value,bins,xlow,xhigh);}
+   void Hist(TString name,Float_t Xvalue,Float_t Yvalue,Int_t binsX, Double_t xlow, Double_t xhigh,Int_t binsY,Double_t ylow,Double_t yhigh){
+     AutoHisto(name,Xvalue,Yvalue,binsX,xlow,xhigh,binsY,ylow,yhigh);
+   }
+
+   
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
