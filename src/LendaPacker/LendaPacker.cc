@@ -9,6 +9,12 @@
    fFG=-1;
    fd=-1;
    fw=-1;
+
+   objFL=-1;
+   objFG=-1;
+   objd=-1;
+   objw=-1;
+
    lg=-1;
    sg=-1;
    lg2=-1;
@@ -18,6 +24,9 @@
 
    theSettings=v;
 
+   
+   referenceChannelPattern="OBJ";
+   
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
@@ -45,6 +54,13 @@
    theSettings->SetFilter(fFL,fFG,fd,fw);
  }
 
+void LendaPacker::SetObjectFilter(Int_t _FL, Int_t _FG, Int_t _d,Int_t _w){
+  objFL=_FL;
+  objFG=_FG;
+  objd=_d;
+  objw=_w;
+  
+}
  void LendaPacker::SetGates(Double_t _lg,Double_t _sg,Double_t _lg2,Double_t _sg2){
 
    lg=_lg;
@@ -105,6 +121,23 @@
      //    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
    }
  }
+void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
+  ///////////////////////////////////////////////////////////////////////////////////
+  // if there are trace present in the data preform timing related trace anaylsis  //
+  // routines									   //
+  ///////////////////////////////////////////////////////////////////////////////////
+  if (theTrace.size()!=0){
+    theFilter.FastFilter(theTrace,thisEventsFF,objFL,objFG); //run FF algorithim
+
+    thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,objFL,objFG,objd,objw);
+
+    softwareCFD=theFilter.GetZeroCrossingImproved(thisEventsCFD,numZeroCrossings,CFDResidual); //find zeroCrossig of CFD
+
+    cubicCFD = theFilter.GetZeroCubic(thisEventsCFD);
+  }
+
+}
+
  void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace){
 
    ////////////////////////////////////////////////////////////////////
@@ -189,6 +222,13 @@
      int spot= CHANPERMOD*(slot-2) + channel;
 
      MapInfo tempInfo;
+     //Check to see if this name contains the ReferenceChannelPattern
+     if( name.find(referenceChannelPattern) != string::npos ){//Channel contains the pattern
+       //It is a reference channel.  Set flag in mapinfo for later
+       tempInfo.IsAReferenceChannel=true;
+     } else{
+       tempInfo.IsAReferenceChannel=false;
+     }
 
      GlobalIDToFullLocal[spot]=name;
      FullLocalToGlobalID[name]=spot;
@@ -273,7 +313,12 @@
 
 
  LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
-   CalcAll(c);//Preform all the waveform analysis
+   if (info.IsAReferenceChannel){
+     CalcObjectTimeFilters(c->trace);
+   }else{
+     CalcTimeFilters(c->trace);
+   }
+   CalcEnergyGates(c->trace);
 
    /////////////////////////////////////////////////////////////////////////////
    // Now all the member variables should have been set (if there are traces) //
@@ -480,7 +525,7 @@ void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBa
 
 
 
-void LendaPacker::RePackChannel(LendaChannel *channel){
+void LendaPacker::RePackChannel(LendaChannel *channel,bool isAnObject){
   //Get The global ID stored in the LendaChannel
   //Assuming now that only the corrections information is
   //being repacked.  Not the Map information
@@ -495,9 +540,12 @@ void LendaPacker::RePackChannel(LendaChannel *channel){
     Reset();//Reseet the Packers variables
     if ( channel->GetTrace().size() !=0 ){//There is a trace
       vector<UShort_t> theTrace =channel->GetTrace();
-      CalcTimeFilters(theTrace);
+      if (isAnObject){
+	CalcObjectTimeFilters(theTrace);
+      }else{
+	CalcTimeFilters(theTrace);
+      }
       CalcEnergyGates(theTrace);
-
     }
     //Set the waveform analysis results to the channel.
     //including things like energy cubic times and
@@ -537,7 +585,7 @@ void LendaPacker::ReMakeLendaEvent(LendaEvent* inEvent,LendaEvent* outEvent){
   for (int i=0;i<inEvent->NumObjectScintillators;i++){
     outEvent->TheObjectScintillators.push_back(inEvent->TheObjectScintillators[i]);//Copy a Obj Scint.
     LendaChannel * thisObjectScintillator = &(outEvent->TheObjectScintillators[i]);
-    RePackChannel(thisObjectScintillator);
+    RePackChannel(thisObjectScintillator,true);
     GlobalIDToReferenceTimes[thisObjectScintillator->GetGlobalID()]=RefTimeContainer(thisObjectScintillator->GetTime(),
 										     thisObjectScintillator->GetSoftTime(),
 										     thisObjectScintillator->GetCubicFitTime());

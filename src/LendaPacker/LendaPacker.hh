@@ -62,7 +62,7 @@ public:
    */
   MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
 	     TOFOffset(BAD_NUM),FullName(""),BarName(""),ReferenceName(""),BarAngle(BAD_NUM),
-	     HasCorrections(false),ReferenceGlobalID(BAD_NUM),
+	     HasCorrections(false),IsAReferenceChannel(false),ReferenceGlobalID(BAD_NUM),
 	     GlobalID(BAD_NUM){;}
 
   Double_t EnergySlope; ///<Slope for energy calibration of light output.
@@ -76,6 +76,8 @@ public:
   Double_t BarAngle;///<The angle of bar relative to the beam direction
 
   bool HasCorrections; ///<Flag to be set when there is correction information available
+
+  bool IsAReferenceChannel;
 
   ///Global DDAS ID of the reference channel.  
   /**The Global ID is the spot in the crate starting at the top left channel counting down and to the right
@@ -164,11 +166,14 @@ public:
 
 
   void CalcTimeFilters(vector<UShort_t>& theTrace);///<Call the waveform timing analysis routines provided by the LendaFilter object
+  void CalcObjectTimeFilters(vector<UShort_t>& theTrace);///<Same as CalcTimeFilters, except uses object filter parameters
+
   void CalcEnergyGates(vector<UShort_t>& theTrace);///<Call the waveform energy analysis routines provided by the LendaFilter object
   void CalcAll(ddaschannel * theChannel);///<Call all waveform analysis routines
 
 
   void SetFilter(Int_t _FL,Int_t _FG ,Int_t _d,Int_t _w);///<Set parameters for the waveform timing analysis routines
+  void SetObjectFilter(Int_t _FL, Int_t _FG, Int_t _d,Int_t _w);/// <Set parameters for waveform timing alanysis routines for object scint signals
   void SetGates(Double_t,Double_t,Double_t,Double_t);///<Set parameters for the waveform energy analysis routines
 
   inline void SetTraceDelay(Int_t x){traceDelay=x;}///<Set the trace delay value
@@ -194,7 +199,7 @@ public:
   void ReMakeLendaEvent(LendaEvent*inEvent,LendaEvent*outEvent);
 
 
-  void RePackChannel(LendaChannel *);///<RePack a LendaChannel.  Used in ReMakeLendaEvent
+  void RePackChannel(LendaChannel *,bool isAnObject=false);///<RePack a LendaChannel.  Used in ReMakeLendaEvent
 
   /**Convert a DDASChannel to a LendaChannel.  Will call CalcAllMethod
      and save waveform analysis results into the LendaChannel
@@ -249,6 +254,9 @@ private:
   Bool_t saveTraces;
 
   Int_t fFL,fFG,fd,fw;
+
+  Int_t objFL,objFG,objd,objw;
+
   Double_t lg,sg,lg2,sg2;
   Int_t traceDelay;
   Long64_t jentry;
@@ -267,6 +275,8 @@ private:
   Double_t start;
   Double_t CFDResidual;
 
+
+  string referenceChannelPattern;//A string to define what channel names will be considered the reference channels ex OBJ
   
   R00TLeSettings * theSettings;
 
