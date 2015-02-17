@@ -1,7 +1,7 @@
 
 #include <vector>
 
-void GraphLE(Long64_t entry=0,int BarNum=0){
+void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
 
 
   LendaEvent * event = new LendaEvent();
@@ -42,37 +42,50 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
     traceSize = event->Bars[BarNum].Tops[0].GetTrace().size();
 
     if (event->Bars[BarNum].Tops[0].GetTrace().size()!=0){
-      c = new TCanvas("c121");
+      c = new TCanvas("cTraces");
       c->Divide(2,largerNum);  
     }
-    if (event->Bars[BarNum].Tops[0].GetCFD().size()!=0){
-      c1 = new TCanvas("c221");
-      c1->Divide(2,largerNum);
+    if (! traceOnly){
+      if (event->Bars[BarNum].Tops[0].GetCFD().size()!=0){
+	c1 = new TCanvas("cCFDs");
+	c1->Divide(2,largerNum);
+      }
+      
+      if (event->Bars[BarNum].Tops[0].GetFilter().size()!=0){
+	c2 = new TCanvas("cFilters");
+	c2->Divide(2,largerNum);
+      }
     }
-
-    if (event->Bars[BarNum].Tops[0].GetFilter().size()!=0){
-      c2 = new TCanvas("c321");
-      c2->Divide(2,largerNum);
-    }
-
   } else if (NumBottoms !=0){
     traceSize = event->Bars[BarNum].Bottoms[0].GetTrace().size();
 
     if (event->Bars[BarNum].Bottoms[0].GetTrace().size()!=0){
-      c = new TCanvas("c121");
+      c = new TCanvas("cTraces");
       c->Divide(2,largerNum);  
     }
-    if (event->Bars[BarNum].Bottoms[0].GetCFD().size()!=0){
-      c1 = new TCanvas("c221");
-      c1->Divide(2,largerNum);
-    }
-    
-    if (event->Bars[BarNum].Bottoms[0].GetFilter().size()!=0){
-      c2 = new TCanvas("c321");
+    if (! traceOnly){
+      if (event->Bars[BarNum].Bottoms[0].GetCFD().size()!=0){
+	c1 = new TCanvas("cCFDs");
+	c1->Divide(2,largerNum);
+      }
+      
+      if (event->Bars[BarNum].Bottoms[0].GetFilter().size()!=0){
+	c2 = new TCanvas("cFilters");
       c2->Divide(2,largerNum);
+      }
     }
-    
   }
+
+  Int_t NumObjects = event->NumObjectScintillators;
+  if (NumObjects !=0){
+    TCanvas * objCanvas = new TCanvas("objects");
+
+    objCanvas->Divide(1,NumObjects);
+  }
+  std::vector <TGraph*> Objects;
+  Objects.resize(NumObjects,NULL);
+  
+
 
   cout<<"TRACE SIZE IS "<<traceSize<<endl;
   Double_t *x = (Double_t*)malloc(traceSize*sizeof(Double_t));
@@ -110,7 +123,8 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
 
     if (event->Bars[BarNum].Bottoms[i].GetTrace().size()!=0){
       for (int j=0;j<traceSize;j++){
-	temp[j]=event->Bars[BarNum].Bottoms[i].GetTrace()[j];
+  	temp[j]=event->Bars[BarNum].Bottoms[i].GetTrace()[j];
+  	//temp[j]=event->TheObjectScintillators[0]->GetTrace()[j];
       }
       BottomTraces[i] = new TGraph(traceSize,x,temp);
       BottomTraces[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" Trace")).c_str());
@@ -118,7 +132,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
     }
     if (event->Bars[BarNum].Bottoms[i].GetCFD().size()!=0){
       for (int j=0;j<traceSize;j++){
-	temp[j]=event->Bars[BarNum].Bottoms[i].GetCFD()[j];
+  	temp[j]=event->Bars[BarNum].Bottoms[i].GetCFD()[j];
       }
       BottomCFDs[i] = new TGraph(traceSize,x,temp);
       BottomCFDs[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" CFD")).c_str());
@@ -127,7 +141,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
 
     if (event->Bars[BarNum].Bottoms[i].GetFilter().size()!=0){
       for (int j=0;j<traceSize;j++){
-	temp[j]=event->Bars[BarNum].Bottoms[i].GetFilter()[j];
+  	temp[j]=event->Bars[BarNum].Bottoms[i].GetFilter()[j];
       }
       BottomFilters[i] = new TGraph(traceSize,x,temp);
       BottomFilters[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" Filter")).c_str());
@@ -140,7 +154,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
 
     if (event->Bars[BarNum].Tops[i].GetTrace().size()!=0){
       for (int j=0;j<traceSize;j++){
-	temp[j]=event->Bars[BarNum].Tops[i].GetTrace()[j];
+  	temp[j]=event->Bars[BarNum].Tops[i].GetTrace()[j];
       }
       TopTraces[i] = new TGraph(traceSize,x,temp);
       TopTraces[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" Trace")).c_str());
@@ -149,7 +163,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
     
     if (event->Bars[BarNum].Tops[i].GetCFD().size()!=0){
       for (int j=0;j<traceSize;j++){
-	temp[j]=event->Bars[BarNum].Tops[i].GetCFD()[j];
+  	temp[j]=event->Bars[BarNum].Tops[i].GetCFD()[j];
       }
       TopCFDs[i] = new TGraph(traceSize,x,temp);
       TopCFDs[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" CFD")).c_str());
@@ -158,7 +172,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
 
     if (event->Bars[BarNum].Tops[i].GetFilter().size()!=0){
       for (int j=0;j<traceSize;j++){
-	temp[j]=event->Bars[BarNum].Tops[i].GetFilter()[j];
+  	temp[j]=event->Bars[BarNum].Tops[i].GetFilter()[j];
       }
       TopFilters[i] = new TGraph(traceSize,x,temp);
       TopFilters[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" Filter")).c_str());
@@ -168,7 +182,14 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
   }
 
 
-
+  for (int i=0;i<NumObjects;i++){
+    for (int j=0;j<traceSize;j++){
+      temp[j]=event->TheObjectScintillators[i].GetTrace()[j];
+    }
+    Objects[i]=new TGraph(traceSize,x,temp);
+    Objects[i]->SetTitle("OBJECT");
+    Objects[i]->SetName(event->TheObjectScintillators[i].GetChannelName().c_str());
+}
 
 
 
@@ -180,13 +201,15 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       c->cd(2*i+1);
       BottomTraces[i]->Draw("ALp");
     }
-    if (BottomCFDs[i]!=NULL){
-      c1->cd(2*i+1);
-      BottomCFDs[i]->Draw("ALp");
-    }
-    if (BottomFilters[i]!=NULL){
-      c2->cd(2*i+1);
-      BottomFilters[i]->Draw("ALp");
+    if (! traceOnly){
+      if (BottomCFDs[i]!=NULL){
+	c1->cd(2*i+1);
+	BottomCFDs[i]->Draw("ALp");
+      }
+      if (BottomFilters[i]!=NULL){
+	c2->cd(2*i+1);
+	BottomFilters[i]->Draw("ALp");
+      }
     }
   }
   for (int i=0;i<NumTops;i++){
@@ -194,16 +217,23 @@ void GraphLE(Long64_t entry=0,int BarNum=0){
       c->cd(2*i+2);
       TopTraces[i]->Draw("ALp");
     }
-    if(TopCFDs[i]!=NULL){
-      c1->cd(2*i+2);
-      TopCFDs[i]->Draw("ALp");
-    }
-    if(TopFilters[i]!=NULL){
-      c2->cd(2*i+2);
-      TopFilters[i]->Draw("ALp");
+    if (! traceOnly){
+      if(TopCFDs[i]!=NULL){
+	c1->cd(2*i+2);
+	TopCFDs[i]->Draw("ALp");
+      }
+      if(TopFilters[i]!=NULL){
+	c2->cd(2*i+2);
+	TopFilters[i]->Draw("ALp");
+      }
     }
   }
-
+  
+  for (int i=0;i<NumObjects;i++){
+    objCanvas->cd(i+1);
+    Objects[i]->Draw("ALp");
+  }
+  
 }
 
 //   Double_t* x = malloc(size*sizeof(Double_t));
