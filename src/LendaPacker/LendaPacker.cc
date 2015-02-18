@@ -213,66 +213,72 @@ void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
    string name,ReferenceName;
    double Angle;
    int UniqueBarNumber=0;
-   while (true){
-     if (MapFile.eof()==true)
-       break;
-     //Read Line
-     MapFile>>slot>>channel>>name>>Angle>>ReferenceName;
-     //Make Global ID
-     int spot= CHANPERMOD*(slot-2) + channel;
+   
 
-     MapInfo tempInfo;
-     //Check to see if this name contains the ReferenceChannelPattern
-     if( name.find(referenceChannelPattern) != string::npos ){//Channel contains the pattern
-       //It is a reference channel.  Set flag in mapinfo for later
-       tempInfo.IsAReferenceChannel=true;
-     } else{
-       tempInfo.IsAReferenceChannel=false;
-     }
+   
+   std::string line;
+   while (std::getline(MapFile>>std::ws, line)){
+     if (line[0] != '#' ){
+       std::istringstream iss(line);
+       iss>>slot>>channel>>name>>Angle>>ReferenceName;
+      
+       //Make Global ID
+       int spot= CHANPERMOD*(slot-2) + channel;
+       
+       MapInfo tempInfo;
+       //Check to see if this name contains the ReferenceChannelPattern
+       if( name.find(referenceChannelPattern) != string::npos ){//Channel contains the pattern
+	 //It is a reference channel.  Set flag in mapinfo for later
+	 tempInfo.IsAReferenceChannel=true;
+       } else{
+	 tempInfo.IsAReferenceChannel=false;
+       }
 
-     GlobalIDToFullLocal[spot]=name;
-     FullLocalToGlobalID[name]=spot;
-     string BarName=name.substr(0,name.size()-1);//The string minus last letter
-     GlobalIDToBar[spot]=BarName;
+       GlobalIDToFullLocal[spot]=name;
+       FullLocalToGlobalID[name]=spot;
+       string BarName=name.substr(0,name.size()-1);//The string minus last letter
+       GlobalIDToBar[spot]=BarName;
+       
+       tempInfo.GlobalID=spot;
+       tempInfo.FullName = name;
+       tempInfo.BarName = BarName;
+       
+       tempInfo.ReferenceName=ReferenceName;
+       tempInfo.BarAngle=Angle;
+       if (Angle !=0){
+	 BarNameToBarAngle[BarName]=Angle;
+       }
+       if (BarNameToUniqueBarNumber.count(BarName)==0){ //Isn't already there
+	 BarNameToUniqueBarNumber[BarName]=UniqueBarNumber;
+	 UniqueBarNumber++;
+       } 
+       GlobalIDToMapInfo[spot]=tempInfo;
+     }//end if not a comment
+   }//end while for Map file
 
-     tempInfo.GlobalID=spot;
-     tempInfo.FullName = name;
-     tempInfo.BarName = BarName;
-
-     tempInfo.ReferenceName=ReferenceName;
-     tempInfo.BarAngle=Angle;
-     if (Angle !=0){
-       BarNameToBarAngle[BarName]=Angle;
-     }
-     if (BarNameToUniqueBarNumber.count(BarName)==0){ //Isn't already there
-       BarNameToUniqueBarNumber[BarName]=UniqueBarNumber;
-       UniqueBarNumber++;
-     } 
-     GlobalIDToMapInfo[spot]=tempInfo;
-   }
 
    Double_t slope,intercept,timeOffSet;
-   while (true){
-     if (CorrectionsFile.eof()==true)
-       break;
-     CorrectionsFile>>name>>slope>>intercept>>timeOffSet;
-
-     if (FullLocalToGlobalID.count(name) == 0){
-       //There is a name in the corrections file that isn't in the 
-       //Cable Map file.  
-       cout<<"Found a name in the corrections file that"<<endl;
-       cout<<"wasn't in the cable map file"<<endl;
-       cout<<"Name is "<<name<<endl;
-       throw -99;
+   while (std::getline(CorrectionsFile>>std::ws, line)){
+     if (line[0] != '#' ){
+       std::istringstream iss(line);
+       iss>>name>>slope>>intercept>>timeOffSet;
+       
+       if (FullLocalToGlobalID.count(name) == 0){
+	 //There is a name in the corrections file that isn't in the 
+	 //Cable Map file.  
+	 cout<<"Found a name in the corrections file that"<<endl;
+	 cout<<"wasn't in the cable map file"<<endl;
+	 cout<<"Name is "<<name<<endl;
+	 throw -99;
+       }
+       int GlobalID = FullLocalToGlobalID[name];
+       MapInfo * temp =&GlobalIDToMapInfo[GlobalID];
+       temp->EnergySlope=slope;
+       temp->EnergyIntercept=intercept;
+       temp->TOFOffset=timeOffSet;
+       temp->HasCorrections=true;
      }
-     int GlobalID = FullLocalToGlobalID[name];
-     MapInfo * temp =&GlobalIDToMapInfo[GlobalID];
-     temp->EnergySlope=slope;
-     temp->EnergyIntercept=intercept;
-     temp->TOFOffset=timeOffSet;
-     temp->HasCorrections=true;
    }
-
    /////////////////////////////////////////////////////////////////////////////////////
    // now that the maps have been built.  Loop over the main conatainer and determine //
    // the global ID of the reference name.  If it is not in the map throw error	     //
@@ -309,6 +315,11 @@ void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
    theSettings->SetBarIds(BarNameToUniqueBarNumber);
 
 
+   for (auto i : GlobalIDToMapInfo){
+     i.second.Print();
+     cout<<endl;
+   }
+   
  }
 
 

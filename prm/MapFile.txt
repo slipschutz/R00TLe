@@ -1,3 +1,13 @@
+#
+#
+# This the defualt map file for R00TLe.  If there is not a run specific file
+# the building of calibrated Trees will default to this file called MapFile.txt
+# Comments in the file can be made with the '#' character.  As long as the first
+# non white space character is a '#' the line will be ignored.
+#
+# The format of the file is:
+# DDAS_Slot_Number DDAS_Channel_Number Name_Of_Channel Angle_Of_bar Name_Of_Reference_Channel
+#
 2  0 SL01T  92.1 OBJ1T
 2  1 SL01B  96.3 OBJ1T
 2  2 SL02T  96.3 OBJ1T

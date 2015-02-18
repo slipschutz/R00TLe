@@ -1,3 +1,13 @@
+#
+# This is the defualt corrections file for R00TLe. If no run specific
+# file is provided, this file will be used.  Comments can be made with
+# the '#' character
+#
+# Warning!!! If there is a channel in this file that is NOT in the 
+# Coresponding Mapfile Evt2Cal/Raw2Cal WILL CRASH!!!!
+# 
+#The format of this file is
+# Channel_Name PulseHeight_Slope PulseHeight_Intercept Timing_Offset
 SL01T  1  0  4.6471
 SL01B  1  0  4.6068
 SL02T  1  0  2.3977
