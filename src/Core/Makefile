@@ -1,4 +1,4 @@
-TARGET   = $(R00TLeInstall)/bin/Evt2Raw $(R00TLeInstall)/bin/Raw2Cal $(R00TLeInstall)/bin/Evt2Cal $(R00TLeInstall)/bin/Cal2Cal  $(R00TLeInstall)/bin/Evt2Scalars
+TARGET   = $(R00TLeInstall)/bin/Evt2Raw $(R00TLeInstall)/bin/Raw2Cal $(R00TLeInstall)/bin/Evt2Cal $(R00TLeInstall)/bin/Cal2Cal  $(R00TLeInstall)/bin/Evt2Scalars $(R00TLeInstall)/bin/R00TLeSandBox
 SUBLIBS  = S800 Utilities DDASEvent LendaEvent R00TLeSettings LendaPacker LendaFilter Scalers
 LIBS     = $(addprefix -l, $(SUBLIBS))
 LIBDIR   = $(R00TLeInstall)/lib/
@@ -63,3 +63,5 @@ $(R00TLeInstall)bin/Cal2Cal:	Cal2Cal.cc \
 
 
 $(R00TLeInstall)bin/Evt2Scalars: Evt2Scalars.cc
+
+$(R00TLeInstall)/bin/R00TLeSandBox: R00TLeSandBox.cc
