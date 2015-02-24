@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
    LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
    thePacker->SetFilter(2,0,2,1);//FL FG d w
    thePacker->SetObjectFilter(2,0,2,4);//Fl fg d w
-   thePacker->SetGates(15,5,15,5);
+   thePacker->SetGates(25,11,25,11);
    thePacker->SetTraceDelay(120);
    thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);
 

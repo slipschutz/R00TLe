@@ -15,8 +15,8 @@
    objd=-1;
    objw=-1;
 
-   lg=-1;
-   sg=-1;
+   lg=15;
+   sg=8;
    lg2=-1;
    sg2=-1;
    traceDelay=0;
@@ -162,7 +162,6 @@ void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
 
 
      start = theFilter.GetStartForPulseShape(MaxSpotInTrace);
-
      thisEventsIntegral = theFilter.GetEnergy(theTrace,MaxSpotInTrace);
 
      longGate = theFilter.GetGate(theTrace,start,lg);
@@ -314,12 +313,11 @@ void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
 
    theSettings->SetBarIds(BarNameToUniqueBarNumber);
 
-
    for (auto i : GlobalIDToMapInfo){
+     cout<< i.first <<" ";
      i.second.Print();
      cout<<endl;
    }
-   
  }
 
 
@@ -439,68 +437,75 @@ void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
 
 
    ////////////////////////////////////////////////////////////////////
-   //////////////Get the ddaschannels form the DDASEVent///////////////
+   //////////////Get the ddaschannels from the DDASEVent///////////////
    vector <ddaschannel*> theDDASChannels = theDDASEvent->GetData();
 
-   map <int,RefTimeContainer > GlobalIDToReferenceTimes;
-   map<string,LendaBar> ThisEventsBars;
+   map <int,RefTimeContainer > GlobalIDToReferenceTimes; //Container to hold the time stamps from the reference channels
+   map<string,LendaBar> ThisEventsBars;//Container to hold the Bars that have fired in the event. Is copied into the LendaEvent
 
-   map<string,LendaChannel> ThisEventsObjectScintillators;
+   //Container to hold the Reference channels for the event.  Is a multimap to allow for more than one
+   //of the same channel to be in one event.
+   multimap<string,LendaChannel> ThisEventsObjectScintillators;
 
+   //Loop over all the ddas Channels in the event and pack them into the LendaEvent
    for (int i=0;i<(int)theDDASChannels.size();i++){
      //First Form the global ID of the channel
      int id = theDDASChannels[i]->chanid + CHANPERMOD* (theDDASChannels[i]->slotid-2);
 
-     map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(id); //Get the iterator from MAP
+     map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(id);//Look for this channel in the MapInfo Map
      string fullName;
+     
      if ( it != GlobalIDToMapInfo.end()){ // the channel is in the map
        fullName = it->second.FullName;
 
-       if (fullName.find("OBJ") != string::npos ){ //Special check for the Object Scintillators
+       if (fullName.find(referenceChannelPattern) != string::npos ){ //Special check for the reference channels
 	 //If the channel is one of the Object Scintillators
 	 LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
 	 //store the times in reference time map for later
 	 GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicTime());
 	 
-	 map<string,LendaChannel>::iterator _obj_it= ThisEventsObjectScintillators.find(fullName);
-	 if ( _obj_it !=ThisEventsObjectScintillators.end()){//There was already the same version of the object signal
-	   //This is bad.  This should not happen
-	   throw "all is lost";
-	 }else{
-	   ThisEventsObjectScintillators[fullName]=Temp;//Copy the Temp lendachannel into the map
-	   //The channels will be packed into the event later below
+	 //Copy the Temp lendachannel into the multimap.  They are automatically sorted by their name
+	 //The channels will be packed into the LendaEent later below
+	 ThisEventsObjectScintillators.insert(make_pair(fullName,Temp));
+	 
+       }else if (fullName == "IGNORE"){ //Special check for IGNORE
+	 //Do nothing
+       } else { //It is a LENDA BAR
+	 SetJEntry(jentry);  
+	 //Get the bar name from the MapInfo object
+	 //NOTE: it is the iterator for the GlobalIDToMapInfo container
+	 string nameOfBar=it->second.BarName;
+
+	 //Check to see if this bar has been found in this event yet
+	 if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
+	   //The bar object will be put in a map to keep track of things
+	   LendaBar tempBar(nameOfBar,it->second.BarAngle);
+	   //Only look up the Bar Id the first time the bar is found
+	   int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
+	   tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
+	   //here it->second is refering to the Mapinfo Object.  it is from the
+	   //GlobalIdToMapInfo map.
+	   PutDDASChannelInBar(it->second,tempBar,theDDASChannels[i]);//Build The tempBar
+
+	   ThisEventsBars[nameOfBar]=tempBar; //Copy the tempBar into thisEventsBars map
+	 } else {
+	   //The bar has already had a channel in it from a previous iteration of this loop 
+	   //over DDAS Channels Instead of making a new bar take the already allocated one 
+	   //from the map and push this channel on to it
+	   PutDDASChannelInBar(it->second,ThisEventsBars[nameOfBar],theDDASChannels[i]);
 	 }
-      }else if (fullName == "IGNORE"){ //Special check for IGNORE
-	//Do nothing
-      } else { //It is a LENDA BAR
-	SetJEntry(jentry);  
-	//Get Which Bar this channel belongs to from the map
-	string nameOfBar=it->second.BarName;
-
-	//Check to see if this bar has been found in this event yet
-	if ( ThisEventsBars.count(nameOfBar) == 0 ) { // Bar hasn't been found yet
-	  //The bar object will be put in a map to keep track of things
-	  LendaBar tempBar(nameOfBar,it->second.BarAngle);
-	  //Only look up the Bar Id the first time the bar is found
-	  int UniqueBarNum = BarNameToUniqueBarNumber[nameOfBar];
-	  tempBar.SetBarId(UniqueBarNum);//Give the bar its ID num
-	  //here it->second is refering to the Mapinfo Object.  it is from the
-	  //GlobalIdToMapInfo map.
-	  PutDDASChannelInBar(it->second,tempBar,theDDASChannels[i]);//Build The tempBar
-
-	  ThisEventsBars[nameOfBar]=tempBar; //Copy the tempBar into thisEventsBars map
-	} else {
-	  //The bar has already had a channel in it from a previous iteration of this loop 
-	  //over DDAS Channels Instead of making a new bar take the already allocated one 
-	  //from the map and push this channel on to it
-	  PutDDASChannelInBar(it->second,ThisEventsBars[nameOfBar],theDDASChannels[i]);
-	}
-      }
-    } else { // This is when the channel was not in the map
-      Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],MapInfo()) );
-    }
-  }
-
+       }
+     } else { // This is when the channel was not in the map
+       Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],MapInfo()) );
+     }
+   }//End FOR over DDASChannels
+   
+   /////////////////////////////////////////////////////////////////////////////////////
+   // All channels have now been extracted from the DDASEvent.  The channels are also //
+   // now sorted by channelName/barName						      //
+   /////////////////////////////////////////////////////////////////////////////////////
+   
+   //Push the reference channels into the lendaevent.
    for (auto  i : ThisEventsObjectScintillators){
      Event->TheObjectScintillators.push_back(i.second);
    }
@@ -510,26 +515,30 @@ void LendaPacker::CalcObjectTimeFilters(vector<UShort_t>& theTrace){
   FillReferenceTimesInEvent(Event,ThisEventsBars,GlobalIDToReferenceTimes);
  
   ThisEventsBars.clear();//Clear the temporary map of bars
+  GlobalIDToReferenceTimes.clear();
+  ThisEventsObjectScintillators.clear();
 }
 
 
 void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBar>&ThisEventsBars, map <int,RefTimeContainer > & GlobalIDToReferenceTimes){
 
+  //Loop over the ThisEventsBars container and set all the reference times 
   for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();ii!=ThisEventsBars.end();ii++){
-
+    //Loop over all tops in this bar
     for (int t=0;t<ii->second.Tops.size();t++){
       RefTimeContainer * temp = &GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()];
       ii->second.Tops[t].SetReferenceTime(temp->RefTime);
       ii->second.Tops[t].SetSoftReferenceTime(temp->RefSoftTime);
       ii->second.Tops[t].SetCubicReferenceTime(temp->RefCubicTime);
     }
+    //Loop over all bottoms in this bar
     for (int b=0;b<ii->second.Bottoms.size();b++){
       RefTimeContainer * temp = &GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()];
       ii->second.Bottoms[b].SetReferenceTime(temp->RefTime);
       ii->second.Bottoms[b].SetSoftReferenceTime(temp->RefSoftTime);
       ii->second.Bottoms[b].SetCubicReferenceTime(temp->RefCubicTime);
     }
-
+    //Add the LendaBar Objects to the lendaEvent
     Event->PushABar(ii->second);
   }
 }
