@@ -88,3 +88,46 @@ Bool_t LendaEvent::operator==(const LendaEvent & RHS){
   
 }
 
+LendaBar * LendaEvent::FindBar(int BarId){
+  for (int i=0;i<(int)Bars.size();i++){
+    if (Bars[i].BarId==BarId){
+      return &(Bars[i]);
+    }
+  }
+  //Finished list of bars.  Bar wasn't there
+  return NULL;
+}
+
+
+LendaBar * LendaEvent::FindBar(string Name){
+  for (int i=0;i<(int)Bars.size();i++){
+    if (Bars[i].Name==Name){
+      return &(Bars[i]);
+    }
+  }
+  //Finished list of bars.  Bar wasn't there
+  return NULL;
+}
+
+
+LendaBar LendaEvent::FindBarSafe(string Name){
+   for (int i=0;i<(int)Bars.size();i++){
+    if (Bars[i].Name==Name){
+      return (Bars[i]);
+    }
+  }
+   //Could not find the bar return an empty bar object
+   return LendaBar();
+}
+
+
+LendaBar LendaEvent::FindBarSafe(int BarId){
+  for (int i=0;i<(int)Bars.size();i++){
+    if (Bars[i].BarId==BarId){
+      return (Bars[i]);
+    }
+  }
+  //Could not find the bar return an empty bar object
+  return LendaBar();
+ }
+

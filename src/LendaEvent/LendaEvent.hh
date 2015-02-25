@@ -48,6 +48,14 @@ public:
 
   Bool_t operator==(const LendaEvent & RHS);
 
+  LendaBar * FindBar(int BarId);
+
+  LendaBar * FindBar(string Name);
+
+  LendaBar FindBarSafe(string Name);
+
+  LendaBar FindBarSafe(int BarId);
+
 private:
 
 
