@@ -28,6 +28,14 @@ void R00TLeSettings::AddMapSettings(string Name,int GlobalID,string RefName, int
   Name2GlobalID[Name]=GlobalID;
 }
 
+void R00TLeSettings::AddFilterSettings(string Name,int FL,int FG,int d,int w){
+
+  TheFLs[Name]=FL;
+  TheFGs[Name]=FG;
+  Theds[Name]=d;
+  Thews[Name]=w;
+  
+}
 
 
 void R00TLeSettings::PrintAll(){
@@ -36,6 +44,7 @@ void R00TLeSettings::PrintAll(){
     cout<<endl;
     PrintChannelCorrections(ii.first);
     PrintChannelMapInfo(Name2GlobalID[ii.first]);
+    PrintFilterInfo(ii.first);
   }
 
 }
@@ -50,6 +59,11 @@ void R00TLeSettings::PrintChannelMapInfo(int GlobalID){
   printf("Channel Name %6s has DDAS ID %4d it's reference channel is %6s whith DDAS ID %4d\n",GlobalID2FullName[GlobalID].c_str(),
 	 GlobalID,GlobalID2RefName[GlobalID].c_str(),GlobalID2RefGlobalID[GlobalID]);
 
+
+}
+void R00TLeSettings::PrintFilterInfo(string Name){
+  printf("Channel Name %6s has FL:%5d  FG:%5d d:%5d w:%5d \n",Name.c_str(),
+	 TheFLs[Name],TheFGs[Name],Theds[Name],Thews[Name]);
 
 }
 

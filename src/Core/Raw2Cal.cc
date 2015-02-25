@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 
    // LendaEvent branch
    LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
-   thePacker->SetFilter(3,0,3,3);//FL FG d w
+   // thePacker->SetFilter(3,0,3,3);//FL FG d w
    thePacker->SetGates(15,5,15,5);
    thePacker->SetTraceDelay(120);
    thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);

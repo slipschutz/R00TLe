@@ -63,7 +63,7 @@ public:
   MapInfo(): EnergySlope(BAD_NUM),EnergyIntercept(BAD_NUM),
 	     TOFOffset(BAD_NUM),FullName(""),BarName(""),ReferenceName(""),BarAngle(BAD_NUM),
 	     HasCorrections(false),IsAReferenceChannel(false),ReferenceGlobalID(BAD_NUM),
-	     GlobalID(BAD_NUM){;}
+	     GlobalID(BAD_NUM),FL(BAD_NUM),FG(BAD_NUM),d(BAD_NUM),w(BAD_NUM){;}
 
   Double_t EnergySlope; ///<Slope for energy calibration of light output.
   Double_t EnergyIntercept; ///<Intercept for energy calibration of light output
@@ -88,10 +88,21 @@ public:
   /**The Global ID is the spot in the crate starting at the top left channel counting down and to the right
      (starting at zero).  Example the first channel in the second module would be ID=16*/
   Int_t GlobalID; 
+
+
+  Int_t FL;///<Timing filter Rise length
+  Int_t FG;///<Timing filter Gap Length
+  Int_t d;///<Timing filter CFD delay
+  Int_t w;///<Timing filter CFD scale factor
+  
+
   
   ///Print method to dump the above information
-  void Print(){cout<<FullName<<" "<<BarName<<" Slope "<<EnergySlope<<" Intercept "<<EnergyIntercept<<" Offset "
-		   <<TOFOffset<<" reference name "<<ReferenceName<<" RefGlobal "<<ReferenceGlobalID;}
+  void Print(){
+    cout<<"FullName "<<FullName<<" bar name "<<BarName<<" Global Id "<<GlobalID<<" reference name "<<ReferenceName<<" RefGlobal "<<ReferenceGlobalID<<endl;
+    cout<<"Pulse Height Slope "<<EnergySlope<<" Pulse Height Intercept "<<EnergyIntercept<<" Timing Offset "<<TOFOffset<<" Bar Angle "<<BarAngle<<endl;
+    cout<<"FL "<<FL<<" FG "<<FG<<" d "<<d<<" w "<<w<<endl;
+  }
 };
 
 
@@ -112,7 +123,7 @@ public:
   RefTimeContainer(Double_t v1,Double_t v2, Double_t v3) : RefTime(v1),RefSoftTime(v2),RefCubicTime(v3){;} //<Constrctor to set all parameters
   Double_t RefTime; ///<Reference time from modules time
   Double_t RefSoftTime;///<Reference time from offline linear algorithm
-  Double_t RefCubicTime;///<Reference time for offlien cubic algorithm
+  Double_t RefCubicTime;///<Reference time for offline cubic algorithm
 };
 
 
@@ -165,15 +176,15 @@ public:
 
 
 
-  void CalcTimeFilters(vector<UShort_t>& theTrace);///<Call the waveform timing analysis routines provided by the LendaFilter object
-  void CalcObjectTimeFilters(vector<UShort_t>& theTrace);///<Same as CalcTimeFilters, except uses object filter parameters
+  void CalcTimeFilters(vector<UShort_t>& theTrace,MapInfo info);///<Call waveform timing analysis routines provided by the LendaFilter object
 
-  void CalcEnergyGates(vector<UShort_t>& theTrace);///<Call the waveform energy analysis routines provided by the LendaFilter object
-  void CalcAll(ddaschannel * theChannel);///<Call all waveform analysis routines
+  void CalcEnergyGates(vector<UShort_t>& theTrace,MapInfo info);///<Call the waveform energy analysis routines provided by the LendaFilter object
+  void CalcAll(ddaschannel * theChannel,MapInfo info);///<Call all waveform analysis routines
 
+  void ForceAllBarFilters(Int_t FL, Int_t FG, Int_t d, Int_t w);
+  void ForceAllReferenceFilters(Int_t FL, Int_t FG, Int_t d, Int_t w);
+  void ForceAllFilters(Int_t FL, Int_t FG, Int_t d, Int_t w);
 
-  void SetFilter(Int_t _FL,Int_t _FG ,Int_t _d,Int_t _w);///<Set parameters for the waveform timing analysis routines
-  void SetObjectFilter(Int_t _FL, Int_t _FG, Int_t _d,Int_t _w);/// <Set parameters for waveform timing alanysis routines for object scint signals
   void SetGates(Double_t,Double_t,Double_t,Double_t);///<Set parameters for the waveform energy analysis routines
 
   inline void SetTraceDelay(Int_t x){traceDelay=x;}///<Set the trace delay value
@@ -253,9 +264,6 @@ private:
 
   Bool_t saveTraces;
 
-  Int_t fFL,fFG,fd,fw;
-
-  Int_t objFL,objFG,objd,objw;
 
   Double_t lg,sg,lg2,sg2;
   Int_t traceDelay;
@@ -277,7 +285,8 @@ private:
 
 
   string referenceChannelPattern;//A string to define what channel names will be considered the reference channels ex OBJ
-  
+
+  void UpdateSettings();
   R00TLeSettings * theSettings;
 
 };

@@ -28,7 +28,8 @@ public:
   void PrintChannelCorrections(string Name);
   void PrintChannelMapInfo(int GlobalID);
   void PrintChannelMapInfo(string Name);
-  
+  void PrintFilterInfo(string Name);
+
   double GetChannelsSlope(string Name){return TheEnergySlopes[Name];}
   double GetChannelsIntercept(string Name){return TheEnergyIntercepts[Name];}
   double GetChannelsTimeOffset(string Name){return TheTimingOffsets[Name];}
@@ -38,21 +39,24 @@ public:
 
   void AddCorrectionSettings(string Name,double slope,double inter,double toff);
   void AddMapSettings(string Name,int GlobalID,string RefName, int refGlobalID);
+  void AddFilterSettings(string Name,int FL,int FG,int d,int w);
+  
 
   void SetBarIds(map<string,int> v);
   
   inline Int_t GetNumBars(){return BarIds.size();}
 
-  void SetFilter(int fl_, int fg_ ,int d_, int w_){fl=fl_;fg=fg_;d=d_;w=w_;}
-  
-  void PrintFilterSettings(){
-    cout<<"FL: "<<fl<<" FG: "<<fg<<" d: "<<d<<" w: "<<w<<endl;
-  }
 
 private:
   map <string, double> TheTimingOffsets;
   map <string, double> TheEnergySlopes;
   map <string, double> TheEnergyIntercepts;
+
+  map <string,int> TheFLs;
+  map <string,int> TheFGs;
+  map <string,int> Theds;
+  map <string,int> Thews;
+  
   
   map <int, string> GlobalID2FullName;
   map <int, int> GlobalID2RefGlobalID;
@@ -65,7 +69,6 @@ private:
   map<int,string> BarId2Name;
 
 
-  int fl,fg,w,d;
 
 public:
   ClassDef(R00TLeSettings,1);
