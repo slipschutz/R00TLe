@@ -43,9 +43,9 @@ TGraphErrors* MakeProjectionPlot(TH2F* h , Double_t Start=0,Double_t End=16000,I
       if (status == 0){
 	//	cout<<temp->GetEntries()<<" "<<result->Value(2)*4*2.35*1000<<","<<h->GetYaxis()->GetBinCenter(TMath::Floor((StartBin+EndBin)/2))<<endl;
 
-	gr->SetPoint(PointCount,h->GetYaxis()->GetBinCenter(TMath::Nint((StartBin+EndBin)/2.0))/scale,result->Value(2)*4*2.35*1000/sqrt(2));
+	gr->SetPoint(PointCount,h->GetYaxis()->GetBinCenter(TMath::Nint((StartBin+EndBin)/2.0))/scale,result->Value(2)*4*2.35*1000/sqrt(1));
 
-	gr->SetPointError(PointCount,0,result->UpperError(2)*4*2.35*1000/sqrt(2));
+	gr->SetPointError(PointCount,0,result->UpperError(2)*4*2.35*1000/sqrt(1));
 	PointCount++;
       }
     }
