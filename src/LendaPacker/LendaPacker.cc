@@ -21,7 +21,7 @@
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
-   saveTraces=true;
+   saveTraces=false;
 
 
  }
@@ -163,8 +163,8 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
      start = theFilter.GetStartForPulseShape(MaxSpotInTrace);
      thisEventsIntegral = theFilter.GetEnergy(theTrace,MaxSpotInTrace);
 
-     longGate = theFilter.GetGate(theTrace,start,lg);
-     shortGate = theFilter.GetGate(theTrace,start,sg);
+     // longGate = theFilter.GetGate(theTrace,start,lg);
+     // shortGate = theFilter.GetGate(theTrace,start,sg);
 
    }
  }
