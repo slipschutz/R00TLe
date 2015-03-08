@@ -1,6 +1,6 @@
 # CRDC
 Crdc.File:			/user/e10003/R00TLe/prm/crdccal.dat
-Crdc.Ped.File:			/user/e10003/R00TLe/prm/crdcpedestals.dat
+Crdc.Ped.File:			/user/e10003/R00TLe/prm/crdcpedestals_real.dat
 BadPad.File:			/user/e10003/R00TLe/prm/BadPads.dat
 
 # Do fit?
