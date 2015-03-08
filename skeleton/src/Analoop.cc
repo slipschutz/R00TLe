@@ -239,10 +239,13 @@ void Analoop::SlaveTerminate() {
 
 void Analoop::Terminate() {
 
+  TheSettings = (R00TLeSettings*) fInput->FindObject("Settings0");
 
   cout<<"\n Writing histograms to "<<OutFileName<<endl;
   TFile out(OutFileName,"recreate");
   fOutput->Write();//Write all the histograms to disk
+  TheSettings->Write();
+
   out.Close();
 
   this->ResetAbort();
