@@ -183,7 +183,7 @@ Double_t FindComptonEdge(TH1D* theHisto,Double_t start,Double_t end,TString Name
   //histogram
  
   //First find the min before the compton edge
-  double theMinimum=100000;
+  double theMinimum=1000000;
   Int_t theBin=-1;
   Int_t numLowerInRow=0;
   Double_t previousValue=0;
@@ -236,7 +236,7 @@ Double_t FindComptonEdge(TH1D* theHisto,Double_t start,Double_t end,TString Name
     }
   }
 
-  //find the 90% of the max bin and the 10% of the max
+  //find the 93% of the max bin and the 15% of the max
 
   Int_t Max90Bin = -1;
   Int_t Max10Bin = -1;
@@ -245,7 +245,7 @@ Double_t FindComptonEdge(TH1D* theHisto,Double_t start,Double_t end,TString Name
 
     double binVal = theSmoothHisto->GetBinContent(i);
     
-    //    find the last bin that is above 90% of maximum
+    //    find the last bin that is above 93% of maximum
     if (binVal>= 0.93*MaxValue){
       Max90Bin=i;
     }
@@ -306,8 +306,8 @@ void CalibrateNAData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
 
   Double_t x[2];
   
-  x[0]=FindComptonEdge(theProjectionTop,1000,10000,BarName+"T_Nafunc1");
-  x[1]=FindComptonEdge(theProjectionTop,10000,30000,BarName+"T_Nafunc2");
+  x[0]=FindComptonEdge(theProjectionTop,2000,10000,BarName+"T_Nafunc1");
+  x[1]=FindComptonEdge(theProjectionTop,10000,80000,BarName+"T_Nafunc2");
   if ( x[0]!=0 && x[1]!=0){//if either are zero then there was a failed fit.  Don't do that one
     if (theGraphs.count(BarName+"T") !=0 ){
 
@@ -561,7 +561,7 @@ void CalibrateCSData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
   //Na1 Na2 Am1 Am2 Cs1 Cs2
 
 
-  int SmoothFudge=0;
+  int SmoothFudge=2;
 
   int PhotoPeakWindow=150;
 
@@ -633,7 +633,7 @@ void BuildListOfTGraphs(R00TLeSettings * theSettings){
 
 
 //
-//  the main
+//  the main here should be a comment block please add
 //
 
 int main(int argc,char**argv){
@@ -652,7 +652,6 @@ int main(int argc,char**argv){
   ss<<runNumber;
   TString file = rootfilesdirname + "/HistogramsFromRun"+ss.str().c_str()+".root";
   
-  TFile *theFile_Na = new TFile(file,"update");
 
 
 
@@ -685,18 +684,19 @@ int main(int argc,char**argv){
   map<string,Double_t> timingOffsetsFromFile;
   string NameInFile;
   Double_t trash,T_Offset;
-  while (true){
-    InCorrectionsFile>>NameInFile>>trash>>trash>>T_Offset;
-    if (InCorrectionsFile.eof()){
-      break;
-    }
-    timingOffsetsFromFile[NameInFile]=T_Offset;
-  }
+  // while (true){
+  //   InCorrectionsFile>>NameInFile>>trash>>trash>>T_Offset;
+  //   if (InCorrectionsFile.eof()){
+  //     break;
+  //   }
+  //   timingOffsetsFromFile[NameInFile]=T_Offset;
+  // }
 
 
 
 
-
+  TFile *theFile_Na = new TFile(file,"update");
+  
 
   ////////////////////////////////////////////////
   // Look for a R00TLeSettings Object in        //
@@ -715,16 +715,16 @@ int main(int argc,char**argv){
 
   BuildListOfTGraphs(theSettings);
 
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////
- 
-  cout<<"Analyzing NA DATA"<<endl;
+  
+  /*cout<<"Analyzing NA DATA"<<endl;
   for ( int i=0;i<numBars;i++){
 
     ////////////////////////////////////////////////
@@ -732,7 +732,7 @@ int main(int argc,char**argv){
     //Get the Bottom Energy vs time plot///////////
 
     name.str("");
-    name <<theSettings->GetBarName(i)<<"_TopEnergyVsTime";
+    name <<theSettings->GetBarName(i)<<"_TopE";
 
     TH2F * tempHistoTop = (TH2F*)gDirectory->Get(name.str().c_str());
     TH1D * theProjectionTop = GetRightTimeProjection(tempHistoTop);
@@ -741,7 +741,7 @@ int main(int argc,char**argv){
     ////////////////////////////////////////////////
     //Get the top Energy vs time plot///////////////
     name.str("");
-    name <<theSettings->GetBarName(i)<<"_BottomEnergyVsTime";
+    name <<theSettings->GetBarName(i)<<"_BottomE";
 
     TH2F * tempHistoBottom = (TH2F*)gDirectory->Get(name.str().c_str());
     TH1D * theProjectionBottom = GetRightTimeProjection(tempHistoBottom);
@@ -756,8 +756,8 @@ int main(int argc,char**argv){
     theProjectionBottom->Write("",TObject::kOverwrite);
 
   }//End for over bars
-
-
+  
+  */
   ////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -765,7 +765,8 @@ int main(int argc,char**argv){
   ////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
-  TFile * theFile_Am = new TFile(rootfilesdirname + TString("/HistogramsFromRun387.root"),"update");
+  /*
+  TFile * theFile_Am = new TFile(rootfilesdirname + TString("/HistogramsFromRun527.root"),"update");
   cout<<"Analyzing AM Data"<<endl;
   for ( int i=0;i<numBars;i++){
 
@@ -774,7 +775,7 @@ int main(int argc,char**argv){
     //Get the Bottom Energy vs time plot///////////
 
     name.str("");
-    name <<theSettings->GetBarName(i)<<"_TopEnergyVsTime";
+    name <<theSettings->GetBarName(i)<<"_TopE";
 
     TH2F * tempHistoTop = (TH2F*)gDirectory->Get(name.str().c_str());
     TH1D * theProjectionTop = GetRightTimeProjection(tempHistoTop);
@@ -783,7 +784,7 @@ int main(int argc,char**argv){
     ////////////////////////////////////////////////
     //Get the top Energy vs time plot///////////////
     name.str("");
-    name <<theSettings->GetBarName(i)<<"_BottomEnergyVsTime";
+    name <<theSettings->GetBarName(i)<<"_BottomE";
 
     TH2F * tempHistoBottom = (TH2F*)gDirectory->Get(name.str().c_str());
     TH1D * theProjectionBottom = GetRightTimeProjection(tempHistoBottom);
@@ -803,10 +804,10 @@ int main(int argc,char**argv){
   }//End for over bars
 
  
+  */
 
-
-
-  TFile * theFile_Cs = new TFile(rootfilesdirname + TString("/HistogramsFromRun388.root"),"update");
+  
+  TFile * theFile_Cs = new TFile(rootfilesdirname + TString("/HistogramsFromRun532.root"),"update");
   cout<<"Analyzing Cs Data"<<endl;
   for ( int i=0;i<numBars;i++){
     cout<<"ON bar "<<i<<endl;
@@ -815,7 +816,7 @@ int main(int argc,char**argv){
     //Get the Bottom Energy vs time plot///////////
 
     name.str("");
-    name <<theSettings->GetBarName(i)<<"_TopEnergyVsTime";
+    name <<theSettings->GetBarName(i)<<"_TopE";
 
     TH2F * tempHistoTop = (TH2F*)gDirectory->Get(name.str().c_str());
     TH1D * theProjectionTop = GetRightTimeProjection(tempHistoTop);
@@ -824,7 +825,7 @@ int main(int argc,char**argv){
     ////////////////////////////////////////////////
     //Get the top Energy vs time plot///////////////
     name.str("");
-    name <<theSettings->GetBarName(i)<<"_BottomEnergyVsTime";
+    name <<theSettings->GetBarName(i)<<"_BottomE";
 
     TH2F * tempHistoBottom = (TH2F*)gDirectory->Get(name.str().c_str());
     TH1D * theProjectionBottom = GetRightTimeProjection(tempHistoBottom);
@@ -847,7 +848,7 @@ int main(int argc,char**argv){
 
   }//End for over bars
 
-
+  
   
 
 
