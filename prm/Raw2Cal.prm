@@ -9,11 +9,11 @@ Crdc.X.Fit:			0
 Crdc.X.FitFunc:			1
 
 # CRDC position calibration
-Crdc.X.Offset.0:		-300.
+Crdc.X.Offset.0:		-279.55
 Crdc.X.Slope.0:			2.54
-Crdc.Y.Offset.0:		-103.97013
-Crdc.Y.Slope.0:			0.08239
-Crdc.X.Offset.1:		-300.
+Crdc.Y.Offset.0:		113.7
+Crdc.Y.Slope.0:			0.0749
+Crdc.X.Offset.1:		-278.2
 Crdc.X.Slope.1:			2.54
-Crdc.Y.Offset.1:		115.02531
-Crdc.Y.Slope.1:			-0.08071
+Crdc.Y.Offset.1:		119.89
+Crdc.Y.Slope.1:			-0.07501
