@@ -54,6 +54,10 @@ void S800Calibration::ReadCrdcCalibration(const char *filename, const char *pedf
 	 foffset[c][p] = crdccal->GetValue(Form("Crdc.%d.Offset.%03d",c,p),0.0);
       }
    }
+
+   // for (int p=0;p<S800_FP_CRDC_CHANNELS;p++){
+   //   std::cout<<fped[0][p]<<"   "<<fslope[0][p]<<"  "<<foffset[0][p]<<std::endl;
+   // }
 }
 
 // CRDC cathode bad pad
@@ -63,18 +67,10 @@ void S800Calibration::ReadCrdcBadPads(const char *filename){
       fbad[i].resize(bad->GetValue(Form("Crdc.%d.Nofbadpads",i),0));
       for(UShort_t k=0;k<fbad[i].size();k++){
 	 fbad[i][k] = bad->GetValue(Form("Crdc.%d.badpad.%d",i,k),0);
+	 // std::cout << i << " " << k << " " << fbad[i][k] << std::endl;
       }
    }
 }
-
-bool S800Calibration::IsCrdcBadPad(int ch){
-   for(UShort_t b=0;b<fbad[fcrdc.GetID()].size();b++){
-      if(ch==fbad[fcrdc.GetID()][b])
-	 return true;
-   }
-   return false;
-};
-
 
 void S800Calibration::CrdcCal(std::vector<Short_t> channel, std::vector<Short_t> data, Int_t id){
    Short_t index;
@@ -102,7 +98,7 @@ void S800Calibration::CrdcCal(std::vector<Short_t> channel, std::vector<Short_t>
 	 fcrdccal[ch] *= fslope[id][ch];
 	 fcrdccal[ch] += foffset[id][ch];
       } else {
-	 fcrdccal[ch]=sqrt(-1.0);
+	fcrdccal[ch]=0;//sqrt(-1.0);
       }
    }
    return ;
@@ -120,7 +116,6 @@ void S800Calibration::SetCrdc(std::vector<Short_t> channel, std::vector<Short_t>
    // for (int i = 0; i < channel.size(); i++) {
    //    std::cout << channel[i] << " " << data[i] << std::endl;
    // }
-
    double x = fSett->XOffset(id) + fSett->XSlope(id) * this->CalcX();
    double y = fSett->YOffset(id) + fSett->YSlope(id) * tac;
    fcrdc.SetX(x);
@@ -133,17 +128,19 @@ Float_t S800Calibration::CalcX(){
    // Cluster search
    Bool_t flg_clstr = kFALSE;
    Int_t  iclstr = -1;
-   const Int_t maxclstr = S800_FP_CRDC_CHANNELS; // maximum number of clusters (I know this is too many...)
+   const Int_t maxclstr = S800_FP_CRDC_CHANNELS;
+                             // maximum number of clusters (I know this is too many...)
    Int_t clstr[maxclstr][3];
    Float_t maxchg[maxclstr];
    Float_t maxpad[maxclstr];
-   const Float_t qmax = 25.; // MINUMUM value of max charge to be considered to form a cluster
+   const Float_t qmax = 25.; // MINUMUM value of max charge
+                             // to be considered to form a cluster
    const Float_t qthr =  8.; // MINUMUM value of charge to be considered to be hit
    Float_t tmp_qmax = 0.0;
    Int_t gclstr = 0;
   
    for (UShort_t i = 0; i < S800_FP_CRDC_CHANNELS; i++) {
-      if (IsCrdcBadPad(i)) continue;
+      if (IsBad(i)) continue;
       if ((flg_clstr == kFALSE) && (!std::isnan(fcrdccal[i]))) {
 	 flg_clstr = kTRUE;
 	 iclstr = iclstr + 1;
@@ -159,7 +156,8 @@ Float_t S800Calibration::CalcX(){
 	 flg_clstr = kFALSE;
 	 clstr[iclstr][1] = i - 1;
 	 clstr[iclstr][2] = i - clstr[iclstr][0];
-	 if (maxpad[iclstr] < qmax) {
+	 //if (maxpad[iclstr] < qmax) {
+         if (maxchg[iclstr] < qmax) { // As pointed out by Sasano-san 2015/3/9
 	    iclstr = iclstr - 1;
 	 }
       }
@@ -194,7 +192,7 @@ Float_t S800Calibration::CalcX(){
    Float_t sum_q = 0.0, sum_qx = 0.0, sum_qxx = 0.0;
 
    for (UShort_t i = clstr[gclstr][0]; i <= clstr[gclstr][1]; i++) {
-      if (IsCrdcBadPad(i)) continue;
+      if (IsBad(i)) continue;
       if (fcrdccal[i] < qthr) continue;
       sum_q   += fcrdccal[i];
       sum_qx  += fcrdccal[i] * i;
@@ -250,7 +248,7 @@ Float_t S800Calibration::CalcX(){
       fcrdc.SetFnorm(status.fnorm);
       return (Float_t)xfit;
    }
- 
+
    // If we do not do fit, return xcog
    return (Float_t)xcog;
 }

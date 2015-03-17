@@ -3,7 +3,8 @@ OBJS       = S800.o            S800Dictionary.o \
              S800Event.o       S800EventDictionary.o \
              S800Calc.o        S800CalcDictionary.o \
              S800Settings.o    S800SettingsDictionary.o \
-             S800Calibration.o lmmin.o lmcurve.o lmfit.o
+             S800Calibration.o S800CalibrationDictionary.o lmmin.o lmcurve.o lmfit.o 
+
 
 include $(R00TLeInstall)/src/common.mk
 

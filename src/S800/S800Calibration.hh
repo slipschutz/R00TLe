@@ -28,8 +28,14 @@ public:
 
    void ReadCrdcCalibration(const char* filename, const char* pedestalfile);
    void ReadCrdcBadPads(const char* filename);
-   bool IsCrdcBadPad(int ch);
-
+   //bool IsCrdcBadPad(int ch);
+   bool IsBad(int ch){
+     for(UShort_t b=0;b<fbad[fcrdc.GetID()].size();b++){
+       if(ch==fbad[fcrdc.GetID()][b])
+         return true;
+     }
+     return false;
+   };
  
    void S800Calculate(S800* in, S800Calc* out);
 
@@ -52,6 +58,7 @@ public:
 
    void SetTS800(Short_t ts800){fts800 = ts800;}
 
+  std::vector<Float_t> GetCRDCCal(){return fcrdccal;}
 private:
    S800Settings* fSett;
    std::vector<std::vector<Float_t> > fped;  
