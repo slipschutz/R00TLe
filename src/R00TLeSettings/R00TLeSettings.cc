@@ -28,13 +28,13 @@ void R00TLeSettings::AddMapSettings(string Name,int GlobalID,string RefName, int
   Name2GlobalID[Name]=GlobalID;
 }
 
-void R00TLeSettings::AddFilterSettings(string Name,int FL,int FG,int d,int w){
+void R00TLeSettings::AddFilterSettings(string Name,int FL,int FG,int d,int w,bool flag){
 
   TheFLs[Name]=FL;
   TheFGs[Name]=FG;
   Theds[Name]=d;
   Thews[Name]=w;
-  
+  TheDontTraceAnalyzeFlags[Name]=flag;
 }
 
 
@@ -62,8 +62,8 @@ void R00TLeSettings::PrintChannelMapInfo(int GlobalID){
 
 }
 void R00TLeSettings::PrintFilterInfo(string Name){
-  printf("Channel Name %6s has FL:%5d  FG:%5d d:%5d w:%5d \n",Name.c_str(),
-	 TheFLs[Name],TheFGs[Name],Theds[Name],Thews[Name]);
+  printf("Channel Name %6s has FL:%5d  FG:%5d d:%5d w:%5d NoTraceAnalysis:%5d \n",Name.c_str(),
+	 TheFLs[Name],TheFGs[Name],Theds[Name],Thews[Name],TheDontTraceAnalyzeFlags[Name]);
 
 }
 

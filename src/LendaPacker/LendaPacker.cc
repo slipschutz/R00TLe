@@ -125,7 +125,7 @@ void LendaPacker::CalcTimeFilters(vector<UShort_t> & theTrace,MapInfo info){
    // if there are trace present in the data preform timing related trace anaylsis  //
    // routines									   //
    ///////////////////////////////////////////////////////////////////////////////////
-   if (theTrace.size()!=0){
+   if (theTrace.size()!=0 && info.DontTraceAnalyze==false){
      theFilter.FastFilter(theTrace,thisEventsFF,FL,FG); //run FF algorithim
      // thisEventsCFD = theFilter.CFD(thisEventsFF,d,w); //run CFD algorithim
      thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,FL,FG,d,w);
@@ -144,6 +144,7 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
    // trace analysis routines 					    //
    ////////////////////////////////////////////////////////////////////
 
+  if (info.DontTraceAnalyze==false){
    if ( theTrace.size()!=0){
      if ( thisEventsFF.size() == 0 ){
        // the filter hasn't been calculated.  It is need 
@@ -168,7 +169,7 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
 
    }
  }
-
+}
  MapInfo LendaPacker::GetMapInfo(string FullName){
 
    return GlobalIDToMapInfo[FullLocalToGlobalID[FullName]];
@@ -217,9 +218,10 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
    while (std::getline(MapFile>>std::ws, line)){
    int FL,FG,d,w;
    FL=FG=d=w=0;
+   int dontTrace;
      if (line[0] != '#' ){
        std::istringstream iss(line);
-       iss>>slot>>channel>>name>>Angle>>ReferenceName>>FL>>FG>>d>>w;
+       iss>>slot>>channel>>name>>Angle>>ReferenceName>>FL>>FG>>d>>w>>dontTrace;
       
        //Make Global ID
        int spot= CHANPERMOD*(slot-2) + channel;
@@ -243,6 +245,7 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
        tempInfo.FG=FG;
        tempInfo.d=d;
        tempInfo.w=w;
+       tempInfo.DontTraceAnalyze=dontTrace;
 
        tempInfo.GlobalID=spot;
        tempInfo.FullName = name;
@@ -331,8 +334,8 @@ void LendaPacker::UpdateSettings(){
   
     theSettings->AddMapSettings(ii.second.FullName,GlobalID,ii.second.ReferenceName,ii.second.ReferenceGlobalID);
   
-    theSettings->AddFilterSettings(ii.second.FullName, ii.second.FL, ii.second.FG, ii.second.d, ii.second.w);
- 
+    theSettings->AddFilterSettings(ii.second.FullName, ii.second.FL, ii.second.FG, ii.second.d, ii.second.w,ii.second.DontTraceAnalyze);
+    
   }
 
   theSettings->SetBarIds(BarNameToUniqueBarNumber);

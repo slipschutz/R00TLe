@@ -39,7 +39,7 @@ public:
 
   void AddCorrectionSettings(string Name,double slope,double inter,double toff);
   void AddMapSettings(string Name,int GlobalID,string RefName, int refGlobalID);
-  void AddFilterSettings(string Name,int FL,int FG,int d,int w);
+  void AddFilterSettings(string Name,int FL,int FG,int d,int w,bool flag);
   
 
   void SetBarIds(map<string,int> v);
@@ -56,7 +56,7 @@ private:
   map <string,int> TheFGs;
   map <string,int> Theds;
   map <string,int> Thews;
-  
+  map <string,bool> TheDontTraceAnalyzeFlags;
   
   map <int, string> GlobalID2FullName;
   map <int, int> GlobalID2RefGlobalID;
@@ -71,7 +71,7 @@ private:
 
 
 public:
-  ClassDef(R00TLeSettings,1);
+  ClassDef(R00TLeSettings,2);
 };
 
 

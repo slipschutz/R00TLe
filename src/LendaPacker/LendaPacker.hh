@@ -95,7 +95,7 @@ public:
   Int_t d;///<Timing filter CFD delay
   Int_t w;///<Timing filter CFD scale factor
   
-
+  bool DontTraceAnalyze;
   
   ///Print method to dump the above information
   void Print(){
