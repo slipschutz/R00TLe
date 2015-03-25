@@ -332,7 +332,7 @@ int main(int argc, char* argv[])
 				      InputFile.Data());
 			      continue;
 			   }
-
+			   
 			   // Add decoded S800 instance to fS800
 			   s800event->SetS800(*s800);
 			   break;
@@ -346,8 +346,8 @@ int main(int argc, char* argv[])
 					 infile);
 			   bytes_read += (size_of_ring_item-2*sizeof(uint32_t))*sizeof(int8_t);
 			}
-		     }
-		  }
+		     }//end switch type of ring item
+		  }//end case S800SourceId
 		  break;
 	  
 		  // If source is neither DDAS nor S800, just skip the data
