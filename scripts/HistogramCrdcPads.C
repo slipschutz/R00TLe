@@ -39,10 +39,11 @@ void HistogramCrdcPads(int num=0){
   TH2F* IC_hist = new TH2F("IC_hist","IC_hist",1000,0,10000,1000,0,10000);
 
   S800Calibration calibration(new S800Settings());
-  calibration.ReadCrdcCalibration("/user/e10003/R00TLe/prm/crdccal_temp.dat","/user/e10003/R00TLe/prm/crdcpedestals_real.dat");
+  calibration.ReadCrdcCalibration("/user/e10003/R00TLe/prm/crdccal.dat","/user/e10003/R00TLe/prm/crdcpedestals_real.dat");
   S800Event * event= new S800Event();
   rawtree->SetBranchAddress("s800event",&event);
   int count =rawtree->GetEntries();
+
   for (int i=0;i<count;i++){
     rawtree->GetEntry(i);
 
@@ -56,12 +57,11 @@ void HistogramCrdcPads(int num=0){
     IC_hist->Fill(event->GetS800()->GetTimeOfFlight()->GetTACOBJ(),ICSum);
 
     int size = event->GetS800()->GetCrdc(0)->GetChannels().size();
-    
-    
+        
     calibration.CrdcCal(event->GetS800()->GetCrdc(0)->GetChannels(),event->GetS800()->GetCrdc(0)->GetData(),0);
 
-    if (ICSum>6800 && ICSum<8300 && TOF>1625 &&TOF<1680){
-
+    //if (ICSum>6800 && ICSum<8300 && TOF>1625 &&TOF<1680){
+    if (event->GetS800()->GetCrdc(0)->GetTAC() >350 && ICSum>6800 &&ICSum<8300){
       int size2=calibration.GetCRDCCal().size();
       double max =-1;
       int maxPad =-1;
@@ -72,7 +72,7 @@ void HistogramCrdcPads(int num=0){
       double maxP1=-1;
       double maxP2=-1;
 
-      
+
       for (int i=3;i<size2-3;i++){
 	double val = calibration.GetCRDCCal()[i];
 	if (val != 0 && val <8000){
@@ -86,9 +86,9 @@ void HistogramCrdcPads(int num=0){
 	    maxP1=calibration.GetCRDCCal()[i+1];
 	    maxP2=calibration.GetCRDCCal()[i+2];
 
-	  }
-	}
-      }
+	  }//end if 
+	}//end if 
+      }//end for 
       if (maxPad != -1){
 	PADGain->Fill(maxPad,max);
 	//	PADGain->Fill(maxPad-1,maxM1);

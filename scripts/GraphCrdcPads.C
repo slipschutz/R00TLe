@@ -29,12 +29,19 @@ void GraphCrdcPads(int num=0){
   S800Calibration calibration(new S800Settings());
   calibration.ReadCrdcCalibration("/user/e10003/R00TLe/prm/crdcal.dat","/user/e10003/R00TLe/prm/crdcpedestals_real.dat");
 
+
+  //calibration.SetCrdc(event->GetS800()->GetCrdc(0)->GetChannels(),event->GetS800()->GetCrdc(0)->GetData(),0,0,0);
+
   calibration.CrdcCal(event->GetS800()->GetCrdc(0)->GetChannels(),event->GetS800()->GetCrdc(0)->GetData(),0);
 
   int size2=calibration.GetCRDCCal().size();
   TGraph * graph = new TGraph();
   for (int i=0;i<size2;i++){
-    graph->SetPoint(i,i,calibration.GetCRDCCal()[i]);
+    if (TMath::IsNaN(calibration.GetCRDCCal()[i])){
+      graph->SetPoint(i,i,0);
+    }else {
+      graph->SetPoint(i,i,calibration.GetCRDCCal()[i]);
+    }
   }
   graph->Fit("gaus");
   graph->Draw("A*");

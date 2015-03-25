@@ -118,12 +118,36 @@ cp -r ${R00TLeInstall}/src/TimingAnalyzer/ .
 fi
 
 
-if [ ! -L ./evtfiles ]; then
-echo "Making sym link to evt files"
-    ln -s ${R00TLeEvtFilesPath} ./evtfiles
+
+
+
+if [ -e ./evtfiles ]; then
+    if [ -L ./evtfiles ]; then
+	rm -f ./evtfiles
+    else
+	echo 
+	echo "<R00TLeLogon.sh:Error> Cannot have file called 'evtfiles' must be a symlink to the evtfiles"
+	echo
+	return
+    fi
 fi
 
-if [ ! -L rootfiles ]; then
-    echo "Making sym link to root files"
-    ln -s ${R00TLeRootFilesPath} ./rootfiles
+echo "Making sym link to evt files"
+ln -s ${R00TLeEvtFilesPath} ./evtfiles
+
+
+if [ -e ./rootfiles ]; then
+    if [ -L ./rootfiles ]; then
+	rm -f ./rootfiles
+    else
+	echo 
+	echo "<R00TLeLogon.sh:Error> Cannot have file called 'rootfiles' must be a symlink to the rootfiles"
+	echo
+	return
+
+    fi
+
 fi
+
+echo "Making sym link to root files"
+ln -s ${R00TLeRootFilesPath} ./rootfiles
