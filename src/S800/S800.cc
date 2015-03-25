@@ -86,7 +86,9 @@ int S800::DecodeS800(unsigned short *pevent, unsigned short twords) {
     case S800_FP_HODO_PACKET:
       p = DecodeS800HodoScope(p);
       break;
-
+    case S800_VME_TDC_PACKET:
+      p = DecodeS800NewMultiHitTDC(p);
+      break;
     default: // S800_II_CRDC_PACKET, S800_II_TRACK_PACKET...
       p += plength - 2;
       break;
@@ -348,4 +350,102 @@ unsigned short* S800::DecodeS800CrdcRaw(unsigned short *p, int id){
     failed = 0;
   }
   return (pStore+length);
+}
+
+
+
+unsigned short* S800::DecodeS800NewMultiHitTDC(unsigned short *p){
+  //Data should be interpreted in 16-bit words 
+
+  //Declare temporay arrays to hold the raw data
+  unsigned short data[32][32];
+  signed short hits[32];
+  unsigned short raw[32];
+  for (int i=0;i<32;i++){
+    hits[i]=0;
+    raw[i]=0;
+    for (int j=0;j<32;j++){
+      data[i][j]=0;
+    }
+  }
+
+  UShort_t length, ch, hit;
+  length = *(p-2);
+  length -= 2;
+  while (length > 0) {
+    ch = (*p)&0xFF;
+    hit = (*p++)>>8;
+    if (hit < 32)
+      data[ch][hit] = *p++;
+    else
+      p++;
+    if (hit == 0) raw[ch] = data[ch][0];
+    if (hit > hits[ch]) hits[ch] = hit;
+    length -= 2;
+  }
+
+
+
+  if (raw[15] != 0) {
+    for (int i=0; i<13; i++) {
+      switch(i) {
+      case 0: // e1up
+	if (hits[0] >= 0){   
+	  fMultiHitTOF.fE1Up.push_back( (data[0][0] - raw[15]) * 0.0625);
+	}
+	break;
+      case 1: // e1down
+	if (hits[1] >= 0){
+	  fMultiHitTOF.fE1Down.push_back((data[1][0] - raw[15]) * 0.0625);
+	}
+	break;
+      case 2: // xf
+	if (hits[2] >= 0) {
+	  for (int j=0; j<=hits[2]; j++){
+	    fMultiHitTOF.fXf.push_back((data[2][j] - raw[15]) * 0.0625);
+	  }
+	}
+	break;
+      case 3: // obj
+	if (hits[3] >= 0) {
+	  for (int j=0; j<=hits[3]; j++){
+	    fMultiHitTOF.fObj.push_back( (data[3][j] - raw[15]) * 0.0625);
+	  }
+	}
+	break;
+      case 4: // galotte
+	if (hits[4] >= 0) {
+	  for (int j=0; j<=hits[4]; j++){
+	    fMultiHitTOF.fGalotte.push_back( (data[4][j] - raw[15]) * 0.0625);
+	  }
+	}
+	break;
+      case 5: // rf
+	if (hits[5] >= 0) {
+	  for (int j=0; j<=hits[5]; j++){
+	    fMultiHitTOF.fRf.push_back( (data[5][j] - raw[15]) * 0.0625);
+	  }
+	}
+	break;
+      case 12: // hodoscope
+	if (hits[12] >= 0) {
+	  for (int j=0; j<=hits[12]; j++){
+	    fMultiHitTOF.fHodoscope.push_back( (data[12][j] - raw[15]) * 0.0625);
+	  }
+	}
+	break;
+      default:
+	break;
+      }//end Switch i
+    }//end for i
+  }//end if raw[15]!=0
+
+  // cout<<"fNewTOF.fE1Up.size() "<<fNewTOF.fE1Up.size()<<endl;
+  // cout<<"fNewTOF.fE1Down.size() "<<fNewTOF.fE1Down.size()<<endl;
+  // cout<<"fNewTOF.obj.size() "<<fNewTOF.fObj.size()<<endl;
+
+  return p;
+
+
+
 }

@@ -9,5 +9,6 @@
 #pragma link C++ class GIonChamber+;
 #pragma link C++ class GHodoscope+;
 #pragma link C++ class GCrdc+;
+#pragma link C++ class GMultiHitTOF+;
 //#pragma link C++ class GTppac+;
 #endif

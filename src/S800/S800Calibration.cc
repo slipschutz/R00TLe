@@ -12,7 +12,7 @@
 #include "lmcurve.h"
 #include "lmmin.h"
 #include "lmfit.h"
-
+using namespace std;
 S800Calibration::S800Calibration(){
 }
 
@@ -98,7 +98,7 @@ void S800Calibration::CrdcCal(std::vector<Short_t> channel, std::vector<Short_t>
 	 fcrdccal[ch] *= fslope[id][ch];
 	 fcrdccal[ch] += foffset[id][ch];
       } else {
-	fcrdccal[ch]=0;//sqrt(-1.0);
+	fcrdccal[ch]=sqrt(-1.0);
       }
    }
    return ;
@@ -110,7 +110,13 @@ void S800Calibration::SetCrdc(std::vector<Short_t> channel, std::vector<Short_t>
    fcrdc.SetID(id);
    this->CrdcCal(channel,data,id);
    fcrdc.SetCal(fcrdccal);
-  
+   
+   //  cout<<"ID IS "<<id<<endl;
+   // for (int i=0;i<fcrdccal.size();i++){
+   //   cout<<fcrdccal[i]<<" ";
+   // }cout<<endl;
+   // cin.get();
+   
    // debug
    // std::cout << "\n" << id << std::endl;
    // for (int i = 0; i < channel.size(); i++) {
@@ -125,13 +131,14 @@ void S800Calibration::SetCrdc(std::vector<Short_t> channel, std::vector<Short_t>
 }
 
 Float_t S800Calibration::CalcX(){
+
    // Cluster search
    Bool_t flg_clstr = kFALSE;
    Int_t  iclstr = -1;
    const Int_t maxclstr = S800_FP_CRDC_CHANNELS;
                              // maximum number of clusters (I know this is too many...)
-   Int_t clstr[maxclstr][3];
-   Float_t maxchg[maxclstr];
+   Int_t clstr[maxclstr][3]; //clstr[][0] is left edge clstr[][1] right edge clstr[][2] is width
+   Float_t maxchg[maxclstr]; //
    Float_t maxpad[maxclstr];
    const Float_t qmax = 25.; // MINUMUM value of max charge
                              // to be considered to form a cluster
@@ -147,6 +154,7 @@ Float_t S800Calibration::CalcX(){
 	 clstr[iclstr][0] =  i; // leading edge
 	 clstr[iclstr][1] = -1; // trailing edge (tentative)
 	 maxchg[iclstr] = fcrdccal[i];
+	 maxpad[iclstr] = i;//Added by sam 3/19/2015 maybe is a good thing
       } else if ((flg_clstr == kTRUE) && (!std::isnan(fcrdccal[i]))) {
 	 if (fcrdccal[i] > maxchg[iclstr]) {
 	    maxchg[iclstr] = fcrdccal[i];
@@ -170,8 +178,17 @@ Float_t S800Calibration::CalcX(){
    }
 
    if (iclstr == 0) {
-      gclstr = 0;
+     //There is only one possible good cluster.  Use that one
+     gclstr = 0;
    } else if (iclstr > 0) {
+     //There is more than one possible good cluster.
+
+     /*********************************************************************
+       NOTE:   MAY HAVE TO THROW ALWAY EVENTS WITH MORE THAN ONE CLUSTER
+     **********************************************************************/
+    
+     //Will use the largest one 
+
       tmp_qmax = maxchg[0];
       // look for the GOOD cluster (gclstr) to be used to the analysis 
       // (the cluster with the max charge is used)
@@ -182,10 +199,14 @@ Float_t S800Calibration::CalcX(){
 	 }
       }
    } else {
+     //NO Clusters have been found return NAN
       return sqrt(-1.0);
    }
+
    fcrdc.SetMaxChg((Float_t)maxchg[gclstr]);
    fcrdc.SetMaxPad((Float_t)maxpad[gclstr]);
+   fcrdc.SetNumClusters(iclstr+1);//iclstr is 0 when there is 1 cluster 
+   fcrdc.SetMaxClusterWidth(clstr[gclstr][2]);
 
    Int_t j = 0;
    Double_t xpad[S800_FP_CRDC_CHANNELS], qcal[S800_FP_CRDC_CHANNELS]; // (I know this is too many...)
@@ -387,4 +408,21 @@ void S800Calibration::S800Calculate(S800* in, S800Calc* out){
    for (UShort_t s = 0; s < 3;  s++) {out->SetSCINT(scint[s],s);}
    for (UShort_t s = 0; s < 32; s++) {out->SetHODOSCOPE(hodoscope[s],s);}
    out->SetIC(ich);
+
+
+   //There is no calibration to do for the MultiHit TDC
+   //Just copy the information from the Raw S800 object
+   //into the S800Calc object
+   MultiHitTOF temp;   
+
+   temp.fE1Up = in->GetMultiHitTOF()->fE1Up;
+   temp.fE1Down = in->GetMultiHitTOF()->fE1Down;
+   temp.fXf = in->GetMultiHitTOF()->fXf;
+   temp.fObj = in->GetMultiHitTOF()->fObj;
+   temp.fGalotte= in->GetMultiHitTOF()->fGalotte;
+   temp.fRf= in->GetMultiHitTOF()->fRf;
+   temp.fHodoscope= in->GetMultiHitTOF()->fHodoscope;
+   
+   out->SetMultiHitTOF(temp);
+
 }

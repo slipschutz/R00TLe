@@ -35,6 +35,7 @@
 #define S800_FP_HODO_PACKET             0x58B0
 #define S800_TIMESTAMP_PACKET		0x5803
 #define S800_EVENT_NUMBER_PACKET        0x5804
+#define S800_VME_TDC_PACKET             0x58F0
 
 #define S800_CRDC_MAXWIDTH              32;
 #define S800_DEBUG                      0;// 0 false, 1 true

@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 #include "TObject.h"
-
+using namespace std;
 class S800;
 class S800Calibration;
 
@@ -79,7 +79,12 @@ public:
    void SetMaxChg(Float_t maxchg) {fmaxchg = maxchg;}
    void SetFitPrm(Short_t i, Float_t prm){ffitprm[i] = prm;}
    void SetFnorm(Float_t fnorm){ffnorm = fnorm;}
+   void SetNumClusters(Int_t n){fNumClusters=n;}
+   void SetMaxClusterWidth(Float_t w){fMaxClusterWidth=w;}
 
+   Int_t GetNumClusters(){return fNumClusters;}
+   Float_t GetMaxClusterWidth(){return fMaxClusterWidth;}
+   
    Int_t GetID(){return fid;}
    Float_t GetX(){return fx;}
    Float_t GetY(){return fy;}
@@ -106,14 +111,16 @@ protected:
    Float_t ftac;
    Float_t fanode;
    Float_t fcathode;
-   std::vector<Float_t> fcal;    //! transient data member
-   std::vector<Int_t> fchan;     //!
-   std::vector<Float_t> fypad;   //!
-   std::vector<Int_t> fxpad;     //!
-   Short_t fmaxpad;              //!
-   Float_t fmaxchg;              //!
-   std::vector<Float_t> ffitprm; //!
-   Float_t ffnorm;               //!
+   std::vector<Float_t> fcal;      //!
+   std::vector<Int_t> fchan;       //!   
+   std::vector<Float_t> fypad;     //!
+   std::vector<Int_t> fxpad;       //!
+   Short_t fmaxpad;              
+   Float_t fmaxchg;              
+   std::vector<Float_t> ffitprm;   //!
+   Float_t ffnorm;                 
+   Int_t fNumClusters;		   
+   Float_t fMaxClusterWidth;       
    ClassDef(CRDC, 1);
 };
 
@@ -165,6 +172,86 @@ protected:
 
    ClassDef(TOF, 1);
 };
+
+class MultiHitTOF  : public TObject {
+public:
+  MultiHitTOF(){
+    Clear();
+  }
+  ~MultiHitTOF(){
+    Clear();
+  }
+
+  void Clear(){
+    fE1Up.clear();
+    fE1Down.clear();
+    fXf.clear();
+    fObj.clear();
+    fGalotte.clear();
+    fRf.clear();
+    fHodoscope.clear();
+  }
+
+  Float_t GetFirstE1UpHit(){
+    if (fE1Up.size() !=0){
+      return fE1Up[0];
+    }else {
+      return sqrt(-1.0);
+    }
+  }
+  
+  Float_t GetFirstE1DownHit(){
+    if (fE1Down.size() !=0 ){
+      return fE1Down[0];
+    }else {
+      return sqrt(-1.0);
+    }
+  }
+  Float_t GetFirstXfHit(){
+    if (fXf.size()!=0){
+      return fXf[0];
+    }else {
+      return sqrt(-1.0);
+    }
+  }
+
+  Float_t GetFirstObjHit(){
+    if ( fObj.size()!=0){
+      return fObj[0];
+    }else {
+      return sqrt(-1.0);
+    }
+  }
+
+  Float_t GetFirstRfHit(){
+    if ( fRf.size()!=0){
+      return fRf[0];
+    }else {
+      return sqrt(-1.0);
+    }
+  }
+  
+  Float_t GetFirstHodoscopeHit(){
+    if ( fHodoscope.size()!=0){
+      return fHodoscope[0];
+    }else{
+      return sqrt(-1.0);
+    }
+  }
+
+
+  vector <Float_t> fE1Up;
+  vector <Float_t> fE1Down;
+  vector <Float_t> fXf;
+  vector <Float_t> fObj;
+  vector <Float_t> fGalotte;
+  vector <Float_t> fRf;
+  vector <Float_t> fHodoscope;
+  
+
+  ClassDef(MultiHitTOF,1);
+};
+
 
 //Scintillator fp trigger scint e1/e2/e3
 class SCINT : public TObject {
@@ -285,7 +372,10 @@ protected:
 };
 
 
-// Calculated S800
+/**Calibrated S800 Data Structure. Contains instances of the calibrated data 
+structure for each of the S800s detectors.  They are called 'CRDC', 'IC',
+'TOF', 'SCINT', 'HODOSCOPE' and 'MultiHitTOF'
+ */
 class S800Calc : public TObject {
 public:
    S800Calc(){}
@@ -309,6 +399,8 @@ public:
    void SetIC(IC ic){fIC = ic;}
    void SetSCINT(SCINT scint, int id){fSCINT[id] = scint;}
    void SetHODOSCOPE(HODOSCOPE hodoscope, int id) {fHODOSCOPE[id] = hodoscope;}
+  
+   void SetMultiHitTOF(MultiHitTOF f){fMultiHitTOF=f;}
 
    Float_t GetTimeS800(){return ftimes800;};
    CRDC* GetCRDC(int id){return &fCRDC[id];}
@@ -316,6 +408,8 @@ public:
    SCINT* GetSCINT(int id){return &fSCINT[id];}
    HODOSCOPE* GetHODOSCOPE(Int_t id) {return &fHODOSCOPE[id];}
    IC* GetIC(){return &fIC;}
+  
+   MultiHitTOF * GetMultiHitTOF(){return &fMultiHitTOF;}
 
    // timestamp
    void SetTS(long long int ts){fts = ts;}
@@ -332,6 +426,8 @@ protected:
    Float_t       ftimes800;
    long long int fts;  //timestamp global
    long long int fits; //timestamp internal
+  
+  MultiHitTOF fMultiHitTOF;
 
    ClassDef(S800Calc, 1);
 };

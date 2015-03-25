@@ -9,6 +9,8 @@
 //#include "PacketIDdefs.h"
 #include "S800defs.h"
 
+using namespace std;
+
 /**Raw data structure for S800 time of flight information.
 
  */
@@ -267,6 +269,42 @@ protected:
   ClassDef(GCrdc, 1);
 };
 
+/**Raw Data Strcture for the New Multi hit TDC
+ */
+class GMultiHitTOF  : public TObject {
+public:
+  GMultiHitTOF(){
+    Clear();
+  }
+  ~GMultiHitTOF(){
+    Clear();
+  }
+
+  void Clear(){
+
+    fE1Up.clear();
+    fE1Down.clear();
+    fXf.clear();
+    fObj.clear();
+    fGalotte.clear();
+    fRf.clear();
+    fHodoscope.clear();
+  }
+
+
+
+  vector <Float_t> fE1Up;
+  vector <Float_t> fE1Down;
+  vector <Float_t> fXf;
+  vector <Float_t> fObj;
+  vector <Float_t> fGalotte;
+  vector <Float_t> fRf;
+  vector <Float_t> fHodoscope;
+  
+
+  ClassDef(GMultiHitTOF,1);
+};
+
 /**Raw data structure for S800 as a whole.  Contains instances of 
    GTimeOfFlight GTrigger GScintillator GIonChamber  GHodoscope.  S800
    class will be a copy of the raw event information in the data stream.
@@ -280,6 +318,7 @@ public:
     Clear();
   }
   void Clear(){
+    fMultiHitTOF.Clear();
     fTof.Clear();
     fTrigger.Clear();
     for(int i=0;i<3;i++)
@@ -305,7 +344,10 @@ public:
   long long int GetInternalTS(){return fits;}
   long long int GetEvtNr(){return fevtnr;}
 
+  GMultiHitTOF * GetMultiHitTOF(){return &fMultiHitTOF;}
   int DecodeS800(unsigned short *pevent, unsigned short twords);
+
+
 
 protected:
   GTimeOfFlight fTof;
@@ -314,6 +356,8 @@ protected:
   GIonChamber fIonChamber;
   GHodoscope fHodoscope[32];
   GCrdc fCrdc[2];
+  GMultiHitTOF fMultiHitTOF;
+
   long long int fts;  //global
   long long int fits; //internal
   long long int fevtnr;
@@ -325,6 +369,8 @@ protected:
   unsigned short* DecodeS800TimeOfFlight(unsigned short *pevent);
   unsigned short* DecodeS800Trigger(unsigned short *pevent);
   unsigned short* DecodeS800HodoScope(unsigned short *pevent);
+
+  unsigned short* DecodeS800NewMultiHitTDC(unsigned short *pevent);
 
   ClassDef(S800, 1);
 };
