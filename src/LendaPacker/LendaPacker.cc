@@ -191,17 +191,19 @@ void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
 
    MapFile.open(ss.str().c_str());
    if (!MapFile.is_open()){
-     cout<<"Cable Map File not found"<<endl;
-     cout<<"Looking in "<<ss.str()<<endl;
-     cout<<"Make a MapFile"<<endl;
+     // cout<<"Cable Map File not found"<<endl;
+     // cout<<"Looking in "<<ss.str()<<endl;
+     // cout<<"Make a MapFile"<<endl;
+     Error("LendaPacker","Cannot find Map file.  Looking in %s",ss.str().c_str());
      throw -1;
    }
 
    CorrectionsFile.open(ss1.str().c_str());
    if ( ! CorrectionsFile.is_open()){
-     cout<<"Correction File not found"<<endl;
-     cout<<"Looking in "<<ss1.str()<<endl;
-     cout<<"Make a Corrections file"<<endl;
+     // cout<<"Correction File not found"<<endl;
+     // cout<<"Looking in "<<ss1.str()<<endl;
+     // cout<<"Make a Corrections file"<<endl;
+     Error("LendaPacker","Cannot find Corrections file. Looking in %s",ss1.str().c_str());
      throw -1;
    }
 
