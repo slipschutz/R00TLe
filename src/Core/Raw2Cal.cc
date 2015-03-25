@@ -126,6 +126,7 @@ int main(int argc, char* argv[])
    //Loop over the entirety of the input file.
    Int_t nbytes_read = 0;
    Int_t status;
+   //   nentries=500;
    for (Long64_t jentry = 0; jentry < nentries; jentry++) {
       if (signal_received) {
 	 break;
@@ -164,6 +165,14 @@ int main(int argc, char* argv[])
       outtree->Fill();
 
       loadBar(jentry, nentries, 1000, 50);
+      
+      s800event->Clear();
+      // Avoiding memory leak
+      for (uint i = 0; i < ddasevent->GetData().size(); i++) {
+      	delete ddasevent->GetData()[i];
+      }
+      ddasevent->GetData().clear(); //Clearing Vector
+
    }
 
    outtree->Write("",TObject::kOverwrite);
@@ -175,5 +184,13 @@ int main(int argc, char* argv[])
    sw->Print("u");
 
    outfile->Close();
+
+   delete TheR00TLeSettings;
+   delete sw;
+   delete s800event;
+   delete lendaevent;
+   delete cal;
+   delete set;
+   delete thePacker;
    return 0;
 }
