@@ -4,7 +4,7 @@
 
 
 
-void AlignTopAndBottomTOFs(string ArrayPart="NV"){
+void AlignTopAndBottomTOFs(string ArrayPart="NV",Float_t Start=-5,Float_t End=25){
   
   for (int bar=1;bar<13;bar++){
     stringstream nameTop;
@@ -46,22 +46,24 @@ void AlignTopAndBottomTOFs(string ArrayPart="NV"){
     int ForthOfBins = TMath::Floor(0.25* bins);
     int EighthOfBins = TMath::Floor( (1.0/8)* bins);
 
-    int NumberOfShifts = 2*ForthOfBins; // 1/4 of the number of bins *2 for left/right shifts
+    int NumberOfShifts = 2*EighthOfBins; // 1/8 of the number of bins *2 for left/right shifts
   
     int TopZeroBin = CurrentTop->GetMaximumBin();
   
+    int StartBin = CurrentTop->FindBin(Start);
+    int EndBin = CurrentTop->FindBin(End);
 
     //Find shift That moves Bottom -> Top
     vector <double> TheChi2s;
     vector <int> TheShifts;
     for (int i=0;i<NumberOfShifts;i++){
       double binShift = (i - NumberOfShifts/2);
-    
+
       double chi2=0;
       // cout<<"Looking in bin range "<<TopZeroBin-EighthOfBins<<" "<<TopZeroBin+EighthOfBins<<endl;
       // cout<<"That is from "<<CurrentTop->GetBinCenter(TopZeroBin-EighthOfBins)<<" "<<CurrentTop->GetBinCenter(TopZeroBin+EighthOfBins)<<endl;
 
-      for (int bin=TopZeroBin-EighthOfBins ;bin<TopZeroBin+EighthOfBins;bin++){
+      for (int bin=StartBin ;bin<EndBin;bin++){
 	double b = CurrentBottom->GetBinContent(bin + binShift);
 	double t = CurrentTop->GetBinContent(bin);
 	if (b !=0 && t!=0){

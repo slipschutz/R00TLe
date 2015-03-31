@@ -8,7 +8,7 @@ ROOTGLIBS  =   $(shell root-config --glibs) # does     include -lGui
 ROOTINC    = -I$(shell root-config --incdir)
 
 WARN_OPT   = -Wall -Wno-long-long #-pedantic 
-OPTIM_OPT  = -O3
+OPTIM_OPT  = -O0
 DEBUG_OPT  = -g
 POS_INDEP  = -fPIC
 LFLAGS     = $(DEBUG_OPT) $(POS_INDEP)
