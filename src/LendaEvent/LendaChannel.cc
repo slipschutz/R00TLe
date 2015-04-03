@@ -10,6 +10,10 @@ LendaChannel::~LendaChannel(){
   Clear();
 }
 void LendaChannel::Clear(){
+  rTimes.clear();
+  rEnergies.clear();
+  rCubicTimes.clear();
+
   _channel=BAD_NUM;
   _slot=BAD_NUM;
   _globalID=BAD_NUM;

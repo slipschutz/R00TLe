@@ -14,6 +14,14 @@
 #include <iostream>
 #define BAD_NUM -10008
 
+
+/**MACRO TO AUTOMATICALLY Create private member variable with a Getter and Setter
+   MAKE_VAR(Energy,Double_t) will make a private variable rEnergy.  Setter
+   Will be SetEnergy(const Double_t &) and Getter GetEnergy() const
+ */
+#define MAKE_VAR(X,Y) private: Y r##X;  public: void Set##X(const Y &val) {r##X=val;} Y Get##X() const{return r##X;}
+
+
 using namespace std;
 
 /**Lowest level container for DDAS information.  Each DDAS channel with have a coresponding LendaChannel object.
@@ -29,6 +37,12 @@ public:
 
   void Clear();///<Resets all the values in the LendaChannel.  Should be called after every write to a tree
   void Clear(Option_t *){Clear();}///<To suppress warnings about hidding clear in TObject
+  
+  MAKE_VAR(Energies,vector<Double_t>);
+  MAKE_VAR(Times,vector<Double_t>);
+  MAKE_VAR(CubicTimes,vector<Double_t>);
+
+
   
   inline Int_t GetChannel(){return _channel;}///<Gets DDAS channel number for this channel
   inline Int_t GetSlot(){return _slot;}///<Gets DDAS slot number for this channel

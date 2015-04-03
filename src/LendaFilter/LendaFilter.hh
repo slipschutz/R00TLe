@@ -17,7 +17,8 @@ public:
   LendaFilter();
   ~LendaFilter();
 
-  
+  /**Software implementation of Pixie-16 Fast Trigger fitler algorithm
+   */
   void FastFilter(std::vector <UShort_t> &trace,
 		  std::vector <Double_t> &thisEventsFF,Double_t FL,Double_t FG);
 
@@ -41,10 +42,16 @@ public:
   Double_t GetZeroCubic(std::vector <Double_t> &);
   Double_t GetZeroFitCubic(std::vector <Double_t> &);   
   
+  Double_t DoMatrixInversionAlgorithm(const std::vector <Double_t> & CFD, Int_t Spot);
+
   Double_t fitTrace(std::vector <UShort_t> &,Double_t, Double_t );
   
   Double_t GetEnergyOld(std::vector <UShort_t> &trace);
   Double_t GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot);
+
+  vector<Double_t> GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector<Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut);
+  
+  vector <Double_t> GetZeroCrossingHighRate(const std::vector <Double_t> & CFD,const std::vector<Int_t> & PeakSpots);
 
   Double_t GetGate(std::vector <UShort_t> &trace,int start,int L);
   

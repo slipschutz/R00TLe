@@ -344,16 +344,14 @@ void LendaPacker::UpdateSettings(){
 }
 
  LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
-   // if (info.IsAReferenceChannel){
-   //   CalcObjectTimeFilters(c->trace);
-   // }else{
-   //   CalcTimeFilters(c->trace);
-   // }
+    if (info.IsAReferenceChannel){
+      vector <Double_t> cfd = theFilter.CFD(
 
-   CalcTimeFilters(c->trace,info);
-
-   CalcEnergyGates(c->trace,info);
-
+    }else{
+      
+      CalcTimeFilters(c->trace,info);
+      CalcEnergyGates(c->trace,info);
+    }
    /////////////////////////////////////////////////////////////////////////////
    // Now all the member variables should have been set (if there are traces) //
    // in the data. Next begin packing all the results into the LendaChannel   //
@@ -482,7 +480,7 @@ void LendaPacker::UpdateSettings(){
      
      if ( it != GlobalIDToMapInfo.end()){ // the channel is in the map
        fullName = it->second.FullName;
-
+       
        if (fullName.find(referenceChannelPattern) != string::npos ){ //Special check for the reference channels
 	 //If the channel is one of the Object Scintillators
 	 LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
