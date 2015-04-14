@@ -33,7 +33,7 @@ public:
   LendaChannel();///<Defualt Constructor
   ~LendaChannel();///<Defualt Constructor
 
-  void ShowDiff(const LendaChannel&);
+  //  void ShowDiff(const LendaChannel&);
 
   void Clear();///<Resets all the values in the LendaChannel.  Should be called after every write to a tree
   void Clear(Option_t *){Clear();}///<To suppress warnings about hidding clear in TObject
@@ -43,177 +43,177 @@ public:
   MAKE_VAR(CubicTimes,vector<Double_t>);
   MAKE_VAR(PulseHeights,vector<Int_t>);
   
-
   
-  inline Int_t GetChannel(){return _channel;}///<Gets DDAS channel number for this channel
-  inline Int_t GetSlot(){return _slot;}///<Gets DDAS slot number for this channel
-  inline Int_t GetGlobalID(){return _globalID;}///<Gets the Global DDAS id for this channel
-  inline Int_t GetReferenceGlobalID(){return _refGlobalID;}///<Gets the Global DDAS id for the reference channel
-
-  inline Bool_t GetOverFlow(){return _overFlow;}///<Gets bit to check for overflows in the trace
-  inline Int_t GetNumZeroCrossings(){return _numZeroCrossings;}///<Gets number of ZeroCrossings in digital CFD
-
-  inline Double_t GetCorrectedEnergy(){return _correctedEnergy;}///<Get Corrected energy (baseline subtracted pulse integral from trace)
-  inline Double_t GetEnergy(){return _energy;}///<Gets energy (baseline subtracted pulse integral from trace)
-  inline Double_t GetInternalEnergy(){return _internalEnergy;}///<Gets result from internal energy filter
-  inline Int_t GetPulseHeight(){return _pulseHeight;}///<Gets max pulse height in trace
-  inline Int_t GetFilterHeight(){return _filterHeight;}///<Gets max height in the fast filter
-
-  inline Double_t GetTime(){return _time;}///<Gets the internal timestamp from module 
-  inline Double_t GetSoftTime(){return _softTime;}///<Gets the offline timestamp from the linear algorithm
-  inline Double_t GetCubicTime(){return _cubicTime;}///<Gets the offline timestamp from the cubic algorithm
-  inline Double_t GetCubicFitTime(){return _cubicFitTime;}///<Gets the offline timestamp from the cubic fit algorithm
-
-  inline Double_t GetCorrectedTime(){return _correctedTime;}///<Gets the time shift corrected internal timestamp
-  inline Double_t GetCorrectedCubicTime(){return _correctedCubicTime;}///<Gets the time shift corrected offline cubic time stamp
-  inline Double_t GetCorrectedCubicFitTime(){return _correctedCubicFitTime;} ///<Gets the time shift corrected cubic fit timestamp
-  inline Double_t GetCorrectedSoftTime(){return _correctedSoftTime;}///<Gets the time shift corrected offline linear time stamp
-
-  inline UInt_t GetCFDTrigBit(){return _CFDTrigBit;}///<Gets the CFD trigbit that is provided by the module 
   
-  inline Double_t GetSoftwareCFD(){return _softwareCFD;}///<Gets the sub clocktic postion of the zero crossing in the CFD starting from the beginning of the trace
-  inline Double_t GetCubicCFD(){return _cubicCFD;}///<Same as GetSoftwareCFD() except with the cubic algorithm
-  inline Double_t GetCubicFitCFD(){return _cubicFitCFD;}///<Same as GetSoftwareCFD() except with the cubic fit algorithm
-  inline Double_t GetInternalCFD(){return _internalCFD;}///<Sub clock tic portion of the internal time stamp.  Not from beginning of the trace
+  inline Int_t GetChannel(){return rChannel;}///<Gets DDAS channel number for this channel
+  inline Int_t GetSlot(){return rSlot;}///<Gets DDAS slot number for this channel
+  inline Int_t GetGlobalID(){return rGlobalID;}///<Gets the Global DDAS id for this channel
+  inline Int_t GetReferenceGlobalID(){return rRefGlobalID;}///<Gets the Global DDAS id for the reference channel
+
+  inline Bool_t GetOverFlow(){return rOverFlow;}///<Gets bit to check for overflows in the trace
+  inline Int_t GetNumZeroCrossings(){return rNumZeroCrossings;}///<Gets number of ZeroCrossings in digital CFD
+
+  inline Double_t GetCorrectedEnergy(){return rCorrectedEnergy;}///<Get Corrected energy (baseline subtracted pulse integral from trace)
+  inline Double_t GetEnergy(){return rEnergy;}///<Gets energy (baseline subtracted pulse integral from trace)
+  inline Double_t GetInternalEnergy(){return rInternalEnergy;}///<Gets result from internal energy filter
+  inline Int_t GetPulseHeight(){return rPulseHeight;}///<Gets max pulse height in trace
+  inline Int_t GetFilterHeight(){return rFilterHeight;}///<Gets max height in the fast filter
+
+  inline Double_t GetTime(){return rTime;}///<Gets the internal timestamp from module 
+  inline Double_t GetSoftTime(){return rSoftTime;}///<Gets the offline timestamp from the linear algorithm
+  inline Double_t GetCubicTime(){return rCubicTime;}///<Gets the offline timestamp from the cubic algorithm
+  inline Double_t GetCubicFitTime(){return rCubicFitTime;}///<Gets the offline timestamp from the cubic fit algorithm
+
+  inline Double_t GetCorrectedTime(){return rCorrectedTime;}///<Gets the time shift corrected internal timestamp
+  inline Double_t GetCorrectedCubicTime(){return rCorrectedCubicTime;}///<Gets the time shift corrected offline cubic time stamp
+  inline Double_t GetCorrectedCubicFitTime(){return rCorrectedCubicFitTime;} ///<Gets the time shift corrected cubic fit timestamp
+  inline Double_t GetCorrectedSoftTime(){return rCorrectedSoftTime;}///<Gets the time shift corrected offline linear time stamp
+
+  inline UInt_t GetCFDTrigBit(){return rCFDTrigBit;}///<Gets the CFD trigbit that is provided by the module 
+  
+  inline Double_t GetSoftwareCFD(){return rSoftwareCFD;}///<Gets the sub clocktic postion of the zero crossing in the CFD starting from the beginning of the trace
+  inline Double_t GetCubicCFD(){return rCubicCFD;}///<Same as GetSoftwareCFD() except with the cubic algorithm
+  inline Double_t GetCubicFitCFD(){return rCubicFitCFD;}///<Same as GetSoftwareCFD() except with the cubic fit algorithm
+  inline Double_t GetInternalCFD(){return rInternalCFD;}///<Sub clock tic portion of the internal time stamp.  Not from beginning of the trace
 
 
-  inline Double_t GetShortGate(){return _shortGate;}
-  inline Double_t GetLongGate() {return _longGate;}
+  inline Double_t GetShortGate(){return rShortGate;}
+  inline Double_t GetLongGate() {return rLongGate;}
 
-  inline Long64_t GetJentry(){return _jentry;}
+  inline Long64_t GetJentry(){return rJentry;}
 
-  inline UInt_t GetTimeLow(){return _timeLow;}///<Low bits of the internal time stamp
-  inline UInt_t GetTimeHigh(){return _timeHigh;}///<High bits of the internal time stamp
+  inline UInt_t GetTimeLow(){return rTimeLow;}///<Low bits of the internal time stamp
+  inline UInt_t GetTimeHigh(){return rTimeHigh;}///<High bits of the internal time stamp
 
-  vector <UShort_t> GetTrace(){return _trace;}///<Gets the trace if it was stored in the channel
-  vector <Double_t> GetFilter(){return _filter;}///<Gets the offline calculated fast filter if it was stored
-  vector <Double_t> GetCFD(){return _CFD;}///<Gets the offline calculated CFD if it was stored
+  vector <UShort_t> GetTrace(){return rTrace;}///<Gets the trace if it was stored in the channel
+  vector <Double_t> GetFilter(){return rFilter;}///<Gets the offline calculated fast filter if it was stored
+  vector <Double_t> GetCFD(){return rCFD;}///<Gets the offline calculated CFD if it was stored
 
-  inline Double_t GetCFDResidual(){return _CFDResidual;}///<Not important
-  inline Double_t GetReferenceTime(){return _refTime;}///<Gets the internal timestamp for the reference channel
-  inline Double_t GetCubicReferenceTime(){return _cubicRefTime;}///<Gets cubic timestamp for the reference channel
-  inline Double_t GetSoftReferenceTime(){return _softRefTime;}///<Gets the offline caclulated linear timestamp for the reference channel
+  inline Double_t GetCFDResidual(){return rCFDResidual;}///<Not important
+  inline Double_t GetReferenceTime(){return rRefTime;}///<Gets the internal timestamp for the reference channel
+  inline Double_t GetCubicReferenceTime(){return rCubicRefTime;}///<Gets cubic timestamp for the reference channel
+  inline Double_t GetSoftReferenceTime(){return rSoftRefTime;}///<Gets the offline caclulated linear timestamp for the reference channel
 
-  string GetChannelName(){return _channelName;}///<Gets the full channel name
-  string GetReferenceChannelName(){return _referenceChannelName;}///<Gets the full naem of the reference channel
+  string GetChannelName(){return rChannelName;}///<Gets the full channel name
+  string GetReferenceChannelName(){return rReferenceChannelName;}///<Gets the full naem of the reference channel
 
 
-  inline Double_t GetOtherTime(){return _otherTime;}
+  inline Double_t GetOtherTime(){return rOtherTime;}
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  void SetChannel(Int_t v){_channel=v;}
-  void SetSlot(Int_t v){_slot=v;}
-  void SetGlobalID(Int_t v){_globalID=v;}
-  void SetReferenceGlobalID(Int_t v){_refGlobalID=v;}
+  void SetChannel(Int_t v){rChannel=v;}
+  void SetSlot(Int_t v){rSlot=v;}
+  void SetGlobalID(Int_t v){rGlobalID=v;}
+  void SetReferenceGlobalID(Int_t v){rRefGlobalID=v;}
 
-  void SetOverFlow(Bool_t v){_overFlow=v;}
-  void SetNumZeroCrossings(Int_t v){ _numZeroCrossings=v;}
+  void SetOverFlow(Bool_t v){rOverFlow=v;}
+  void SetNumZeroCrossings(Int_t v){ rNumZeroCrossings=v;}
   
-  void SetCorrectedEnergy(Double_t v){ _correctedEnergy=v;}
-  void SetEnergy(Double_t v){ _energy=v;}
-  void SetInternalEnergy(Double_t v){_internalEnergy=v;}
-  void SetPulseHeight(Int_t v){ _pulseHeight=v;}
-  void SetFilterHeight(Int_t v){_filterHeight=v;}
+  void SetCorrectedEnergy(Double_t v){ rCorrectedEnergy=v;}
+  void SetEnergy(Double_t v){ rEnergy=v;}
+  void SetInternalEnergy(Double_t v){rInternalEnergy=v;}
+  void SetPulseHeight(Int_t v){ rPulseHeight=v;}
+  void SetFilterHeight(Int_t v){rFilterHeight=v;}
 
-  void SetTime(Double_t v){ _time=v;}
-  void SetSoftTime(Double_t v){_softTime=v;}
-  void SetCubicTime(Double_t v){_cubicTime=v;}
-  void SetCubicFitTime(Double_t v){_cubicFitTime=v;}
+  void SetTime(Double_t v){ rTime=v;}
+  void SetSoftTime(Double_t v){rSoftTime=v;}
+  void SetCubicTime(Double_t v){rCubicTime=v;}
+  void SetCubicFitTime(Double_t v){rCubicFitTime=v;}
 
-  void SetCorrectedTime(Double_t v){_correctedTime=v;}
-  void SetCorrectedCubicFitTime(Double_t v){_correctedCubicFitTime=v;}
-  void SetCorrectedSoftTime(Double_t v){_correctedSoftTime=v;}
-  void SetCorrectedCubicTime(Double_t v){_correctedCubicTime=v;}
+  void SetCorrectedTime(Double_t v){rCorrectedTime=v;}
+  void SetCorrectedCubicFitTime(Double_t v){rCorrectedCubicFitTime=v;}
+  void SetCorrectedSoftTime(Double_t v){rCorrectedSoftTime=v;}
+  void SetCorrectedCubicTime(Double_t v){rCorrectedCubicTime=v;}
 
 
-  void SetTimeLow(UInt_t v){_timeLow=v;}
-  void SetTimeHigh(UInt_t v){_timeHigh=v;}
+  void SetTimeLow(UInt_t v){rTimeLow=v;}
+  void SetTimeHigh(UInt_t v){rTimeHigh=v;}
   
 
-  void SetCFDTrigBit(UInt_t v){_CFDTrigBit=v;}
+  void SetCFDTrigBit(UInt_t v){rCFDTrigBit=v;}
    
-  void SetSoftwareCFD(Double_t v){_softwareCFD=v;}
-  void SetCubicCFD(Double_t v){_cubicCFD=v;}
-  void SetCubicFitCFD(Double_t v){_cubicFitCFD=v;}
-  void SetInternalCFD(Double_t v){_internalCFD=v;}
+  void SetSoftwareCFD(Double_t v){rSoftwareCFD=v;}
+  void SetCubicCFD(Double_t v){rCubicCFD=v;}
+  void SetCubicFitCFD(Double_t v){rCubicFitCFD=v;}
+  void SetInternalCFD(Double_t v){rInternalCFD=v;}
 
-  void SetShortGate(Double_t v){_shortGate=v;}
-  void SetLongGate(Double_t v) {_longGate=v;}
+  void SetShortGate(Double_t v){rShortGate=v;}
+  void SetLongGate(Double_t v) {rLongGate=v;}
   
-  void SetJentry(Long64_t v){_jentry=v;}
+  void SetJentry(Long64_t v){rJentry=v;}
 
-  void SetTrace(vector<UShort_t> v){_trace=v;}
-  void SetFilter(vector <Double_t> v){_filter=v;}
-  void SetCFD(vector <Double_t> v){_CFD=v;}
+  void SetTrace(vector<UShort_t> v){rTrace=v;}
+  void SetFilter(vector <Double_t> v){rFilter=v;}
+  void SetCFD(vector <Double_t> v){rCFD=v;}
 
-  void SetCFDResidual(Double_t v){_CFDResidual=v;}
+  void SetCFDResidual(Double_t v){rCFDResidual=v;}
 
-  void SetChannelName(string s){_channelName=s;}
-  void SetReferenceChannelName(string s){_referenceChannelName=s;}
+  void SetChannelName(string s){rChannelName=s;}
+  void SetReferenceChannelName(string s){rReferenceChannelName=s;}
   
-  void SetReferenceTime(Double_t v){_refTime=v;}
-  void SetCubicReferenceTime(Double_t v){_cubicRefTime=v;}
-  void SetSoftReferenceTime(Double_t v){_softRefTime=v;}
+  void SetReferenceTime(Double_t v){rRefTime=v;}
+  void SetCubicReferenceTime(Double_t v){rCubicRefTime=v;}
+  void SetSoftReferenceTime(Double_t v){rSoftRefTime=v;}
   //  LendaChannel & operator=(const LendaChannel &);
 
-  void SetOtherTime(Double_t v){_otherTime=v;}
+  void SetOtherTime(Double_t v){rOtherTime=v;}
   
   Bool_t operator==(const LendaChannel & RHS);
 
 private:
-  Int_t _channel;
-  Int_t _slot;
-  Int_t _globalID;
-  Int_t _refGlobalID;
+  Int_t rChannel;
+  Int_t rSlot;
+  Int_t rGlobalID;
+  Int_t rRefGlobalID;
 
   
-  Bool_t _overFlow;
-  Int_t _numZeroCrossings;
+  Bool_t rOverFlow;
+  Int_t  rNumZeroCrossings;
   
-  Double_t _correctedEnergy;
-  Double_t _energy;
-  Double_t _internalEnergy;
-  Int_t _pulseHeight;
-  Int_t _filterHeight;
+  Double_t rCorrectedEnergy;
+  Double_t rEnergy;
+  Double_t rInternalEnergy;
+  Int_t rPulseHeight;
+  Int_t rFilterHeight;
 
-  Double_t _time;
-  Double_t _softTime;
-  Double_t _cubicTime;
-  Double_t _cubicFitTime;
+  Double_t rTime;
+  Double_t rSoftTime;
+  Double_t rCubicTime;
+  Double_t rCubicFitTime;
 
-  Double_t _correctedTime;
-  Double_t _correctedCubicFitTime;
-  Double_t _correctedSoftTime;
-  Double_t _correctedCubicTime;
+  Double_t rCorrectedTime;
+  Double_t rCorrectedCubicFitTime;
+  Double_t rCorrectedSoftTime;
+  Double_t rCorrectedCubicTime;
 
-  UInt_t _timeLow;
-  UInt_t _timeHigh;
+  UInt_t rTimeLow;
+  UInt_t rTimeHigh;
 
-  Double_t _softwareCFD;
-  Double_t _cubicCFD;
-  Double_t _cubicFitCFD;
-  Double_t _internalCFD;
-  UInt_t _CFDTrigBit;
+  Double_t rSoftwareCFD;
+  Double_t rCubicCFD;
+  Double_t rCubicFitCFD;
+  Double_t rInternalCFD;
+  UInt_t rCFDTrigBit;
 
-  Double_t _shortGate;
-  Double_t _longGate;
+  Double_t rShortGate;
+  Double_t rLongGate;
   
-  Long64_t _jentry;
+  Long64_t rJentry;
   
-  vector <UShort_t> _trace;
-  vector <Double_t> _filter;
-  vector <Double_t> _CFD;
+  vector <UShort_t> rTrace;
+  vector <Double_t> rFilter;
+  vector <Double_t> rCFD;
 
-  Double_t _CFDResidual;
+  Double_t rCFDResidual;
 
-  string _channelName;
-  string _referenceChannelName;
+  string rChannelName;
+  string rReferenceChannelName;
 
-  Double_t _refTime;
-  Double_t _softRefTime;
-  Double_t _cubicRefTime;
+  Double_t rRefTime;
+  Double_t rSoftRefTime;
+  Double_t rCubicRefTime;
 
-  Double_t _otherTime;
+  Double_t rOtherTime;
   
 public:
   ClassDef(LendaChannel,4);
