@@ -39,9 +39,10 @@ public:
   void Clear(Option_t *){Clear();}///<To suppress warnings about hidding clear in TObject
   
   MAKE_VAR(Energies,vector<Double_t>);
-  MAKE_VAR(Times,vector<Double_t>);
+  MAKE_VAR(SoftwareTimes,vector<Double_t>);
   MAKE_VAR(CubicTimes,vector<Double_t>);
-
+  MAKE_VAR(PulseHeights,vector<Int_t>);
+  
 
   
   inline Int_t GetChannel(){return _channel;}///<Gets DDAS channel number for this channel
@@ -98,7 +99,7 @@ public:
 
 
   inline Double_t GetOtherTime(){return _otherTime;}
-
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   void SetChannel(Int_t v){_channel=v;}
   void SetSlot(Int_t v){_slot=v;}

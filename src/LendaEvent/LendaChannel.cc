@@ -10,9 +10,10 @@ LendaChannel::~LendaChannel(){
   Clear();
 }
 void LendaChannel::Clear(){
-  rTimes.clear();
+  rSoftwareTimes.clear();
   rEnergies.clear();
   rCubicTimes.clear();
+  rPulseHeights.clear();
 
   _channel=BAD_NUM;
   _slot=BAD_NUM;
