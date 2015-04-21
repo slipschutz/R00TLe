@@ -315,7 +315,7 @@ vector <Double_t> LendaFilter::GetZeroCrossingHighRate(const std::vector <Double
 
   std::vector <Double_t> thisEventsZeroCrossings(0);  
   for (auto i : PeakSpots){
-    for (int j=i;j< (int)CFD.size();j++) { 
+    for (int j=i;j< (int)CFD.size()-1;j++) { 
       if (CFD.at(j)>= 0 && CFD.at(j+1) < 0 ){
 	Double_t softwareCFD =j + CFD[j] / ( CFD[j] + TMath::Abs(CFD[j+1]) );
 	thisEventsZeroCrossings.push_back(softwareCFD);
@@ -328,6 +328,31 @@ vector <Double_t> LendaFilter::GetZeroCrossingHighRate(const std::vector <Double
   return thisEventsZeroCrossings;
 }
 
+
+vector <Double_t> LendaFilter::GetZeroCrossingCubicHighRate(const std::vector <Double_t> & CFD,const std::vector<Int_t> & PeakSpots){
+
+  std::vector <Double_t> thisEventsZeroCrossings(0);  
+  for (auto i : PeakSpots){
+    for (int j=i;j< (int)CFD.size()-1;j++) { 
+      if (CFD.at(j)>= 0 && CFD.at(j+1) < 0 ){
+	Double_t cubicCFD =DoMatrixInversionAlgorithm(CFD,j);
+	thisEventsZeroCrossings.push_back(cubicCFD);
+	j=CFD.size()+1000;
+	break;
+      }//end if 
+    }//end for j
+  }//end for i
+ 
+  return thisEventsZeroCrossings;
+}
+
+vector<Int_t> LendaFilter::GetPulseHeightHighRate(const std::vector <UShort_t> & trace,const std::vector<Int_t> &PeakSpots){
+  vector <Int_t> result;
+  for (auto & i : PeakSpots){
+    result.push_back(trace[i]);
+  }
+  return result;
+}
 
 
 #include <map>
@@ -705,7 +730,7 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
   Int_t TraceLength = trace.size();
   
   Int_t SampleSize=TMath::Floor(TraceLength/Float_t(NumberOfSamples));
-
+  Int_t Remainder = TraceLength-SampleSize*NumberOfSamples;
 
   //  Int_t SampleSize = TMath::Floor(fracForSample*TraceLength);
 
@@ -714,7 +739,7 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
 
   //First For each sample window find the average of those points
   //And find the Maximum point (will exclude the reamining points at the end of the 
-  //trace but probably don't want a maximum there anyway
+  //trace
   Double_t Max=0;
   Int_t MaxIndex=-1;
   for (int i=0;i <NumberOfSamples;i++){
@@ -730,7 +755,17 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
     }//end for over j
     Averages[i]/=SampleSize;
   }
+  ///Now look at the end of the trace to see if the maximum is there
+  for (int i=SampleSize*NumberOfSamples;i<TraceLength;i++){
+    Double_t val =trace[i];
+    if (val > Max){
+      Max=val;
+      MaxIndex=i;
+    }
+  }
+  
   MaxValueOut=Max;
+  MaxIndexOut=MaxIndex;
   
   map<Double_t,pair<int,int> > baseLineRanges;
   map<Double_t,Double_t> StandardDeviation2Average;
@@ -744,52 +779,59 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
 
   auto it = StandardDeviation2Average.begin();
   Double_t BaseLine = it->second;
-  
+
+
+  Double_t stanDev = TMath::Sqrt(it->first);
 
   //Now we have found the base line and the maximum point.  We look for other real pulses in trace
   //Look for other maximum in the trace that are greater than 30% of total max
-  Int_t ThresholdForOtherPulseInTrace=TMath::Floor(0.3*(Max-BaseLine));
+  Int_t ThresholdForOtherPulseInTrace=  TMath::Floor(30*stanDev);//0.10*BaseLine);    ///0.3*(Max-BaseLine));
   //  vector <int> IndexOfMaximums;
+
+  Int_t windowForEnergy=5;
+  Int_t EndTraceCut =2*windowForEnergy;
   Double_t currentMax=0;
- 
+  bool HasCrossedThreshold=false;
 
-  for (int i=0;i<TraceLength;i++){
+  for (int i=0;i<TraceLength-EndTraceCut;i++){
     Double_t val = trace[i]-BaseLine;
-    if (val > ThresholdForOtherPulseInTrace ){
-      if ( val >currentMax){
-	currentMax=val;
-      } else if (val <currentMax){
-
-	//Assuming reasonable pulseshape.  The max must be the point before this one
-	PeakSpots.push_back(i-1);
-	//reset the current max value
-	currentMax=0;
-	//Now must skip foward in time the around the length of one RF bucket
-	//IE the minimum amount of time before a second real pulse could be there
-	int index = i + 9;//(+9 because we are at i+1) 10 clock tics is 40 nanosecs
-	if (index > TraceLength - 10){
-	  //too close to end of trace.  End the search
-	  i=TraceLength+1000;
-	  break;
-	}else{
-	  //Skip foward to place
-	  i=index;
-	}
+    if (val > ThresholdForOtherPulseInTrace){
+      HasCrossedThreshold=true;
+    }
+    
+    if (val > currentMax){
+      currentMax=val;
+    } else if (val <currentMax && HasCrossedThreshold){
+      //Assuming reasonable pulseshape.  The max must be the point before this one
+      PeakSpots.push_back(i-1);
+      //reset the current max value
+      currentMax=0;
+      HasCrossedThreshold=false;
+      //Now must skip foward in time  around the length of one RF bucket
+      //IE the minimum amount of time before a second real pulse could be there
+      int index = i + 8;//(+8 because we are at i+1 and will get +1 again at end of loop) 10 clock tics is 40 nanosecs
+      if (index > TraceLength - windowForEnergy){
+	//too close to end of trace.  End the search
+	i=TraceLength+1000;
+	break;
+      }else{
+	//Skip foward to place
+	i=index;
+	    
       }//end else if for found max
-      
     }//End if above threshold
   }//end for 
-  
+
   //The Maximums have been found
   //Now finally we calculate pulse integrals
   vector <Double_t> theEnergies;
   for (auto i : PeakSpots){
     Double_t temp=0;
-    for (int j=-2;j<2;j++){
+    for (int j=-windowForEnergy;j<windowForEnergy;j++){
       temp+= (trace[i+j]-BaseLine);
     }
     theEnergies.push_back(temp);
-
+    //    cout<<"Energy window "<<i-windowForEnergy<<" to "<<i+windowForEnergy<<" "<<temp<<endl;
   }
   
 
@@ -1023,7 +1065,7 @@ vector <Double_t> LendaFilter::GetNewFirmwareCFD(const vector<UShort_t> & trace,
   Double_t S2=0;
   Double_t S3=0;
 
-  for(m=0; m<(CFDDelay+2*TFLength+TFGap-1); m++) {
+  for(m=0; m<(CFDDelay+2*TFLength+TFGap+1); m++) {
     CFDOut.push_back(0);
   }
 
