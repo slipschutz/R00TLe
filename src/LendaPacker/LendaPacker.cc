@@ -91,84 +91,170 @@ void LendaPacker::ForceAllFilters(Int_t FL, Int_t FG, Int_t d, Int_t w){
    //Clear the temporary filter vectors 
    thisEventsFF.clear();
    thisEventsCFD.clear();
+   
+   thisChannelsEnergies.clear();
+   thisChannelsPulseHeights.clear();
+  
+   thisChannelsSoftwareCFDs.clear();
+   thisChannelsCubicCFDs.clear();
 
+   thisChannelsPeakSpots.clear();
+
+
+   
    //Reset packer variables
-   thisEventsIntegral=0;
+
    thisEventsFilterHeight=0;
-   thisEventsPulseHeight=0;
+
    longGate=0;
    shortGate=0;
-   cubicCFD=0;
+
    cubicFitCFD=0;
-   softwareCFD=0;
+
    start=0;
-   numZeroCrossings=0;
-   CFDResidual=0;
+   thisChannelsNumZeroCrossings=0;
+   thisChannelsCFDResidual=0;
+
    jentry=-1;
 
  }
 
-void LendaPacker::CalcAll(ddaschannel*theChannel,MapInfo info){
-  CalcTimeFilters(theChannel->trace,info);
-  CalcEnergyGates(theChannel->trace,info);
- }
+void LendaPacker::CalcAll(ddaschannel* c,MapInfo info){
+  cout<<"<LendaPacker::CalcAll(ddaschannel*)> Not implemented yet"<<endl;
+}
+
+void LendaPacker::CalcAll(LendaChannel* c,MapInfo info){
+  cout<<"<LendaPacekr::CalcAll(LendaChannel*)> Not implemented yet"<<endl;
+
+}
 
 
 
-void LendaPacker::CalcTimeFilters(vector<UShort_t> & theTrace,MapInfo info){
+void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
 
+  //  CalcTimeFilters(theChannel->trace,info);
+  //  CalcEnergyGates(theChannel->trace,info);
+  //  vector <UShort_t> theTrace = theChannel->trace;
   Int_t FL=info.FL;
   Int_t FG=info.FG;
   Int_t d =info.d;
   Int_t w =info.w;
-   ///////////////////////////////////////////////////////////////////////////////////
-   // if there are trace present in the data preform timing related trace anaylsis  //
-   // routines									   //
-   ///////////////////////////////////////////////////////////////////////////////////
-   if (theTrace.size()!=0 && info.DontTraceAnalyze==false){
-     theFilter.FastFilter(theTrace,thisEventsFF,FL,FG); //run FF algorithim
-     // thisEventsCFD = theFilter.CFD(thisEventsFF,d,w); //run CFD algorithim
-     thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,FL,FG,d,w);
+  ///////////////////////////////////////////////////////////////////////////////////
+  // if there are trace present in the data preform timing related trace anaylsis  //
+  // routines									   //
+  ///////////////////////////////////////////////////////////////////////////////////
+  if (theTrace.size()!=0 && info.DontTraceAnalyze==false){
+    theFilter.FastFilter(theTrace,thisEventsFF,FL,FG); //run FF algorithim
+    // thisEventsCFD = theFilter.CFD(thisEventsFF,d,w); //run CFD algorithim
+    thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,FL,FG,d,w);
+    
+    //If this channel is NOT a reference channel run the basic algorithms 
+    if (! info.IsAReferenceChannel ){
+      
+      //Run the basic timing algorithms for this channel
+      thisChannelsSoftwareCFDs.push_back(theFilter.GetZeroCrossingImproved(thisEventsCFD,thisChannelsNumZeroCrossings,thisChannelsCFDResidual)); //find zeroCrossig of CFD
+      thisChannelsCubicCFDs.push_back(theFilter.GetZeroCubic(thisEventsCFD));
+      //cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
+      
+      Int_t MaxSpotInTrace_temp=-1;
+      Int_t MaxSpotInFilter_temp=-1;
+      //Since this not a reference channel push the maximum point on to the vector holding the pulseheights
+      //There will be just the one entry in the vector
+      thisChannelsPulseHeights.push_back(theFilter.GetMaxPulseHeight(theTrace,MaxSpotInTrace_temp));
+      
+      //For the filter things are not implemented as a vector
+      thisEventsFilterHeight=theFilter.GetMaxPulseHeight(thisEventsFF,MaxSpotInFilter_temp);
+      
+      thisChannelsEnergies.push_back(theFilter.GetEnergy(theTrace,MaxSpotInTrace_temp));
+      
+    } else {//This channel is a reference channel.  Perform the Highrate related algorithms
+      Double_t trash;
+      Int_t t;
+      thisChannelsEnergies = theFilter.GetEnergyHighRate(theTrace,thisChannelsPeakSpots,trash,t);
+      if (thisChannelsPeakSpots.size()!=0){
+	thisChannelsPulseHeights=theFilter.GetPulseHeightHighRate(theTrace,thisChannelsPeakSpots);
+	thisChannelsSoftwareCFDs=theFilter.GetZeroCrossingHighRate(thisEventsCFD,thisChannelsPeakSpots);
+	thisChannelsCubicCFDs= theFilter.GetZeroCrossingCubicHighRate(thisEventsCFD,thisChannelsPeakSpots);
+      }
+    }
+    if (thisChannelsPulseHeights.size()==0){
+      thisChannelsPulseHeights.push_back(BAD_NUM);
+    }
+    if(thisChannelsSoftwareCFDs.size()==0){
+      thisChannelsSoftwareCFDs.push_back(BAD_NUM);
+    }
+    if (thisChannelsCubicCFDs.size()==0){
+      thisChannelsCubicCFDs.push_back(BAD_NUM);
+    }
+    if(thisChannelsEnergies.size()==0){
+      thisChannelsEnergies.push_back(BAD_NUM);
+    }
+  }//end trace is not 0 and do trace analysis
+}
+
+
+
+void LendaPacker::CalcTimeFilters(vector<UShort_t> & theTrace,MapInfo info){
+  cout<<"NO CALL"<<endl;
+  throw -1;
+  /*  Int_t FL=info.FL;
+  Int_t FG=info.FG;
+  Int_t d =info.d;
+  Int_t w =info.w;
+  ///////////////////////////////////////////////////////////////////////////////////
+  // if there are trace present in the data preform timing related trace anaylsis  //
+  // routines									   //
+  ///////////////////////////////////////////////////////////////////////////////////
+  if (theTrace.size()!=0 && info.DontTraceAnalyze==false){
+    theFilter.FastFilter(theTrace,thisEventsFF,FL,FG); //run FF algorithim
+    // thisEventsCFD = theFilter.CFD(thisEventsFF,d,w); //run CFD algorithim
+    thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,FL,FG,d,w);
      
-     softwareCFD=theFilter.GetZeroCrossingImproved(thisEventsCFD,numZeroCrossings,CFDResidual); //find zeroCrossig of CFD
-     
-     cubicCFD = theFilter.GetZeroCubic(thisEventsCFD);
-     //    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
-   }
- }
+    //If this channel is NOT a reference channel run the basic algorithms for timing
+    if (! info.IsAReferenceChannel ){
+      thisChannelsSoftwareCFDs.push_back(theFilter.GetZeroCrossingImproved(thisEventsCFD,numZeroCrossings,CFDResidual)); //find zeroCrossig of CFD
+      thisChannelsCubicCFDs.push_back(theFilter.GetZeroCubic(thisEventsCFD));
+      //    cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
+ 
+    } else {//This channel is a reference channel.  Perform the Highrate related algorithms
+      thisChannelsEnergies = theFilter.GetEnergyHighRate(theTrace,thisChannelsPeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut);
+    }
+    }//end trace is not 0 and do trace analysis*/
+}
 
 void LendaPacker::CalcEnergyGates(vector<UShort_t> & theTrace, MapInfo info){
-
-   ////////////////////////////////////////////////////////////////////
-   // if there are traces present in the data preform energy related //
-   // trace analysis routines 					    //
-   ////////////////////////////////////////////////////////////////////
-
+  cout<<"No call "<<endl;
+  throw -1;
+  ////////////////////////////////////////////////////////////////////
+  // if there are traces present in the data preform energy related //
+  // trace analysis routines 					    //
+  ////////////////////////////////////////////////////////////////////
+  /*
   if (info.DontTraceAnalyze==false){
-   if ( theTrace.size()!=0){
-     if ( thisEventsFF.size() == 0 ){
-       // the filter hasn't been calculated.  It is need 
-       // To get the maximum Filter Height
-       theFilter.FastFilter(theTrace,thisEventsFF,info.FL,info.FG); //run FF algorithim
-     }
+    if ( theTrace.size()!=0){
+      if ( thisEventsFF.size() == 0 ){
+	// the filter hasn't been calculated.  It is need 
+	// To get the maximum Filter Height
+	theFilter.FastFilter(theTrace,thisEventsFF,info.FL,info.FG); //run FF algorithim
+      }
 
 
 
-     Int_t MaxSpotInTrace=0;
-     Int_t MaxSpotInFilter=0;
+      Int_t MaxSpotInTrace=0;
+      Int_t MaxSpotInFilter=0;
 
-     thisEventsPulseHeight=theFilter.GetMaxPulseHeight(theTrace,MaxSpotInTrace);
-     thisEventsFilterHeight=theFilter.GetMaxPulseHeight(thisEventsFF,MaxSpotInFilter);
+      thisEventsPulseHeight=theFilter.GetMaxPulseHeight(theTrace,MaxSpotInTrace);
+      thisEventsFilterHeight=theFilter.GetMaxPulseHeight(thisEventsFF,MaxSpotInFilter);
 
 
-     start = theFilter.GetStartForPulseShape(MaxSpotInTrace);
-     thisEventsIntegral = theFilter.GetEnergy(theTrace,MaxSpotInTrace);
+      start = theFilter.GetStartForPulseShape(MaxSpotInTrace);
+      thisEventsIntegral = theFilter.GetEnergy(theTrace,MaxSpotInTrace);
 
-     // longGate = theFilter.GetGate(theTrace,start,lg);
-     // shortGate = theFilter.GetGate(theTrace,start,sg);
+      // longGate = theFilter.GetGate(theTrace,start,lg);
+      // shortGate = theFilter.GetGate(theTrace,start,sg);
 
-   }
- }
+    }
+    }*/
 }
  MapInfo LendaPacker::GetMapInfo(string FullName){
 
@@ -344,18 +430,15 @@ void LendaPacker::UpdateSettings(){
 }
 
  LendaChannel LendaPacker::DDASChannel2LendaChannel(ddaschannel* c,MapInfo info){
-    if (info.IsAReferenceChannel){
-      vector <Double_t> cfd = theFilter.CFD(
+   vector <UShort_t> theTrace = c->GetTrace();
+   CalcAll(theTrace,info);
+   
+   ///////////////////////////////////////////////////////////////////////////////////////
+   // CalcAll has done all the waveform analysis and put the results into temporary     //
+   // member variables of LendaPacker.  Now all things (basic info and calculated info) //
+   // will be copied into the lendachannel object				        //
+   ///////////////////////////////////////////////////////////////////////////////////////
 
-    }else{
-      
-      CalcTimeFilters(c->trace,info);
-      CalcEnergyGates(c->trace,info);
-    }
-   /////////////////////////////////////////////////////////////////////////////
-   // Now all the member variables should have been set (if there are traces) //
-   // in the data. Next begin packing all the results into the LendaChannel   //
-   /////////////////////////////////////////////////////////////////////////////
    LendaChannel tempLenda;
 
    tempLenda.SetChannel(c->chanid);
@@ -366,11 +449,7 @@ void LendaPacker::UpdateSettings(){
 
    tempLenda.SetChannelName(info.FullName);
    tempLenda.SetReferenceChannelName(info.ReferenceName);
-
-   tempLenda.SetEnergy(thisEventsIntegral);
-   tempLenda.SetPulseHeight(thisEventsPulseHeight);
    tempLenda.SetInternalEnergy(c->energy);
-   tempLenda.SetFilterHeight(thisEventsFilterHeight);
 
    tempLenda.SetTime(c->time);
    tempLenda.SetTimeLow(c->timelow);
@@ -378,12 +457,16 @@ void LendaPacker::UpdateSettings(){
    tempLenda.SetCFDTrigBit(c->GetCFDTriggerSourceBit());
    tempLenda.SetInternalCFD(c->timecfd/16384.0);
 
-
+   tempLenda.SetTrace(c->trace);
    if (saveTraces){
      tempLenda.SetTrace(c->trace);
    }
 
-   PackCalculatedValues(&tempLenda,info);
+   if (info.DontTraceAnalyze==false){
+     //If there is not trace analysis for this channel
+     //don't call PackCalculatedValues
+     PackCalculatedValues(&tempLenda,info);
+   }
 
    //RESET THE PACKERS VARIABLES
    Reset();
@@ -392,17 +475,32 @@ void LendaPacker::UpdateSettings(){
  }
 
  void LendaPacker::PackCalculatedValues(LendaChannel* theChannel,MapInfo & info){
-   theChannel->SetSoftTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0) +softwareCFD);
-   theChannel->SetCubicTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+cubicCFD);
-   theChannel->SetCubicFitTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+cubicFitCFD);
+   Double_t CorseTime =2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0);
 
-   Double_t Temp=cubicCFD-TMath::Floor(cubicCFD);
-   theChannel->SetOtherTime(2*(theChannel->GetTimeLow() + theChannel->GetTimeHigh() * 4294967296.0)+Temp -theChannel->GetCFDTrigBit());
 
-   theChannel->SetSoftwareCFD(softwareCFD);
-   theChannel->SetCubicCFD(cubicCFD);
+   theChannel->SetSoftwareCFD(thisChannelsSoftwareCFDs[0]);
+   theChannel->SetCubicCFD(thisChannelsCubicCFDs[0]);
    theChannel->SetCubicFitCFD(cubicFitCFD);
+   theChannel->SetFilterHeight(thisEventsFilterHeight);
+   
 
+   //Now set the vectors for when this channel was a reference channel
+   vector <Double_t> TempTimes;
+   vector <Double_t> TempCubicTimes;
+   for (int i=0;i<(int)thisChannelsSoftwareCFDs.size();i++){
+     TempTimes.push_back( CorseTime + thisChannelsSoftwareCFDs[i]);
+     TempCubicTimes.push_back( CorseTime + thisChannelsCubicCFDs[i]);
+   }
+   
+   //
+   //Setting the vectors for the Times/energies will allow one to
+   //call GetEnergy() or GetEnergies() from the Lendachannel.
+   //GetEnergy() will just return the first one
+   theChannel->SetEnergies(thisChannelsEnergies);
+   theChannel->SetSoftwareTimes(TempTimes);
+   theChannel->SetCubicTimes(TempCubicTimes);
+   theChannel->SetPulseHeights(thisChannelsPulseHeights);
+   
 
    if (saveTraces){
      theChannel->SetFilter(thisEventsFF);
@@ -412,16 +510,16 @@ void LendaPacker::UpdateSettings(){
    theChannel->SetShortGate(shortGate);
 
    theChannel->SetJentry(jentry);
-   theChannel->SetNumZeroCrossings(numZeroCrossings);
-   theChannel->SetCFDResidual(CFDResidual);
+   theChannel->SetNumZeroCrossings(thisChannelsNumZeroCrossings);
+   theChannel->SetCFDResidual(thisChannelsCFDResidual);
 
 
    if (info.HasCorrections){
-    theChannel->SetCorrectedEnergy( thisEventsIntegral*info.EnergySlope + info.EnergyIntercept);
-    theChannel->SetCorrectedTime( theChannel->GetTime() - info.TOFOffset);
-    theChannel->SetCorrectedSoftTime(theChannel->GetSoftTime()-info.TOFOffset);
-    theChannel->SetCorrectedCubicFitTime( theChannel->GetCubicFitTime() - info.TOFOffset);
-    theChannel->SetCorrectedCubicTime( theChannel->GetCubicTime() - info.TOFOffset);
+     theChannel->SetCorrectedEnergy( theChannel->GetEnergy()*info.EnergySlope + info.EnergyIntercept);
+     theChannel->SetCorrectedTime( theChannel->GetTime() - info.TOFOffset);
+     theChannel->SetCorrectedSoftTime(theChannel->GetSoftTime()-info.TOFOffset);
+     theChannel->SetCorrectedCubicFitTime( theChannel->GetCubicFitTime() - info.TOFOffset);
+     theChannel->SetCorrectedCubicTime( theChannel->GetCubicTime() - info.TOFOffset);
    }
 
  }
@@ -477,7 +575,7 @@ void LendaPacker::UpdateSettings(){
 
      map<int,MapInfo>::iterator it = GlobalIDToMapInfo.find(id);//Look for this channel in the MapInfo Map
      string fullName;
-     
+     SetJEntry(jentry);  
      if ( it != GlobalIDToMapInfo.end()){ // the channel is in the map
        fullName = it->second.FullName;
        
@@ -485,7 +583,7 @@ void LendaPacker::UpdateSettings(){
 	 //If the channel is one of the Object Scintillators
 	 LendaChannel Temp = DDASChannel2LendaChannel(theDDASChannels[i],it->second);
 	 //store the times in reference time map for later
-	 GlobalIDToReferenceTimes[id] = RefTimeContainer(Temp.GetTime(),Temp.GetSoftTime(),Temp.GetCubicTime());
+	 GlobalIDToReferenceTimes.insert(make_pair(id,RefTimeContainer(&Temp)));
 	 
 	 //Copy the Temp lendachannel into the multimap.  They are automatically sorted by their name
 	 //The channels will be packed into the LendaEent later below
@@ -494,7 +592,7 @@ void LendaPacker::UpdateSettings(){
        }else if (fullName == "IGNORE"){ //Special check for IGNORE
 	 //Do nothing
        } else { //It is a LENDA BAR
-	 SetJEntry(jentry);  
+
 	 //Get the bar name from the MapInfo object
 	 //NOTE: it is the iterator for the GlobalIDToMapInfo container
 	 string nameOfBar=it->second.BarName;
@@ -549,17 +647,25 @@ void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBa
   for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();ii!=ThisEventsBars.end();ii++){
     //Loop over all tops in this bar
     for (int t=0;t<ii->second.Tops.size();t++){
-      RefTimeContainer * temp = &GlobalIDToReferenceTimes[ii->second.Tops[t].GetReferenceGlobalID()];
-      ii->second.Tops[t].SetReferenceTime(temp->RefTime);
-      ii->second.Tops[t].SetSoftReferenceTime(temp->RefSoftTime);
-      ii->second.Tops[t].SetCubicReferenceTime(temp->RefCubicTime);
+      auto refIt = GlobalIDToReferenceTimes.find(ii->second.Tops[t].GetReferenceGlobalID());
+      if (refIt !=GlobalIDToReferenceTimes.end()){
+	RefTimeContainer * temp = &refIt->second;
+	temp->Test();
+	ii->second.Tops[t].SetReferenceTime(temp->RefTime);
+	ii->second.Tops[t].SetSoftwareReferenceTimes(temp->RefSoftTime);
+	ii->second.Tops[t].SetCubicReferenceTimes(temp->RefCubicTime);
+      }
     }
     //Loop over all bottoms in this bar
     for (int b=0;b<ii->second.Bottoms.size();b++){
-      RefTimeContainer * temp = &GlobalIDToReferenceTimes[ii->second.Bottoms[b].GetReferenceGlobalID()];
-      ii->second.Bottoms[b].SetReferenceTime(temp->RefTime);
-      ii->second.Bottoms[b].SetSoftReferenceTime(temp->RefSoftTime);
-      ii->second.Bottoms[b].SetCubicReferenceTime(temp->RefCubicTime);
+      auto refIt= GlobalIDToReferenceTimes.find(ii->second.Bottoms[b].GetReferenceGlobalID());
+      if (refIt !=GlobalIDToReferenceTimes.end()){
+	RefTimeContainer * temp = &refIt->second;
+	temp->Test();
+	ii->second.Bottoms[b].SetReferenceTime(temp->RefTime);
+	ii->second.Bottoms[b].SetSoftwareReferenceTimes(temp->RefSoftTime);
+	ii->second.Bottoms[b].SetCubicReferenceTimes(temp->RefCubicTime);
+      }
     }
     //Add the LendaBar Objects to the lendaEvent
     Event->PushABar(ii->second);
@@ -580,18 +686,18 @@ void LendaPacker::RePackChannel(LendaChannel *channel,bool isAnObject){
   if (it != GlobalIDToMapInfo.end() ){ //This global ID is in the map file
     MapInfo info = it->second;//Get the mapinfo object from map
     
-    Reset();//Reseet the Packers variables
+    Reset();//Reset the Packers variables
     if ( channel->GetTrace().size() !=0 ){//There is a trace
-      vector<UShort_t> theTrace =channel->GetTrace();
-      
-      CalcTimeFilters(theTrace,info);
-      
-      CalcEnergyGates(theTrace,info);
+      vector <UShort_t> theTrace =channel->GetTrace();
+      CalcAll(theTrace,info);
+
     }
     //Set the waveform analysis results to the channel.
     //including things like energy cubic times and
     //the corrected times and energies
-    PackCalculatedValues(channel,info);
+    if (info.DontTraceAnalyze==false){
+      PackCalculatedValues(channel,info);
+    }
   }else {//This Global Id has no map information
 
 
@@ -630,9 +736,7 @@ void LendaPacker::ReMakeLendaEvent(LendaEvent* inEvent,LendaEvent* outEvent){
     outEvent->TheObjectScintillators.push_back(inEvent->TheObjectScintillators[i]);//Copy a Obj Scint.
     LendaChannel * thisObjectScintillator = &(outEvent->TheObjectScintillators[i]);
     RePackChannel(thisObjectScintillator,true);
-    GlobalIDToReferenceTimes[thisObjectScintillator->GetGlobalID()]=RefTimeContainer(thisObjectScintillator->GetTime(),
-										     thisObjectScintillator->GetSoftTime(),
-										     thisObjectScintillator->GetCubicFitTime());
+    GlobalIDToReferenceTimes.insert(make_pair(thisObjectScintillator->GetGlobalID(),RefTimeContainer(thisObjectScintillator)));
   }
   
   // for (auto & i : GlobalIDToReferenceTimes){

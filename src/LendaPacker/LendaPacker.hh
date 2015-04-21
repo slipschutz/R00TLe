@@ -112,18 +112,38 @@ public:
 
 
 
-
+#include <assert.h>
 
 /**RefTimeContainer is a small container class.  It will hold the different types of times that  
 will be set as the reference times for a particular channel		      
 */
 class RefTimeContainer{
 public:
-  RefTimeContainer(): RefTime(0),RefSoftTime(0),RefCubicTime(0){} ///<defualt constructor 
-  RefTimeContainer(Double_t v1,Double_t v2, Double_t v3) : RefTime(v1),RefSoftTime(v2),RefCubicTime(v3){;} //<Constrctor to set all parameters
+  //  RefTimeContainer(){} ///<defualt constructor 
+  RefTimeContainer(LendaChannel* c){ //<Constrctor to set all parameters
+    RefTime = c->GetTime();
+    RefSoftTime= c->GetSoftwareTimes();
+    RefCubicTime=c->GetCubicTimes();
+    if (RefSoftTime.size() == 0){
+      throw "SOFT";
+    }
+    if (RefCubicTime.size()==0){
+      throw "CUBIC";
+    }
+  }
+
+  void Test(){
+    if (RefSoftTime.size() == 0){
+      throw "SOFT";
+    }
+    if (RefCubicTime.size()==0){
+      throw "CUBIC";
+    }
+  }
+  
   Double_t RefTime; ///<Reference time from modules time
-  Double_t RefSoftTime;///<Reference time from offline linear algorithm
-  Double_t RefCubicTime;///<Reference time for offline cubic algorithm
+  vector<Double_t> RefSoftTime;///<Reference time from offline linear algorithm
+  vector<Double_t> RefCubicTime;///<Reference time for offline cubic algorithm
 };
 
 
@@ -179,7 +199,11 @@ public:
   void CalcTimeFilters(vector<UShort_t>& theTrace,MapInfo info);///<Call waveform timing analysis routines provided by the LendaFilter object
 
   void CalcEnergyGates(vector<UShort_t>& theTrace,MapInfo info);///<Call the waveform energy analysis routines provided by the LendaFilter object
-  void CalcAll(ddaschannel * theChannel,MapInfo info);///<Call all waveform analysis routines
+
+  void CalcAll(vector<UShort_t>& theTrace,MapInfo info);///<Call all waveform analysis routines
+  void CalcAll(ddaschannel* c,MapInfo info);///<Call all waveform analysis routines
+  void CalcAll(LendaChannel* c,MapInfo info);///<Call all waveform analysis routines
+  
 
   void ForceAllBarFilters(Int_t FL, Int_t FG, Int_t d, Int_t w);
   void ForceAllReferenceFilters(Int_t FL, Int_t FG, Int_t d, Int_t w);
@@ -247,15 +271,10 @@ private:
   
 
   map<int,string> GlobalIDToFullLocal;
-
   map<string,int> FullLocalToGlobalID;
-
   map<int,string> GlobalIDToBar;
-
   map<string,int> BarNameToUniqueBarNumber;
-
-  map<string,Double_t> BarNameToBarAngle;
-  
+  map<string,Double_t> BarNameToBarAngle;  
   map<int,MapInfo > GlobalIDToMapInfo;
   
   //  map<string,LendaBar> ThisEventsBars;
@@ -269,19 +288,27 @@ private:
   Int_t traceDelay;
   Long64_t jentry;
 
-  Int_t numZeroCrossings;
+  Int_t thisChannelsNumZeroCrossings;
   
-  Double_t thisEventsIntegral;
-  Int_t thisEventsPulseHeight;
+  vector <Double_t> thisChannelsEnergies;
+  vector <Int_t> thisChannelsPulseHeights;
+  
+  vector <Double_t> thisChannelsSoftwareCFDs;
+  vector <Double_t> thisChannelsCubicCFDs;
+
+  vector <Int_t> thisChannelsPeakSpots;
+
   Int_t thisEventsFilterHeight;
 
   Double_t longGate;
   Double_t shortGate;
-  Double_t cubicCFD;
+
   Double_t cubicFitCFD;
-  Double_t softwareCFD;
+
   Double_t start;
-  Double_t CFDResidual;
+  Double_t thisChannelsCFDResidual;
+
+
 
 
   string referenceChannelPattern;//A string to define what channel names will be considered the reference channels ex OBJ
