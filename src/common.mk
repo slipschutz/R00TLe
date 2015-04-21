@@ -20,8 +20,8 @@ DICTFILES  = $(wildcard *Dictionary.*)
 OBJFILES   = $(wildcard *.o)
 GCHFILES   = $(wildcard *.gch)
 
-INCDIR     = -I$(R00TLeInstall)/src/include -I/usr/opt/nscldaq/10.2-105/include/
-LDFLAGS    = -Wl,-rpath=$(LIBDIR) -Wl,-rpath=/usr/opt.nscldaq/10.2-105/lib/
+INCDIR     = -I$(R00TLeInstall)/src/include #-I/usr/opt/nscldaq/10.2-105/include/
+LDFLAGS    = -Wl,-rpath=$(LIBDIR) #-Wl,-rpath=/usr/opt.nscldaq/10.2-105/lib/
 
 .SECONDARY: $(OBJS)
 
