@@ -42,7 +42,8 @@ public:
   MAKE_VAR(SoftwareTimes,vector<Double_t>);
   MAKE_VAR(CubicTimes,vector<Double_t>);
   MAKE_VAR(PulseHeights,vector<Int_t>);
-  
+  MAKE_VAR(SoftwareReferenceTimes,vector<Double_t>);
+  MAKE_VAR(CubicReferenceTimes,vector<Double_t>);
   
   
   inline Int_t GetChannel(){return rChannel;}///<Gets DDAS channel number for this channel
@@ -54,14 +55,14 @@ public:
   inline Int_t GetNumZeroCrossings(){return rNumZeroCrossings;}///<Gets number of ZeroCrossings in digital CFD
 
   inline Double_t GetCorrectedEnergy(){return rCorrectedEnergy;}///<Get Corrected energy (baseline subtracted pulse integral from trace)
-  inline Double_t GetEnergy(){return rEnergy;}///<Gets energy (baseline subtracted pulse integral from trace)
+  inline Double_t GetEnergy(){return rEnergies[0];}///<Gets energy (baseline subtracted pulse integral from trace)
   inline Double_t GetInternalEnergy(){return rInternalEnergy;}///<Gets result from internal energy filter
-  inline Int_t GetPulseHeight(){return rPulseHeight;}///<Gets max pulse height in trace
+  inline Int_t GetPulseHeight(){return rPulseHeights[0];}///<Gets max pulse height in trace
   inline Int_t GetFilterHeight(){return rFilterHeight;}///<Gets max height in the fast filter
 
   inline Double_t GetTime(){return rTime;}///<Gets the internal timestamp from module 
-  inline Double_t GetSoftTime(){return rSoftTime;}///<Gets the offline timestamp from the linear algorithm
-  inline Double_t GetCubicTime(){return rCubicTime;}///<Gets the offline timestamp from the cubic algorithm
+  inline Double_t GetSoftTime(){return rSoftwareTimes[0];}///<Gets the offline timestamp from the linear algorithm
+  inline Double_t GetCubicTime(){return rCubicTimes[0];}///<Gets the offline timestamp from the cubic algorithm
   inline Double_t GetCubicFitTime(){return rCubicFitTime;}///<Gets the offline timestamp from the cubic fit algorithm
 
   inline Double_t GetCorrectedTime(){return rCorrectedTime;}///<Gets the time shift corrected internal timestamp
@@ -90,9 +91,10 @@ public:
   vector <Double_t> GetCFD(){return rCFD;}///<Gets the offline calculated CFD if it was stored
 
   inline Double_t GetCFDResidual(){return rCFDResidual;}///<Not important
+
   inline Double_t GetReferenceTime(){return rRefTime;}///<Gets the internal timestamp for the reference channel
-  inline Double_t GetCubicReferenceTime(){return rCubicRefTime;}///<Gets cubic timestamp for the reference channel
-  inline Double_t GetSoftReferenceTime(){return rSoftRefTime;}///<Gets the offline caclulated linear timestamp for the reference channel
+  inline Double_t GetCubicReferenceTime(){return rCubicReferenceTimes[0];}///<Gets cubic timestamp for the reference channel
+  inline Double_t GetSoftwareReferenceTime(){return rSoftwareReferenceTimes[0];}///<Gets the offline caclulated linear timestamp for the reference channel
 
   string GetChannelName(){return rChannelName;}///<Gets the full channel name
   string GetReferenceChannelName(){return rReferenceChannelName;}///<Gets the full naem of the reference channel
@@ -110,14 +112,12 @@ public:
   void SetNumZeroCrossings(Int_t v){ rNumZeroCrossings=v;}
   
   void SetCorrectedEnergy(Double_t v){ rCorrectedEnergy=v;}
-  void SetEnergy(Double_t v){ rEnergy=v;}
+
   void SetInternalEnergy(Double_t v){rInternalEnergy=v;}
-  void SetPulseHeight(Int_t v){ rPulseHeight=v;}
+
   void SetFilterHeight(Int_t v){rFilterHeight=v;}
 
   void SetTime(Double_t v){ rTime=v;}
-  void SetSoftTime(Double_t v){rSoftTime=v;}
-  void SetCubicTime(Double_t v){rCubicTime=v;}
   void SetCubicFitTime(Double_t v){rCubicFitTime=v;}
 
   void SetCorrectedTime(Double_t v){rCorrectedTime=v;}
@@ -152,8 +152,8 @@ public:
   void SetReferenceChannelName(string s){rReferenceChannelName=s;}
   
   void SetReferenceTime(Double_t v){rRefTime=v;}
-  void SetCubicReferenceTime(Double_t v){rCubicRefTime=v;}
-  void SetSoftReferenceTime(Double_t v){rSoftRefTime=v;}
+  // void SetCubicReferenceTime(Double_t v){rCubicRefTime=v;}
+  // void SetSoftReferenceTime(Double_t v){rSoftRefTime=v;}
   //  LendaChannel & operator=(const LendaChannel &);
 
   void SetOtherTime(Double_t v){rOtherTime=v;}
@@ -171,14 +171,13 @@ private:
   Int_t  rNumZeroCrossings;
   
   Double_t rCorrectedEnergy;
-  Double_t rEnergy;
+
   Double_t rInternalEnergy;
-  Int_t rPulseHeight;
+
   Int_t rFilterHeight;
 
   Double_t rTime;
-  Double_t rSoftTime;
-  Double_t rCubicTime;
+
   Double_t rCubicFitTime;
 
   Double_t rCorrectedTime;
@@ -189,9 +188,14 @@ private:
   UInt_t rTimeLow;
   UInt_t rTimeHigh;
 
+  //CFD Values for sub clock tic timing
+  //These cfds refer to the cfd from calculated by
+  //LendaFilter.GetZeroCrossingImproved which 
+  //will give the value for the largest zerocrossing
   Double_t rSoftwareCFD;
   Double_t rCubicCFD;
   Double_t rCubicFitCFD;
+  //Internal CFD is for wherever the module triggered on
   Double_t rInternalCFD;
   UInt_t rCFDTrigBit;
 
@@ -210,8 +214,8 @@ private:
   string rReferenceChannelName;
 
   Double_t rRefTime;
-  Double_t rSoftRefTime;
-  Double_t rCubicRefTime;
+  // Double_t rSoftRefTime;
+  // Double_t rCubicRefTime;
 
   Double_t rOtherTime;
   

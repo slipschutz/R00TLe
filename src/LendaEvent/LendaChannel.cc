@@ -10,10 +10,23 @@ LendaChannel::~LendaChannel(){
   Clear();
 }
 void LendaChannel::Clear(){
+  //The vectors that hold the many times
+  //and the many energies
+  //need for when this channel hold info for high
+  //rate event
   rSoftwareTimes.clear();
   rEnergies.clear();
   rCubicTimes.clear();
   rPulseHeights.clear();
+  rSoftwareReferenceTimes.clear();
+  rCubicReferenceTimes.clear();
+
+  rSoftwareTimes.push_back(BAD_NUM);
+  rEnergies.push_back(BAD_NUM);
+  rCubicTimes.push_back(BAD_NUM);
+  rPulseHeights.push_back(BAD_NUM);
+  rSoftwareReferenceTimes.push_back(BAD_NUM);
+  rCubicReferenceTimes.push_back(BAD_NUM);
 
   rChannel=BAD_NUM;
   rSlot=BAD_NUM;
@@ -24,14 +37,12 @@ void LendaChannel::Clear(){
   rNumZeroCrossings=BAD_NUM;
   
   rCorrectedEnergy=BAD_NUM;
-  rEnergy=BAD_NUM;
+  
   rInternalEnergy=BAD_NUM;
-  rPulseHeight=BAD_NUM;
+  
   rFilterHeight=BAD_NUM;
 
   rTime=BAD_NUM;
-  rSoftTime=BAD_NUM;
-  rCubicTime=BAD_NUM;
   rCubicFitTime=BAD_NUM;
 
   rCorrectedTime=BAD_NUM;
@@ -55,8 +66,8 @@ void LendaChannel::Clear(){
   rJentry=BAD_NUM;
 
   rRefTime=BAD_NUM;
-  rCubicRefTime=BAD_NUM;
-  rSoftRefTime=BAD_NUM;
+  // rCubicRefTime=BAD_NUM;
+  // rSoftRefTime=BAD_NUM;
 
   rTrace.clear();
   rFilter.clear();

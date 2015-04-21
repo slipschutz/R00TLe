@@ -70,7 +70,7 @@ void LendaBar::Finalize(){
 
     CorrectedTopTOF = Tops[0].GetCorrectedTime()-Tops[0].GetReferenceTime();
     CorrectedCubicTopTOF=Tops[0].GetCorrectedCubicTime()-Tops[0].GetCubicReferenceTime();
-    CorrectedSoftTopTOF=Tops[0].GetCorrectedSoftTime() - Tops[0].GetSoftReferenceTime();
+    CorrectedSoftTopTOF=Tops[0].GetCorrectedSoftTime() - Tops[0].GetSoftwareReferenceTime();
   } 
   if (NumBottoms == 1 ){
     BottomTOF =Bottoms[0].GetTime()-Bottoms[0].GetReferenceTime();
@@ -78,7 +78,7 @@ void LendaBar::Finalize(){
 
     CorrectedBottomTOF =Bottoms[0].GetCorrectedTime()-Bottoms[0].GetReferenceTime();
     CorrectedCubicBottomTOF=Bottoms[0].GetCorrectedCubicTime()-Bottoms[0].GetCubicReferenceTime();
-    CorrectedSoftBottomTOF=Bottoms[0].GetCorrectedSoftTime() - Bottoms[0].GetSoftReferenceTime();
+    CorrectedSoftBottomTOF=Bottoms[0].GetCorrectedSoftTime() - Bottoms[0].GetSoftwareReferenceTime();
   }
 
 
