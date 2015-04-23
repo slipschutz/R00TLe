@@ -1,6 +1,17 @@
 
 #include <vector>
-/**This is as test.  Test ste adf afd.dsafasdf 
+/**Plots trace, trigger filter and CFD filter for a lendaevent.  Meant to be run
+   in the ROOT interpreter when a calibrated rootfile is open.  Script will
+   look for a tree called 'caltree' in the current directory.  Will only plot
+   the trace, trigger filter or CFD filter if they have been saved in the 
+   calibarated tree.
+
+   Entry referes to the entry number in the tree.  
+
+   Bar num selects which bar in the
+   event to plot (if two bars fired barNum=0 is first one barNum=1 is second one)
+
+   traceOnly will force only traces to be ploted 
 
  */
 void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
@@ -9,7 +20,10 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
   LendaEvent * event = new LendaEvent();
   
   TTree* tree =(TTree*)gDirectory->Get("caltree");
-  
+  if (tree == NULL){
+    cout<<"Can't find caltree.  Script meant to be run when in calbirated ROOT file."<<endl;
+    return;
+  }
   tree->SetBranchAddress("lendaevent",&event);
   
 
@@ -18,7 +32,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
   Int_t NumBars = event->NumBars;
   
   if (BarNum >= NumBars){
-    cout<<"Event has "<<NumBars<<" can't plot bar "<<BarNum<<endl;
+    cout<<"Event has "<<NumBars<<" bars in it.  Can't plot bar "<<BarNum<<endl;
     return;
   }
   
@@ -60,7 +74,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
     }
   } else if (NumBottoms !=0){
     traceSize = event->Bars[BarNum].Bottoms[0].GetTrace().size();
-
+    
     if (event->Bars[BarNum].Bottoms[0].GetTrace().size()!=0){
       c = new TCanvas("cTraces");
       c->Divide(2,largerNum);  
@@ -237,58 +251,3 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
   }
   
 }
-
-//   Double_t* x = malloc(size*sizeof(Double_t));
-  
-//   Double_t* y = malloc(size*sizeof(Double_t));
-
-//   Double_t* y1= malloc(size*sizeof(Double_t));
-  
-//   Double_t* y2=malloc(size*sizeof(Double_t));
-    
-
-//   cout<<"size is "<<size<<endl;
-//   for (int i=0;i<size;i++){
-
-//     x[i]=i;
-//     y[i]=event->Bars[0].Tops[0].GetTrace()[i];
-//     y1[i]=event->Bars[0].Tops[0].GetFilter()[i];
-//     y2[i]=event->Bars[0].Tops[0].GetCFD()[i];
-//   }
-
-//   TGraph *gr = new TGraph(size,x,y);
-//   TGraph *gr1 = new TGraph(size,x,y1);
-//   TGraph *gr2 = new TGraph(size,x,y2);
-    
-//   stringstream s;
-//   s<<"Traces row "<<j<<" chan "<<event->Bars[0].Name;
-//   gr->SetTitle(s.str().c_str());
-//   s.str(""); s<<"Filters row "<<j<<" chan "<<event->Bars[0].Name;
-//   gr1->SetTitle(s.str().c_str());
-//   s.str(""); s<<"CFDs row"<<j<<" chan "<<event->Bars[0].Name;
-//   gr2->SetTitle(s.str().c_str());
-
-//   if(num!=1){
-//     c->cd(j+1-entry);
-//     gr->Draw("AL*");
-      
-//     c1->cd(j+1-entry);
-//     gr1->Draw("AL*");
-      
-//     c2->cd(j+1-entry);
-//     gr2->Draw("AL*");
-//   } else{
-
-
-//     c->cd();
-//     gr->Draw("AL*");
-
-//     c1->cd();
-//     gr1->Draw("AL*");
-
-//     c2->cd();
-//     gr2->Draw("AL*");
-
-//   }
-  
-// }

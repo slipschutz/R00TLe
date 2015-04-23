@@ -1,33 +1,54 @@
 
-#include <vector>
-#include "LendaEvent.hh"
-#include "TGraph.h"
-#include "TTree.h"
-#include "TCanvas.h"
-#include "TDirectory.h"
-void GraphObjs(Long64_t entry=0,int num=8,int BarNum=0,bool traceOnly=false){
+// #include <vector>
+// #include "LendaEvent.hh"
+// #include "TGraph.h"
+// #include "TTree.h"
+// #include "TCanvas.h"
+// #include "TDirectory.h"
+
+/**PLots the traces from the objects scintillator channels.  Meant to be run
+   from within the ROOT interpreter when a calibrated ROOT file is open.
+   Looks for a tree called 'caltree' in the current directory.
+
+   Entry refers to the entry in caltree
+   Num refers the number of Object traces to plot
+   Start refers to which trace to plot first
+   
+   GraphObs(0,1,3) will plot only the forth copy of the 
+   object scintillator from event 0
+
+ */
+void GraphObjs(Long64_t entry=0,int num=8,int start=0){
 
 
   LendaEvent * event = new LendaEvent();
   
   TTree* tree =(TTree*)gDirectory->Get("caltree");
-  
-  tree->SetBranchAddress("lendaevent",&event);
-  
+  if (tree == NULL){
+    cout<<"Cannot find caltree. Script meant to be run from within a calibrated ROOT file."<<endl;
+    return;
+  }
 
+  tree->SetBranchAddress("lendaevent",&event);
   tree->GetEntry(entry);
 
-  event->Dump();
-  Int_t NumObjects = num;// event->NumObjectScintillators;
-  if (NumObjects == 0){
-    cout<<"NO OBJECTS"<<endl;
+    
+  Int_t NumObjects = event->NumObjectScintillators;
+  if ( NumObjects == 0 ){
+    cout<<"No objects found"<<endl;
     return ;
   }
+
+  if (num +start> NumObjects ){
+    cout<<"There are only "<<NumObjects <<" object scintillators in this event. Can't plot "<<num+start<<endl;
+    return ;
+  }
+
   TCanvas * objCanvas;
   if (NumObjects !=0){
-     objCanvas= new TCanvas("objects");
-
-    objCanvas->Divide(1,NumObjects);
+    objCanvas= new TCanvas("objects");
+    
+    objCanvas->Divide(1,num);
   }
   std::vector <TGraph*> Objects;
   Objects.resize(NumObjects,NULL);
@@ -44,11 +65,11 @@ void GraphObjs(Long64_t entry=0,int num=8,int BarNum=0,bool traceOnly=false){
   }
 
 
-
+  
   Double_t * temp =(Double_t*)malloc(traceSize*sizeof(Double_t));
 
   
-  for (int i=0;i<NumObjects;i++){
+  for (int i=start;i<start+num;i++){
     for (int j=0;j<traceSize;j++){
       temp[j]=event->TheObjectScintillators[i].GetTrace()[j];
     }
@@ -56,21 +77,20 @@ void GraphObjs(Long64_t entry=0,int num=8,int BarNum=0,bool traceOnly=false){
     Objects[i]->SetTitle(event->TheObjectScintillators[i].GetChannelName().c_str());
     Objects[i]->SetName(event->TheObjectScintillators[i].GetChannelName().c_str());
 
-
-    for (int j=0;j<traceSize;j++){
-      temp[j]=event->TheObjectScintillators[i].GetTrace()[j];
-    }
-    Objects[i]=new TGraph(traceSize,x,temp);
-    Objects[i]->SetTitle(event->TheObjectScintillators[i].GetChannelName().c_str());
-    Objects[i]->SetName(event->TheObjectScintillators[i].GetChannelName().c_str());
+    // for (int j=0;j<traceSize;j++){
+    //   temp[j]=event->TheObjectScintillators[i].GetTrace()[j];
+    // }
+    // Objects[i]=new TGraph(traceSize,x,temp);
+    // Objects[i]->SetTitle(event->TheObjectScintillators[i].GetChannelName().c_str());
+    // Objects[i]->SetName(event->TheObjectScintillators[i].GetChannelName().c_str());
 
 }
   
   
 
   
-  for (int i=0;i<NumObjects;i++){
-    objCanvas->cd(i+1);
+  for (int i=start;i<start+num;i++){
+    objCanvas->cd(i+1-start);
     Objects[i]->Draw("AL*");
   }
   

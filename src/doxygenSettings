@@ -355,7 +355,7 @@ LOOKUP_CACHE_SIZE      = 0
 # Private class members and static file members will be hidden unless
 # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
 
-EXTRACT_ALL            = NO
+EXTRACT_ALL            = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -655,7 +655,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  =/projects/e10003/R00TLe/src/LendaPacker/ /projects/e10003/R00TLe/src/LendaFilter/ /projects/e10003/R00TLe/src/LendaEvent/ /projects/e10003/R00TLe/src/DDASEvent/ /projects/e10003/R00TLe/src/R00TLeSettings /projects/e10003/R00TLe/src/S800/ /projects/e10003/R00TLe/src/Scalers/ /projects/e10003/R00TLe/src/Core/ /projects/e10003/R00TLe/scripts/
+INPUT                  = /projects/e10003/R00TLe/scripts/ /projects/e10003/R00TLe/src/LendaPacker/ /projects/e10003/R00TLe/src/LendaFilter/ /projects/e10003/R00TLe/src/LendaEvent/ /projects/e10003/R00TLe/src/DDASEvent/ /projects/e10003/R00TLe/src/R00TLeSettings /projects/e10003/R00TLe/src/S800/ /projects/e10003/R00TLe/src/Scalers/ /projects/e10003/R00TLe/src/Core/
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is

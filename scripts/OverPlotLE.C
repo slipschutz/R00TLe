@@ -1,13 +1,26 @@
 
 #include <vector>
 
+#include "LendaEvent.hh"
+#include "TTree.h"
+#include "TGraph.h"
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TH1F.h"
+#include "TStyle.h"
+#include "TDirectory.h"
+
 void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
 
 
   LendaEvent * event = new LendaEvent();
   
   TTree* tree =(TTree*)gDirectory->Get("caltree");
-  
+  if ( tree == NULL){
+    cout<<"Can't find caltree.  Meant to be run from within calibrated ROOT file"<<endl;
+    return;
+  }
+
   tree->SetBranchAddress("lendaevent",&event);
   
   TCanvas *c = new TCanvas("c11");
@@ -39,10 +52,17 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
   c1->Divide(1,largerNum);
 
   int traceSize=-1000;  
+  int filterSize=-1000;  
+  int cfdSize=-1000;  
+
   if (NumTops != 0){
     traceSize = event->Bars[BarNum].Tops[0].GetTrace().size();
+    filterSize = event->Bars[BarNum].Tops[0].GetFilter().size();
+    cfdSize = event->Bars[BarNum].Tops[0].GetCFD().size();
   } else if (NumBottoms !=0){
     traceSize = event->Bars[BarNum].Bottoms[0].GetTrace().size();
+    filterSize = event->Bars[BarNum].Tops[0].GetFilter().size();
+    cfdSize = event->Bars[BarNum].Tops[0].GetCFD().size();
   }
 
   cout<<"TRACE SIZE IS "<<traceSize<<endl;
@@ -87,18 +107,18 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
     BottomTraces[i]->SetName(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
 
     
-    for (int j=0;j<traceSize;j++){
+    for (int j=0;j<cfdSize;j++){
       temp[j]=event->Bars[BarNum].Bottoms[i].GetCFD()[j];
     }
-    BottomCFDs[i] = new TGraph(traceSize,x,temp);
+    BottomCFDs[i] = new TGraph(cfdSize,x,temp);
     BottomCFDs[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" CFD")).c_str());
     BottomCFDs[i]->SetName(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
 
 
-    for (int j=0;j<traceSize;j++){
+    for (int j=0;j<filterSize;j++){
       temp[j]=event->Bars[BarNum].Bottoms[i].GetFilter()[j];
     }
-    BottomFilters[i] = new TGraph(traceSize,x,temp);
+    BottomFilters[i] = new TGraph(filterSize,x,temp);
     BottomFilters[i]->SetTitle((event->Bars[BarNum].Bottoms[i].GetChannelName()+string(" Filter")).c_str());
     BottomFilters[i]->SetName(event->Bars[BarNum].Bottoms[i].GetChannelName().c_str());
 
@@ -115,21 +135,20 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
     TopTraces[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" Trace")).c_str());
     TopTraces[i]->SetName(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
     
-    for (int j=0;j<traceSize;j++){
+    for (int j=0;j<cfdSize;j++){
       temp[j]=event->Bars[BarNum].Tops[i].GetCFD()[j];
     }
-    TopCFDs[i] = new TGraph(traceSize,x,temp);
+    TopCFDs[i] = new TGraph(cfdSize,x,temp);
     TopCFDs[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" CFD")).c_str());
     TopCFDs[i]->SetName(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
 
 
-    for (int j=0;j<traceSize;j++){
+    for (int j=0;j<filterSize;j++){
       temp[j]=event->Bars[BarNum].Tops[i].GetFilter()[j];
     }
-    TopFilters[i] = new TGraph(traceSize,x,temp);
+    TopFilters[i] = new TGraph(filterSize,x,temp);
     TopFilters[i]->SetTitle((event->Bars[BarNum].Tops[i].GetChannelName()+string(" Filter")).c_str());
     TopFilters[i]->SetName(event->Bars[BarNum].Tops[i].GetChannelName().c_str());
-
  
   }
 
@@ -140,7 +159,7 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
 
   free(temp);
 
-  gStyle->SetMarkerStyle(8);
+  //gStyle->SetMarkerStyle(8);
   //  gStyle->UseCurrentStyle();
   for (int i=0;i<NumBottoms;i++){
     c->cd(i+1);
@@ -150,18 +169,20 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
     BottomCFDs[i]->SetLineWidth(2);
     BottomCFDs[i]->GetHistogram()->GetXaxis()->SetTitle("Clock Ticks");
     BottomCFDs[i]->GetHistogram()->GetYaxis()->SetTitle("ADC Units");
-    BottomCFDs[i]->Draw("APL");
+    BottomCFDs[i]->SetMarkerStyle(8);
+    if (cfdSize!=0){BottomCFDs[i]->Draw("APLsame");}
 
-    BottomTraces[i]->Draw("sameLp");
+    if(traceSize!=0){BottomTraces[i]->Draw("AsameLp");}
     BottomTraces[i]->SetFillColor(kBlack);
     BottomTraces[i]->SetLineWidth(2);
-    
+    BottomTraces[i]->SetMarkerStyle(8);
 
     BottomFilters[i]->SetLineColor(kRed);
     BottomFilters[i]->SetMarkerColor(kRed);
     BottomFilters[i]->SetFillColor(kRed);
     BottomFilters[i]->SetLineWidth(2);
-    BottomFilters[i]->Draw("samePL");
+    BottomFilters[i]->SetMarkerStyle(8);
+    if (filterSize!=0){BottomFilters[i]->Draw("AsamePL");}
 
 
     TLegend * leg = new TLegend(0.8,0.8,0.9,0.9);
@@ -176,24 +197,23 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
   for (int i=0;i<NumTops;i++){
     c1->cd(i+1);
 
-
     TopCFDs[i]->SetLineColor(kBlue);
     TopCFDs[i]->SetMarkerColor(kBlue);
     TopCFDs[i]->SetFillColor(kBlue);
     TopCFDs[i]->SetLineWidth(2);
     TopCFDs[i]->GetHistogram()->GetXaxis()->SetTitle("Clock Ticks");
     TopCFDs[i]->GetHistogram()->GetYaxis()->SetTitle("ADC Units");
-    TopCFDs[i]->Draw("APL");
-
+    if(cfdSize!=0){TopCFDs[i]->Draw("APLsame");}
+    
     TopFilters[i]->SetLineColor(kRed);
     TopFilters[i]->SetMarkerColor(kRed);
     TopFilters[i]->SetFillColor(kRed);
     TopFilters[i]->SetLineWidth(2);
-    TopFilters[i]->Draw("samePL");
+    if (filterSize!=0){TopFilters[i]->Draw("AsamePL");}
 
     TopTraces[i]->SetFillColor(kBlack);
     TopTraces[i]->SetLineWidth(2);
-    TopTraces[i]->Draw("sameLP");
+    if(traceSize!=0){TopTraces[i]->Draw("AsameLP");}
 
     TLegend * leg = new TLegend(0.8,0.8,0.9,0.9);
     leg->SetFillColor(kWhite);
