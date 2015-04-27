@@ -17,13 +17,13 @@
 
 int main(Int_t runNum=-1,TString OutPutName="histograms/temp.root")
 {
-  
+    
   TChain* ch = new TChain("caltree");
   std::cout << "Creating TChain... ";
   
   if (runNum ==-1){
-    // if no runNum give make a chain manually
-    ch->Add("./rootfiles/run-0341-00.root");//Defualt run
+    ch->Add("./rootfiles/run-0573-??.root");//Defualt run
+
   } else {
     stringstream ss;
     ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-??.root";
@@ -47,9 +47,18 @@ int main(Int_t runNum=-1,TString OutPutName="histograms/temp.root")
   TObjArray *fileElements=ch->GetListOfFiles();
   TIter next(fileElements);
   TChainElement *chEl=0;
+  int FileSuccessCount=0;
+  
   int count=0;
   while (( chEl=(TChainElement*)next() )) {
     TFile f(chEl->GetTitle());
+    
+    if (f.IsOpen()){
+      FileSuccessCount++;
+    }else {
+      cout<<"Warning could not open "<<chEl->GetTitle()<<endl;
+    }
+
     if ( f.GetListOfKeys()->Contains("TheSettings")) {
       stringstream ss;
       ss<<"Settings"<<count;
@@ -62,13 +71,19 @@ int main(Int_t runNum=-1,TString OutPutName="histograms/temp.root")
       cout<<"No Seetings object found in "<<chEl->GetTitle()<<endl;
       exit(1);
     }
-    count++;//Counter for settings Names 
+    count++;
   }
-
+  
+  if ( FileSuccessCount == 0 ){
+    cout<<"No files were successfully opened"<<endl;
+    return 0;
+  }
+    
 
   
-  std::cout << "List of files:" << std::endl;
+  std::cout << "\nList of files:" << std::endl;
   ch->GetListOfFiles()->Print();
+  cout<<endl;
 
   TString user =gSystem->Getenv("R00TLe_User");
   TString install =gSystem->Getenv("R00TLeInstall");
@@ -81,9 +96,9 @@ int main(Int_t runNum=-1,TString OutPutName="histograms/temp.root")
   ////////////////////////////////////////////////////////////////
 
 
-
+  
   TSelector* myAnaloop = TSelector::GetSelector(src);
-
+  
   TList * list = new TList();
   list->Add(ListOfSettings[0]);
   myAnaloop->SetInputList(list);
@@ -94,5 +109,5 @@ int main(Int_t runNum=-1,TString OutPutName="histograms/temp.root")
 
 
   delete list;
-  delete ch;
+  delete ch; 
 }

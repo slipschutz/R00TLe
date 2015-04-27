@@ -27,7 +27,8 @@ void proof(Int_t runNum=-1,Int_t NumCores=10,TString OutPutName="histograms/temp
   
   if (runNum ==-1){
     // if no runNum give make a chain manually
-    ch->Add("./rootfiles/run-0341-00.root");//Defualt run
+    ch->Add("./rootfiles/run-0573-??.root");
+
   } else {
     stringstream ss;
     ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-??.root";
@@ -52,9 +53,18 @@ void proof(Int_t runNum=-1,Int_t NumCores=10,TString OutPutName="histograms/temp
   TObjArray *fileElements=ch->GetListOfFiles();
   TIter next(fileElements);
   TChainElement *chEl=0;
+  int FileSuccessCount=0;
+  
   int count=0;
   while (( chEl=(TChainElement*)next() )) {
     TFile f(chEl->GetTitle());
+    
+    if (f.IsOpen()){
+      FileSuccessCount++;
+    }else {
+      cout<<"Warning could not open "<<chEl->GetTitle()<<endl;
+    }
+
     if ( f.GetListOfKeys()->Contains("TheSettings")) {
       stringstream ss;
       ss<<"Settings"<<count;
@@ -67,13 +77,23 @@ void proof(Int_t runNum=-1,Int_t NumCores=10,TString OutPutName="histograms/temp
       cout<<"No Seetings object found in "<<chEl->GetTitle()<<endl;
       exit(1);
     }
-    count++;//Counter for settings Names 
+    count++;
   }
-
+  
+  if ( FileSuccessCount == 0 ){
+    cout<<"No files were successfully opened"<<endl;
+    return;
+  }
+    
 
   
-  std::cout << "List of files:" << std::endl;
+  std::cout << "\nList of files:" << std::endl;
   ch->GetListOfFiles()->Print();
+  cout<<endl;
+
+  TString user =gSystem->Getenv("R00TLe_User");
+  TString install =gSystem->Getenv("R00TLeInstall");
+  TString src = install+"/users/"+user+"/src/Analoop.cc+g";
 
 
 
@@ -104,7 +124,7 @@ void proof(Int_t runNum=-1,Int_t NumCores=10,TString OutPutName="histograms/temp
 
 
   p->SetParameter("PROOF_UseTreeCache",1);
-  p->SetParameter("PROOF_CacheSize",1024.);
+  p->SetParameter("PROOF_CacheSize",1024.*1024.);
 
   //////////////////////////////////////////////////////
   // load the analoop library on each worker thread   //
@@ -138,7 +158,7 @@ void proof(Int_t runNum=-1,Int_t NumCores=10,TString OutPutName="histograms/temp
   ////////////////////////////////////////////////////////////////
 
   ch->SetProof(kTRUE);
-  ch->SetCacheSize(1024.);
+  ch->SetCacheSize(1024.*1024.);
   ch->AddBranchToCache("*",kTRUE);
 
   ch->Process(myAnaloop,OutPutName);//Deep Magicks 
