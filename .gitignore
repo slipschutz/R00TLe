@@ -19,3 +19,5 @@ prm/*
 FakeDataGenerator/
 LendaBundle/
 src/LendaFilter/build.sh
+src/html/
+src/latex/
