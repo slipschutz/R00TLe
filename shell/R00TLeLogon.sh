@@ -5,6 +5,7 @@ if [ $# -ne 1 ] && [ $# -ne 2 ] ; then
     echo "Usage: R00TLeLogon AUserName"
     return
 fi
+AutoAddScripts=0;
 
 if [ $# -eq 2 ] && [ "$1" == "-f" ]; then
     echo
@@ -12,6 +13,8 @@ if [ $# -eq 2 ] && [ "$1" == "-f" ]; then
     echo "User $2 Added to known Users"
     R00TLeLogon.sh $2;
     return
+elif [ $# -eq 2 ] && [ "$2" == "-a" ]; then
+    AutoAddScripts=1;
 fi
 
 #check to see if user is known
@@ -91,10 +94,13 @@ cat rootlogon.C | awk ' {if ($0 !~/rootlogon()/){print}}' >> temp_R00TLe
 
 echo "gROOT->ProcessLine(\".include ${R00TLeInstall}/src/include\");">>temp_R00TLe
 
-for file in $(ls ${R00TLeInstall}/scripts/*.C) 
-do
-echo "gROOT->ProcessLine(\".L $file\" );" >> temp_R00TLe
-done
+if [ $AutoAddScripts -eq 1 ]; then 
+    echo "Auto loading scripts to rootlogon.C"
+    for file in $(ls ${R00TLeInstall}/scripts/*.C) 
+    do
+	echo "gROOT->ProcessLine(\".L $file\" );" >> temp_R00TLe
+    done
+fi
 
 # for file in $(ls ${R00TLeInstall}/users/$1/macros/*.C) 
 # do
@@ -121,32 +127,27 @@ fi
 
 
 
-if [ -e ./evtfiles ]; then
-    if [ -L ./evtfiles ]; then
-	rm -f ./evtfiles
-    else
-	echo 
-	echo "<R00TLeLogon.sh:Error> Cannot have file called 'evtfiles' must be a symlink to the evtfiles"
-	echo
-	return
-    fi
+if [ -L ./evtfiles ]; then
+    unlink ./evtfiles
+elif [ -e ./evtfiles ]; then
+    echo 
+    echo "<R00TLeLogon.sh:Error> Cannot have file called 'evtfiles' must be a symlink to the evtfiles"
+    echo
+    return
 fi
+
 
 echo "Making sym link to evt files"
 ln -s ${R00TLeEvtFilesPath} ./evtfiles
 
-
-if [ -e ./rootfiles ]; then
-    if [ -L ./rootfiles ]; then
-	rm -f ./rootfiles
-    else
-	echo 
-	echo "<R00TLeLogon.sh:Error> Cannot have file called 'rootfiles' must be a symlink to the rootfiles"
-	echo
-	return
-
-    fi
-
+if [ -L ./rootfiles ]; then
+    unlink ./rootfiles
+elif [ -e ./rootfiles ]; then
+    echo 
+    echo "<R00TLeLogon.sh:Error> Cannot have file called 'rootfiles' must be a symlink to the rootfiles"
+    echo
+    return
+    
 fi
 
 echo "Making sym link to root files"
