@@ -1,11 +1,5 @@
 
 
-////////////////////////////////////////////////////
-// This is the header for the lenda channel class //
-// Will hold the actual information of the event  //
-////////////////////////////////////////////////////
-
-
 #ifndef __LENDACHANNEL_HH
 #define __LENDACHANNEL_HH
 
@@ -14,12 +8,6 @@
 #include <iostream>
 #define BAD_NUM -10008
 
-
-/**MACRO TO AUTOMATICALLY Create private member variable with a Getter and Setter
-   MAKE_VAR(Energy,Double_t) will make a private variable rEnergy.  Setter
-   Will be SetEnergy(const Double_t &) and Getter GetEnergy() const
- */
-#define MAKE_VAR(X,Y) private: Y r##X;  public: void Set##X(const Y &val) {r##X=val;} Y Get##X() const{return r##X;}
 
 
 using namespace std;
@@ -37,15 +25,49 @@ public:
 
   void Clear();///<Resets all the values in the LendaChannel.  Should be called after every write to a tree
   void Clear(Option_t *){Clear();}///<To suppress warnings about hidding clear in TObject
-  
-  MAKE_VAR(Energies,vector<Double_t>);
-  MAKE_VAR(SoftwareTimes,vector<Double_t>);
-  MAKE_VAR(CubicTimes,vector<Double_t>);
-  MAKE_VAR(PulseHeights,vector<Int_t>);
-  MAKE_VAR(SoftwareReferenceTimes,vector<Double_t>);
-  MAKE_VAR(CubicReferenceTimes,vector<Double_t>);
+
   
   
+  void SetEnergies(const vector<Double_t> & v){ rEnergies=v; }///<Sets the energies for this channel
+  void SetSoftwareTimes(const vector<Double_t> & v){ rSoftwareTimes=v; }///<Sets the SoftwareTimes for this channel
+  void SetCubicTimes(const vector<Double_t> & v){ rCubicTimes=v; }///<Sets the cubic times for this channel
+  void SetPulseHeights(const vector<Int_t> & v){ rPulseHeights=v; }///<Sets the pulseHeights for this channel
+  void SetSoftwareReferenceTimes(const vector<Double_t> & v){ rSoftwareReferenceTimes=v; }///<Sets the softwaretimes that were calculated for this channel's reference channel
+  void SetCubicReferenceTimes(const vector<Double_t> & v){ rCubicReferenceTimes=v; }///<Sets the cubictimes that were calculated for this channel's reference channel
+
+  
+  /**Gets the energies for this channel.  Can accommodate many energies for when there are many pulses in a trace
+   */
+  vector<Double_t> GetEnergies()const { return rEnergies;}
+  
+  /**Gets the software times for this channel.  Can accommodate many times for when there are many pulses in a traces
+   */
+  vector<Double_t> GetSoftwareTimes()const { return rSoftwareTimes;}
+
+  /**Gets the cubic times for this channel.  Can accommodate many times for when there are many pulses in a traces
+   */
+  vector<Double_t> GetCubicTimes()const { return rCubicTimes;}
+
+  /**Gets the pulse heights for this channel.  Can accommodate pulse heights times for when there are many pulses in a traces
+   */
+  vector<Int_t>    GetPulseHeights()const { return rPulseHeights;}
+
+  /**Gets the software times for this channel's reference channel.  When the reference channel has many pulses in the trace 
+     the times for all of them can be stored here 
+   */
+  vector<Double_t> GetSoftwareReferenceTimes()const { return rSoftwareReferenceTimes;}
+
+  /**Gets the cubic times for this channel's reference channel.  When the reference channel has many pulses in the trace 
+     the cubic times for all of them can be stored here 
+   */
+  vector<Double_t> GetCubicReferenceTimes()const { return rCubicReferenceTimes;}
+
+
+
+  
+  
+
+
   inline Int_t GetChannel(){return rChannel;}///<Gets DDAS channel number for this channel
   inline Int_t GetSlot(){return rSlot;}///<Gets DDAS slot number for this channel
   inline Int_t GetGlobalID(){return rGlobalID;}///<Gets the Global DDAS id for this channel
@@ -97,6 +119,7 @@ public:
   inline Double_t GetSoftwareReferenceTime(){return rSoftwareReferenceTimes[0];}///<Gets the offline caclulated linear timestamp for the reference channel
 
   string GetChannelName(){return rChannelName;}///<Gets the full channel name
+  string GetName(){return rChannelName;}///<Gets the full channel name
   string GetReferenceChannelName(){return rReferenceChannelName;}///<Gets the full naem of the reference channel
 
 
@@ -154,7 +177,7 @@ public:
   void SetReferenceTime(Double_t v){rRefTime=v;}
   // void SetCubicReferenceTime(Double_t v){rCubicRefTime=v;}
   // void SetSoftReferenceTime(Double_t v){rSoftRefTime=v;}
-  //  LendaChannel & operator=(const LendaChannel &);
+  // LendaChannel & operator=(const LendaChannel &);
 
   void SetOtherTime(Double_t v){rOtherTime=v;}
   
@@ -218,6 +241,14 @@ private:
   // Double_t rCubicRefTime;
 
   Double_t rOtherTime;
+
+  vector <Double_t> rEnergies;
+  vector <Double_t> rSoftwareTimes;
+  vector <Double_t> rCubicTimes;
+  vector <Int_t> rPulseHeights;
+  vector <Double_t> rSoftwareReferenceTimes;
+  vector <Double_t> rCubicReferenceTimes;
+
   
 public:
   ClassDef(LendaChannel,4);
