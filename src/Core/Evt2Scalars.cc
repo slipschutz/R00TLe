@@ -39,8 +39,7 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
   if (argc != 3 ) {
     Error("Evt2Scalars","Usage: Evt2Scalars InputFile OutputFile");
     return 0;
@@ -90,7 +89,7 @@ int main(int argc, char* argv[])
   int64_t bytes_read = 0;
   size_t  count_read;
 
-  Int_t bufferSize=16384;
+  Int_t bufferSize=65536;//16384;
 
   int8_t   buffer08[bufferSize];
   uint16_t buffer16[bufferSize];
@@ -129,47 +128,20 @@ int main(int argc, char* argv[])
 
 
 
-  // // S800Calc branch
-  // S800Calc*  s800calc    = new S800Calc;
-  // outtree->Branch("s800calc",   &s800calc,   320000);
-
-  // // LendaEvent branch
-  // LendaPacker *thePacker = new LendaPacker(TheR00TLeSettings);
-  // thePacker->SetFilter(6,0,6,0);
-  // thePacker->SetGates(15,5,15,5);
-  // thePacker->SetTraceDelay(120);
-  // thePacker->FindAndSetMapAndCorrectionsFileNames(RunNumber);
-
-  // LendaEvent* lendaevent = new LendaEvent;
-  // outtree->Branch("lendaevent", &lendaevent, 320000);
-
-  // outtree->BranchRef();
-
-  // Parameters and settings
-  // TString prmdirname = gSystem->Getenv("R00TLe_PRM");
-  // TString prmfilename("Evt2Cal.prm");
-  // TString prmfilenamefull = prmdirname + "/" + prmfilename;
-  // std::ifstream prmfile(prmfilenamefull);
-  // Info("Evt2Cal", "Reading a parameter file %s", prmfilenamefull.Data());
-  // if (prmfile.fail()) {
-  //   Error("Evt2Cal", "No such prm file %s", prmfilenamefull.Data());
-  //   return 4;
-  // }
-
-  // S800Settings    *set = new S800Settings(prmfilenamefull.Data());
-  // S800Calibration *cal = new S800Calibration(set);
-
   // initialize
   nentries    = 0;
 
-
+  int NumberOfLoops=0;
   //Loop over the entirety of the input file.
   while (!signal_received) {
+    NumberOfLoops++;
+ 
     //first try and read something from the file
     //if it is at the end then you must try and read 
     //from the file inorder for the eof bit to true
      
     // The header of built ring item: 2 uint32_t's.
+    
     // A 32-bit size of entire item (in bytes)
     count_read  = fread(&size_of_entire_item, sizeof(uint32_t), 1, infile);
     if ( feof(infile) ){ // if the end of tile bit has been set
@@ -178,19 +150,20 @@ int main(int argc, char* argv[])
       }
       break; //end main unpacking loop
     }
+    
     bytes_read += 1 * sizeof(uint32_t);
     
 
-  for (int i=0;i<bufferSize;i++){
-    buffer08[i]=0;
-    buffer16[i]=0;
-    buffer32[i]=0;
-  }
+    for (int i=0;i<bufferSize;i++){
+      buffer08[i]=0;
+      buffer16[i]=0;
+      buffer32[i]=0;
+    }
 
     // A 32-bit type of item (/usr/opt/nscldaq/10.2-104/include/DataFormat.h)
     count_read  = fread(&type_of_entire_item, sizeof(uint32_t), 1, infile);
     bytes_read += 1 * sizeof(uint32_t);
-
+    // cout<<type_of_entire_item<<"    "<<size_of_entire_item<<" "<<bytes_read<<" "<<info.fSize<<endl;
     if(type_of_entire_item == INCREMENTAL_SCALERS) {
       //Load the entire item into a buffer then send it to RingItemFactory to make scalars object
       count       = (size_of_entire_item - 2*sizeof(uint32_t))/4; //4bytes per 32-bit integer
@@ -220,8 +193,12 @@ int main(int argc, char* argv[])
       
 
     }else if (type_of_entire_item==TIMESTAMPED_NONINCR_SCALERS){
-      cout<<"HELLO"<<endl;
-      exit(1);
+      //Skip foward the size of this iterm
+      count       = size_of_entire_item - 2*sizeof(uint32_t);
+      count_read  = fread(buffer08, sizeof(int8_t), count, infile);
+      // The pointer should now be pointing at the beginning of the next built ring item.
+      // Increment the total bytes read.
+      bytes_read += count_read * sizeof(int8_t);
     }else {
       // anything other then a scalar just skip in the file
       count       = size_of_entire_item - 2*sizeof(uint32_t);
