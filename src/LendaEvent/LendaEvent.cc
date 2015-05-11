@@ -131,3 +131,44 @@ LendaBar LendaEvent::FindBarSafe(int BarId){
   return LendaBar();
  }
 
+LendaChannel * LendaEvent::FindChannel(string Name){
+  //Perform linear search over the tops bottoms, Reference channels
+  //Does not search in the UnMapped channels because those don't 
+  //have a name
+
+  for (auto & bars : Bars){
+
+    for (auto & i : bars.Tops){
+      if (Name == i.GetName()){
+	return &i;
+      }
+    }
+    for (auto & i : bars.Bottoms){
+      if (Name == i.GetName()){
+	return &i;
+      }
+    }
+  }
+  
+  for (auto & i : TheObjectScintillators){
+    if (Name == i.GetName()){
+      return &i;
+    }
+  }
+
+  //Channel has not been found return NULL
+  return NULL;
+
+}
+
+LendaChannel* LendaEvent::FindReferenceChannel(string Name){
+
+  for (auto & i : TheObjectScintillators){
+    if (Name == i.GetName()){
+      //This is the correct channel
+      return &i;
+    }
+  }
+  //Could not find the channel retrun NULL
+  return NULL;
+}
