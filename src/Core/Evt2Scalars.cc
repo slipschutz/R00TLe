@@ -121,8 +121,8 @@ int main(int argc, char* argv[]){
 
   // prepare a tree for out put
   int nentries;
-  TTree* outtreeLenda   = new TTree("lendascalers","Lenda Scalars");
-  TTree* outtreeS800   = new TTree("s800scalers","S800 Scalars");
+  TTree* outtreeLenda   = new TTree("lendaTree","Lenda Scalars");
+  TTree* outtreeS800   = new TTree("s800Tree","S800 Scalars");
   outtreeS800->Branch("s800scalers", &s800scaler, 320000);
   outtreeLenda->Branch("lendascalers", &lendascaler, 320000);
 
