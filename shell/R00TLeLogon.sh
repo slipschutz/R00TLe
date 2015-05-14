@@ -121,6 +121,8 @@ cp -r ${R00TLeInstall}/skeleton/src/ .
 cp -r ${R00TLeInstall}/skeleton/macros/ .
 cp -r ${R00TLeInstall}/skeleton/histograms/ .
 cp -r ${R00TLeInstall}/src/TimingAnalyzer/ .
+cp ${R00TLeInstall}/skeleton/invmap.inv .
+cp ${R00TLeInstall}/skeleton/AllTheCorrections.txt .
 fi
 
 

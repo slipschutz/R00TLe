@@ -37,10 +37,13 @@
 #include <TEnv.h>
 #include <TCanvas.h>
 #include <TCutG.h>
+
+#include "Raytrace.h"
+#include "TEnv.h"
 ///////////////////
 
 
-//Local From R00TLe Headers
+//Local R00TLe Headers
 #include "S800Calc.hh"
 #include "LendaEvent.hh"
 #include "R00TLeSettings.hh"
@@ -68,8 +71,15 @@ public :
   
 
 
+  Invmap_t MapA;
+  Invmap_t MapY;
+  Invmap_t MapB;
+  Invmap_t MapD;
 
+  TEnv * MyCorrections;
 
+  Int_t PreviousTreeNumber;
+  Int_t CurrentRunNumber;
 
 
 

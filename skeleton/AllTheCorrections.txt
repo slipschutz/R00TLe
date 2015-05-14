@@ -1,0 +1,37 @@
+
+
+#-121.84285  -1.46198e+01
+#TEnv semms to be fine with other text being here.
+#The '#' is probably unnecessary but I am going to use it
+
+run0588.crdc1.xOffset:	 -280.43378
+run0588.crdc1.yOffset:	  115.41079
+run0588.crdc1.ySlope: 	  -0.07636
+
+
+run0590.crdc2.xOffset:	 -278.41194
+run0590.crdc2.yOffset:	 -121.84285 
+run0590.crdc2.ySlope: 	  0.07565
+
+
+
+
+
+
+
+
+run0573.crdc1.xOffset:	 -280.43378
+run0573.crdc1.yOffset:	  115.41079
+run0573.crdc1.ySlope: 	  -0.07636
+
+run0573.crdc2.xOffset:	 -278.41194
+run0573.crdc2.yOffset:	 -121.84285 
+run0573.crdc2.ySlope: 	  0.07565
+
+
+
+
+
+
+
+

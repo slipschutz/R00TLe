@@ -34,6 +34,19 @@ void Analoop::SlaveBegin(TTree * t) {
     exit(1);
   }
 
+  PreviousTreeNumber=-9999;//Set tree number to an intial bad value
+
+  TString user =gSystem->Getenv("R00TLe_User");
+  TString install =gSystem->Getenv("R00TLeInstall");
+  TString CorrectionsFileName = install+"/users/"+user+"/AllTheCorrections.txt";
+
+
+  MyCorrections = new TEnv(CorrectionsFileName);
+  
+  CurrentRunNumber =-1;
+  
+  TString S800MapFile= install+"/users/"+user+"/invmap.inv";
+  loadInverseMap(S800MapFile,&MapA,&MapY,&MapB,&MapD);
 
   ////////////////////////////////////////////////////////////////////
   // make histograms for standard quantities (TOFs and PulsHeights) //
@@ -119,10 +132,35 @@ Bool_t Analoop::Process(Long64_t entry) {
   }
 
 
+ if (fChain->GetTreeNumber() != PreviousTreeNumber){
+    PreviousTreeNumber= fChain->GetTreeNumber();
+
+    TString temp=fChain->GetCurrentFile()->GetName();
+    string name = temp.Data(); 
+
+    int index = name.find("run-");
+    name=  name.substr(index+4,4);
+    int RunNum=atoi(name.c_str());
+
+    CurrentRunNumber=RunNum;
+  } 
+
+
   //Nice load Bar feature from S.Noji
   loadBar(entry, nentries, 1000, 50);
+  
+                                 /////////////////////////
+                                 // Begin s800 analysis //
+                                 /////////////////////////
 
+  double IC = s800calc->GetIC()->GetSum();
+  double TOF=0;
+  if (s800calc->GetMultiHitTOF()->fObj.size() !=0){
+    TOF=s800calc->GetMultiHitTOF()->GetFirstObjHit();
+  }
 
+  TOF+=1000;//Make the TOF a more reasonable Positive number
+  Hist("PID",TOF,IC,8000,0,3000,1000,0,2000);
   
   //////////////////////////////////////////////////////
   // Each lendaevent has variable number of bars      //
