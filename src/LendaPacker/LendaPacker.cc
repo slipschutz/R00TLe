@@ -457,7 +457,7 @@ void LendaPacker::UpdateSettings(){
    tempLenda.SetCFDTrigBit(c->GetCFDTriggerSourceBit());
    tempLenda.SetInternalCFD(c->timecfd/16384.0);
 
-   tempLenda.SetTrace(c->trace);
+   //tempLenda.SetTrace(c->trace);
    if (saveTraces){
      tempLenda.SetTrace(c->trace);
    }

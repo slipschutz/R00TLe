@@ -46,7 +46,10 @@ S800Calibration::~S800Calibration(){
 // CRDC cathode pedestal/gain
 void S800Calibration::ReadCrdcCalibration(const char *filename, const char *pedfile){
    TEnv *crdcpedestals = new TEnv(pedfile); 
+   Info(__FUNCTION__,"Reading CrdcPedFile %s",pedfile);
+
    TEnv *crdccal = new TEnv(filename); 
+   Info(__FUNCTION__,"Reading CrdcCalFile %s",filename);
    for (int c=0; c<2; c++) {
       for(int p=0; p<S800_FP_CRDC_CHANNELS; p++) {
 	 fped[c][p] = crdcpedestals->GetValue(Form("Crdc.%d.Ped.%03d",c,p),0.0);
