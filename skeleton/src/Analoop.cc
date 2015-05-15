@@ -131,7 +131,11 @@ Bool_t Analoop::Process(Long64_t entry) {
     this->Abort("Signal received.", kAbortProcess);
   }
 
-
+  ///////////////////////////////////////////////////////////////////////
+  // The following catch is to figure out if the file has been changed //
+  // since the last time time process was called.  PROOF will process  //
+  // the files in an arbitrary order so one needs to check	       //
+  ///////////////////////////////////////////////////////////////////////
  if (fChain->GetTreeNumber() != PreviousTreeNumber){
     PreviousTreeNumber= fChain->GetTreeNumber();
 
@@ -161,6 +165,64 @@ Bool_t Analoop::Process(Long64_t entry) {
 
   TOF+=1000;//Make the TOF a more reasonable Positive number
   Hist("PID",TOF,IC,8000,0,3000,1000,0,2000);
+
+
+  //Extract CRDC information
+  Float_t crdc1Xcog = s800calc->GetCRDC(0)->GetXcog();
+  Float_t crdc2Xcog = s800calc->GetCRDC(1)->GetXcog();
+  
+  Float_t crdc1TAC =  s800calc->GetCRDC(0)->GetTAC();
+  Float_t crdc2TAC =  s800calc->GetCRDC(1)->GetTAC();
+
+  //Get the mask calibrations for the current run
+  Double_t Crdc1XOffset = MyCorrections->GetValue(Form("run%04d.crdc1.xOffset",CurrentRunNumber),0.0);
+  Double_t Crdc1YOffset = MyCorrections->GetValue(Form("run%04d.crdc1.yOffset",CurrentRunNumber),0.0);
+  Double_t Crdc1YSlope = MyCorrections->GetValue(Form("run%04d.crdc1.ySlope",CurrentRunNumber),0.0);
+  
+  Double_t Crdc2XOffset = MyCorrections->GetValue(Form("run%04d.crdc2.xOffset",CurrentRunNumber),0.0);
+  Double_t Crdc2YOffset = MyCorrections->GetValue(Form("run%04d.crdc2.yOffset",CurrentRunNumber),0.0);
+  Double_t Crdc2YSlope = MyCorrections->GetValue(Form("run%04d.crdc2.ySlope",CurrentRunNumber),0.0);
+
+  //Form the calibrated CRDC information
+  Float_t xfp =crdc1Xcog*2.54 + Crdc1XOffset; 
+  Float_t yfp =crdc1TAC *Crdc1YSlope + Crdc1YOffset;
+
+  Float_t x_crdc2 = crdc2Xcog*2.54 +Crdc2XOffset;
+  Float_t y_crdc2 = crdc2TAC*Crdc2YSlope +Crdc2YOffset;
+
+  Float_t afp = TMath::ATan((x_crdc2 - xfp)/1073.0);
+  Float_t bfp = TMath::ATan((y_crdc2-yfp)/1073.0);
+
+  //Prefom the ray tracing
+  //The ray tracing routine needs input in meters and radian
+  Float_t ata,yta,bta,dta;
+  ata=yta=bta=dta=0;
+  Raytracing(MapA,MapY,MapB,MapD, xfp/1000. ,afp ,yfp/1000, bfp ,ata,yta,bta,dta);
+  //Returns in Meters and raidian
+  //Put the angles in degrees
+  //Put yta in mm
+  //put Di in percent
+  ata*=(180./3.14159265);
+  bta*=(180./3.14159265);
+  yta*=1000;
+  dta*=100;
+
+  //Put in Degrees
+  afp*=(180./3.14159265);
+  bfp*=(180./3.14159265);
+
+  Hist("afp",afp,1000,-100,100);
+  Hist("bfp",bfp,1000,-100,100); 
+  Hist("xfp",xfp,1000,-400,400);
+  Hist("yfp",yfp,1000,-400,400);
+    
+  Hist("dta",dta,1000,-100,100);
+  Hist("ata",ata,1000,-100,100);
+  Hist("bta",bta,1000,-100,100);
+  Hist("yta",yta,1000,-100,100);
+  
+
+
   
   //////////////////////////////////////////////////////
   // Each lendaevent has variable number of bars      //
