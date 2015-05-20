@@ -7,7 +7,7 @@
    For example if X is a time difference and Y is a pulse height it will show how the width
    of the time difference spectra changes with pulse height.
    
-   Argument description:
+   Argument description: <BR>
    h: the 2-D histogram <BR>
    Start: the lowest value in the Y variable to consider <BR>
    End: the highest value in the Y variable to consdier <BR>
