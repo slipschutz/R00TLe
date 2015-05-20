@@ -8,19 +8,19 @@
    of the time difference spectra changes with pulse height ( 'Walk')
    
    Argument description:
-   h: the 2-D histogram
-   Start: the lowest value in the Y variable to consider
-   End: the highest value in the Y variable to consdier
-   NumPoints: the number of slices to make and the number of points in the resulting graph
-   YScale: number to DIVIDE the Y values by. 
-   XScale: number to MULTIPLY the X values by.
+   h: the 2-D histogram <BR>
+   Start: the lowest value in the Y variable to consider <BR>
+   End: the highest value in the Y variable to consdier <BR>
+   NumPoints: the number of slices to make and the number of points in the resulting graph <BR>
+   YScale: number to DIVIDE the Y values by. <BR>
+   XScale: number to MULTIPLY the X values by. <BR>
 
-   *NOTE* the Y values will be on the x axis in the resulting graph.  Script makes Width of X as function of Y
+   *NOTE* the Y values will be on the x axis in the resulting graph.  Script makes Width of X as function of Y <BR>
 
-   FitLowCut: low edge in X for the gaussian fit
-   FitHighCut: high edge in X for the gaussian fit
-   plotG: Ploting flags for TGraph::Draw()
-   color: color number for resulting plot
+   FitLowCut: low edge in X for the gaussian fit <BR>
+   FitHighCut: high edge in X for the gaussian fit <BR>
+   plotG: Ploting flags for TGraph::Draw() <BR>
+   color: color number for resulting plot <BR>
    
 
  */
