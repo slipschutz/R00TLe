@@ -362,7 +362,7 @@ unsigned short* S800::DecodeS800NewMultiHitTDC(unsigned short *p){
   signed short hits[32];
   unsigned short raw[32];
   for (int i=0;i<32;i++){
-    hits[i]=0;
+    hits[i]=-1;
     raw[i]=0;
     for (int j=0;j<32;j++){
       data[i][j]=0;

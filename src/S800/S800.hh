@@ -256,6 +256,8 @@ public:
   std::vector<Short_t> GetData(){return fdata;}
   std::vector<Short_t> GetSample(){return fsample;}
   std::vector<Short_t> GetChannels(){return fchannels;}
+
+  Int_t GetID(){return fID;}
   
 protected:
   Int_t fID;
