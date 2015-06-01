@@ -29,9 +29,9 @@ public:
    void ReadCrdcCalibration(const char* filename, const char* pedestalfile);
    void ReadCrdcBadPads(const char* filename);
    //bool IsCrdcBadPad(int ch);
-   bool IsBad(int ch){
-     for(UShort_t b=0;b<fbad[fcrdc.GetID()].size();b++){
-       if(ch==fbad[fcrdc.GetID()][b])
+  bool IsBad(int ch,int CrdcId){
+     for(UShort_t b=0;b<fbad[CrdcId].size();b++){
+       if(ch==fbad[CrdcId][b])
          return true;
      }
      return false;
@@ -40,7 +40,12 @@ public:
    void S800Calculate(S800* in, S800Calc* out);
 
    void CrdcCal(std::vector<Short_t> channel, std::vector<Short_t> data, Int_t id);
+  
+   std::vector<Float_t> GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id);
+   void MakeCalibratedCRDC(CRDC* theCRDC,std::vector<Short_t> channels, std::vector<Short_t> data,Float_t tac,Float_t anode, Int_t id);
+
    Float_t CalcX();
+   Float_t CalcX2(CRDC* theCRDC);
 
    void SetCrdc(std::vector<Short_t> channel, std::vector<Short_t> data, Float_t tac, Float_t anode, Int_t id);
    CRDC GetCrdc(){return fcrdc;}
