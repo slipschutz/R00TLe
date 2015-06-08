@@ -13,6 +13,8 @@
 #include "lmmin.h"
 #include "lmfit.h"
 using namespace std;
+
+
 S800Calibration::S800Calibration(){
   // S800
   fped.resize(2);
@@ -27,6 +29,7 @@ S800Calibration::S800Calibration(){
   }
 
 }
+
 
 S800Calibration::S800Calibration(S800Settings* setting){
    fSett = setting;
@@ -53,6 +56,13 @@ S800Calibration::S800Calibration(S800Settings* setting){
 }
 
 S800Calibration::~S800Calibration(){
+  fped.clear();
+  fslope.clear();
+  foffset.clear();
+  fbad.clear();
+  fcrdccal.clear();
+  fICoffset.clear();
+  fICslope.clear();
   //std::cout << "destructor" << std::endl;
 }
 
@@ -88,6 +98,7 @@ void S800Calibration::ReadCrdcCalibration(const char *filename, const char *pedf
    // }
 }
 
+
 // CRDC cathode bad pad
 void S800Calibration::ReadCrdcBadPads(const char *filename){
   TEnv bad;// = new TEnv(filename); 
@@ -102,11 +113,13 @@ void S800Calibration::ReadCrdcBadPads(const char *filename){
       fbad[i].resize(bad.GetValue(Form("Crdc.%d.Nofbadpads",i),0));
       for(UShort_t k=0;k<fbad[i].size();k++){
 	 fbad[i][k] = bad.GetValue(Form("Crdc.%d.badpad.%d",i,k),0);
-	 std::cout << i << " " << k << " " << fbad[i][k] << std::endl;
+	 //std::cout << i << " " << k << " " << fbad[i][k] << std::endl;
       }
    }
 }
 
+
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv will be removed vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 void S800Calibration::CrdcCal(std::vector<Short_t> channel, std::vector<Short_t> data, Int_t id){
    Short_t index;
    std::vector<Float_t> sum;
@@ -140,6 +153,7 @@ void S800Calibration::CrdcCal(std::vector<Short_t> channel, std::vector<Short_t>
    return ;
 }
 
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^Will be removed^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id){
   //Channels should be a vector holding which pads fired in this event
@@ -191,7 +205,7 @@ std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t>
 
 
 
-
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv will be removed vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 void S800Calibration::SetCrdc(std::vector<Short_t> channel, std::vector<Short_t> data, 
 			      Float_t tac, Float_t anode, Int_t id) {
    fcrdc.Clear();
@@ -363,6 +377,7 @@ Float_t S800Calibration::CalcX(){
    return (Float_t)xcog;
 }
 
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^will be removed^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Float_t S800Calibration::CalcX2(CRDC* theCRDC){
 
@@ -538,6 +553,7 @@ void S800Calibration::SetTof(GTimeOfFlight *tof){
    ftof.SetTAC(tof->GetTACOBJ(), tof->GetTACXFP());
 }
 
+
 void S800Calibration::ReadICCalibration(const char *filename){
    TEnv *iccal = new TEnv(filename);
    for(int i=0;i<S800_FP_IC_CHANNELS;i++){
@@ -655,6 +671,14 @@ void S800Calibration::S800Calculate(S800* in, S800Calc* out){
    tof.Clear();
    this->SetTof(in->GetTimeOfFlight());
    tof = this->GetTof();
+   
+   //Copy over the GTrigger Object
+   Trigger tempTrigger;
+   tempTrigger.Set(in->GetTrigger()->GetRegistr(),in->GetTrigger()->GetS800(),
+		   in->GetTrigger()->GetExternal1(),in->GetTrigger()->GetExternal2(),
+		   in->GetTrigger()->GetSecondary());
+   out->SetTrigger(tempTrigger);
+
 
    // CRDC
    for(UShort_t k=0; k<2; k++) {

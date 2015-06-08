@@ -9,4 +9,5 @@
 #pragma link C++ class MultiHitTOF+;
 #pragma link C++ class SCINT+;
 #pragma link C++ class HODOSCOPE+;
+#pragma link C++ class Trigger+;
 #endif

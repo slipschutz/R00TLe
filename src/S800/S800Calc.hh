@@ -373,6 +373,53 @@ protected:
   ClassDef(IC, 1);
 };
 
+/**Calibrated data structure for S800 trigger information
+
+ */
+class Trigger : public TObject {
+public:
+  Trigger(){
+    fregistr = 0;
+    fs800 = 0;
+    fexternal1 = 0;
+    fexternal2 = 0;
+    fsecondary = 0;
+  }
+  ~Trigger(){
+    Clear();
+  };
+  void Clear(){
+    fregistr = 0;
+    fs800 = 0;
+    fexternal1 = 0;
+    fexternal2 = 0;
+    fsecondary = 0;
+  }
+  void Set(int registr, int s800, int external1, int external2, int secondary){
+    fregistr = registr;
+    fs800 = s800;
+    fexternal1 = external1;
+    fexternal2 = external2;
+    fsecondary = secondary;
+  }
+  Short_t GetRegistr(){return fregistr;}///<Gets a flag for the trigger type of event (1 singles, 2 coincidence)
+  Short_t GetS800(){return fs800;}///<Gets the time difference between the master TDC start and the E1Up signal
+  Short_t GetExternal1(){return fexternal1;}///<Gets the time difference between the master TDC start and the External1 signal
+  Short_t GetExternal2(){return fexternal2;}///<Gets the time difference between the master TDC start and the External2 signal
+  Short_t GetSecondary(){return fsecondary;}///<Gets the time difference between the master TDC start and the Secondary signal
+
+protected:
+  Short_t fregistr;
+  Short_t fs800;
+  Short_t fexternal1;
+  Short_t fexternal2;
+  Short_t fsecondary;
+  
+  ClassDef(Trigger, 1);
+};
+
+
+
 
 /**Calibrated S800 Data Structure. Contains instances of the calibrated data 
 structure for each of the S800s detectors.  They are called 'CRDC', 'IC',
@@ -403,6 +450,7 @@ public:
    void SetHODOSCOPE(HODOSCOPE hodoscope, int id) {fHODOSCOPE[id] = hodoscope;}
   
    void SetMultiHitTOF(MultiHitTOF f){fMultiHitTOF=f;}
+   void SetTrigger (Trigger in){fTrigger=in;}
 
    Float_t GetTimeS800(){return ftimes800;};
    CRDC* GetCRDC(int id){return &fCRDC[id];}
@@ -412,6 +460,8 @@ public:
    IC* GetIC(){return &fIC;}
   
    MultiHitTOF * GetMultiHitTOF(){return &fMultiHitTOF;}
+    
+   Trigger * GetTrigger(){return &fTrigger;}
 
    // timestamp
    void SetTS(long long int ts){fts = ts;}
@@ -425,6 +475,8 @@ protected:
    TOF       fTOF;
    SCINT     fSCINT[3];
    HODOSCOPE fHODOSCOPE[32];
+   Trigger fTrigger;
+
    Float_t       ftimes800;
    long long int fts;  //timestamp global
    long long int fits; //timestamp internal

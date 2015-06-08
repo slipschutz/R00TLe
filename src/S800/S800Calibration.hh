@@ -20,6 +20,11 @@
 
 class GTimeOfFlight;
 
+/**Class responsible for calibrating the S800.  Takes a S800 raw data object as input
+and creates a S800Calc object.  This requires a variety of input files that are specfied
+in a general input file along with other general settings about the calibration process.
+That file is specifed in S800Settings.
+*/
 class S800Calibration {
 public:
    S800Calibration();
@@ -37,18 +42,42 @@ public:
      return false;
    };
  
+  /**Main method for calibrating s800. Calls all other methods needed for 
+     calibrating each S800 detector element.
+   */
    void S800Calculate(S800* in, S800Calc* out);
 
-   void CrdcCal(std::vector<Short_t> channel, std::vector<Short_t> data, Int_t id);
   
+
+  /**This method will be removed.  It is being replaced by MakeCalibratedCRDC and
+     GetCalibratedCrdcPads.
+  */
+  void CrdcCal(std::vector<Short_t> channel, std::vector<Short_t> data, Int_t id);
+  
+  /**Method to form and calibrated the CRDC pad distribution.  Channels a vector holding each
+     read of each PAD that fired in the event. Data is a vector containning the corresponding read values
+     id is 0 or 1 specfying which CRDC is built.
+  */
    std::vector<Float_t> GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id);
+
+  /**Method to build a fully calibrated CRDC object.  The calibrated values will be set in theCRDC.  Inputs are the
+     same as for GetCalibratedCrdcPads
+
+   */
    void MakeCalibratedCRDC(CRDC* theCRDC,std::vector<Short_t> channels, std::vector<Short_t> data,Float_t tac,Float_t anode, Int_t id);
 
+  /**Method will be removed.  Will be replaced by CalcX2()
+   */
    Float_t CalcX();
    Float_t CalcX2(CRDC* theCRDC);
 
-   void SetCrdc(std::vector<Short_t> channel, std::vector<Short_t> data, Float_t tac, Float_t anode, Int_t id);
-   CRDC GetCrdc(){return fcrdc;}
+  /**Method will be removed.
+   */
+  void SetCrdc(std::vector<Short_t> channel, std::vector<Short_t> data, Float_t tac, Float_t anode, Int_t id);
+  
+  /**Method will be removed.
+   */
+  CRDC GetCrdc(){return fcrdc;}
 
    Float_t TimeOffset(Float_t time1, Float_t time2);
    Float_t TimeOffset(Float_t time);
