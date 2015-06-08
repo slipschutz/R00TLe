@@ -49,13 +49,15 @@ public:
       fmaxchg = sqrt(-1.0);
       ffitprm.resize(3);
    }
-   void SetCal(std::vector<Float_t> cal){
-      for(UShort_t i=0;i<cal.size();i++){
-	 if(!std::isnan(cal[i])){
-	    fcal.push_back(cal[i]);
-	    fchan.push_back(i);
-	 }
-      }
+   void SetCal(const std::vector<Float_t> & cal){
+     fcal=cal;
+
+      // for(UShort_t i=0;i<cal.size();i++){
+      // 	 if(!std::isnan(cal[i])){
+      // 	    fcal.push_back(cal[i]);
+      // 	    fchan.push_back(i);
+      // 	 }
+      // }
    }
    void SetXpad(Double_t xpad[300], Int_t j) {
       for (Int_t i = 0; i < j; i++) {
@@ -117,7 +119,7 @@ protected:
    std::vector<Int_t> fxpad;       //!
    Short_t fmaxpad;              
    Float_t fmaxchg;              
-   std::vector<Float_t> ffitprm;   //!
+   std::vector<Float_t> ffitprm;   
    Float_t ffnorm;                 
    Int_t fNumClusters;		   
    Float_t fMaxClusterWidth;       

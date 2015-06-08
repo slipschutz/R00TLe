@@ -635,7 +635,6 @@ void S800Calibration::MakeCalibratedCRDC(CRDC* theCRDC,std::vector<Short_t> chan
 
 void S800Calibration::S800Calculate(S800* in, S800Calc* out){
    //s800
-   CRDC crdc[2];
    TOF tof;
    SCINT scint[3];
    HODOSCOPE hodoscope[32];
@@ -665,14 +664,6 @@ void S800Calibration::S800Calculate(S800* in, S800Calc* out){
 			in->GetCrdc(k)->GetTAC(), 
 			in->GetCrdc(k)->GetAnode(), 
 			k);
-
-      // crdc[k].Clear();
-      // this->SetCrdc(in->GetCrdc(k)->GetChannels(),
-      // 		    in->GetCrdc(k)->GetData(),
-      // 		    in->GetCrdc(k)->GetTAC(), 
-      // 		    in->GetCrdc(k)->GetAnode(), 
-      // 		    k);
-      // crdc[k] = this->GetCrdc();
    }
 
    //SCINTILLATOR
@@ -699,7 +690,6 @@ void S800Calibration::S800Calculate(S800* in, S800Calc* out){
 
    //set Calculated S800
    out->SetTOF(tof);
-   //   for (UShort_t s = 0; s < 2;  s++) {out->SetCRDC(crdc[s],s);}
    for (UShort_t s = 0; s < 3;  s++) {out->SetSCINT(scint[s],s);}
    for (UShort_t s = 0; s < 32; s++) {out->SetHODOSCOPE(hodoscope[s],s);}
    out->SetIC(ich);
