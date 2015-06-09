@@ -15,6 +15,8 @@ if [ $# -eq 2 ] && [ "$1" == "-f" ]; then
     return
 elif [ $# -eq 2 ] && [ "$2" == "-a" ]; then
     AutoAddScripts=1;
+elif [ $# -eq 2 ] && [ "$2" == "-t" ]; then
+    ${R00TLeInstall}/shell/sl 
 fi
 
 #check to see if user is known
