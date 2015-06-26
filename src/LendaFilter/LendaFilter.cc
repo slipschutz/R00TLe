@@ -422,6 +422,63 @@ Double_t LendaFilter::DoMatrixInversionAlgorithm(const std::vector <Double_t> & 
   return left;
 }
 
+vector <Double_t> LendaFilter::GetMatrixInversionAlgorithmCoeffients
+(const std::vector <Double_t> & CFD, Int_t &ReturnSpotAbove){
+
+
+  std::map <double,int> zeroCrossings;
+  double max=0;
+
+  int begin = (CFD.size()/2)-40;
+  int end = (CFD.size()/2)+40;
+
+  for (int i =begin;i<end;i++){
+    if (CFD[i]>=0 && CFD[i+1]<0){
+      double val = CFD[i] - CFD[i+1];
+      if ( val > max)
+	max = val;
+      //put this crossing in map
+      zeroCrossings[val]=i;
+    }
+  }
+  
+  int theSpotAbove = zeroCrossings[max];
+  ReturnSpotAbove=theSpotAbove;
+
+  Double_t x[4];
+  TMatrixT<Double_t> Y(4,1);//a column vector
+  
+  for (int i=0;i<4;i++){
+    x[i]= theSpotAbove -1+ i; //first point is the one before zerocrossing
+    Y[i][0]=CFD[ theSpotAbove -1+i];
+  }
+
+
+  TMatrixT<Double_t> A(4,4);//declare 4 by 4 matrix
+
+  for (int row=0;row<4;row++){
+    for (int col=0;col<4;col++){
+      A[row][col]= pow(x[row],3-col);
+    }
+  }
+
+  //  A.Print();
+
+  TMatrixT<Double_t> invertA = A.Invert();
+
+  // invertA.Print();
+
+  TMatrixT<Double_t> Coeffs(4,1);
+  Coeffs = invertA*Y;
+  
+  vector <Double_t> retVec;
+  for (int i=0;i<4;i++){
+    retVec.push_back(Coeffs[i][0]);
+  }
+
+  return retVec;
+}
+
 
 Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
   

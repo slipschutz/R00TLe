@@ -44,6 +44,8 @@ public:
   
   Double_t DoMatrixInversionAlgorithm(const std::vector <Double_t> & CFD, Int_t Spot);
 
+  vector <Double_t> GetMatrixInversionAlgorithmCoeffients(const std::vector <Double_t> & CFD, Int_t& Spot);
+
   Double_t fitTrace(std::vector <UShort_t> &,Double_t, Double_t );
   
   Double_t GetEnergyOld(std::vector <UShort_t> &trace);
