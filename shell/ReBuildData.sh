@@ -15,7 +15,7 @@ if [ $start -ge $end ]; then
         
 fi
 count=0;
-numAtATime=6;
+numAtATime=10;
 for ((i=$start;i<=$end;i++)); do
     if [ $count -lt $(($numAtATime-1)) ]; then
 	echo "BuildData.sh $i &> ./log$i &"

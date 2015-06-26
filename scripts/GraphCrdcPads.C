@@ -4,7 +4,7 @@
 
 #include "S800.hh"
 #include "S800Event.hh"
-void GraphCrdcPads(int num=0){
+void GraphCrdcPads(int num=0,int CRDCNum=0){
 
   //This script will look at the Raw root trees
   //and plot a single crdc pad distribution 
@@ -19,20 +19,22 @@ void GraphCrdcPads(int num=0){
   // cout<<"Size of data "<<event->GetS800()->GetCrdc(0)->GetData().size()<<endl;
   // cout<<"Size of channels "<<event->GetS800()->GetCrdc(0)->GetChannels().size()<<endl;
 
-  int size = event->GetS800()->GetCrdc(0)->GetChannels().size();
+  int size = event->GetS800()->GetCrdc(CRDCNum)->GetChannels().size();
 
-  // for (int i=0;i<size;i++){
-  //   cout<<event->GetS800()->GetCrdc(0)->GetChannels()[i]<<" "
-  // 	<<event->GetS800()->GetCrdc(0)->GetData()[i]<<endl;
-  // }cout<<endl;
 
-  S800Calibration calibration(new S800Settings());
-  calibration.ReadCrdcCalibration("/user/e10003/R00TLe/prm/crdcal.dat","/user/e10003/R00TLe/prm/crdcpedestals_real.dat");
+
+  TString install =gSystem->Getenv("R00TLeInstall");
+  
+  TString calfile = install+"/prm/crdccalNone.dat";
+  TString pedfile = install+"/prm/crdcpedestals.dat";
+  
+  S800Calibration calibration;//new S800Settings(install+"/prm/Raw2Cal.dat"));
+  calibration.ReadCrdcCalibration(calfile,pedfile);
 
 
   //calibration.SetCrdc(event->GetS800()->GetCrdc(0)->GetChannels(),event->GetS800()->GetCrdc(0)->GetData(),0,0,0);
 
-  calibration.CrdcCal(event->GetS800()->GetCrdc(0)->GetChannels(),event->GetS800()->GetCrdc(0)->GetData(),0);
+  calibration.CrdcCal(event->GetS800()->GetCrdc(CRDCNum)->GetChannels(),event->GetS800()->GetCrdc(CRDCNum)->GetData(),0);
 
   int size2=calibration.GetCRDCCal().size();
   TGraph * graph = new TGraph();
