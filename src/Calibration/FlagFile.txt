@@ -1,0 +1,8 @@
+
+
+
+i	amRun	-1	The run number for the Am-241 data file
+i	csRun 	-1 	The run number for the Cs-127 data file
+i	naRun 	-1	The run number for the Na-22 data file
+b	OnlyGain	false	Flag to only gain match using the Cs-137 compton edge
+
