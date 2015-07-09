@@ -51,8 +51,14 @@ TGraphErrors* MakeWidthProjectionPlot(TH2F* h , Double_t Start=0,Double_t End=16
 
 
     if (temp->GetEntries() > 0 ){
-
-      TFitResultPtr result = temp->Fit("gaus","QS","",FitLowCut,FitHighCut);
+ 
+     TFitResultPtr result;
+      if (plotG.Contains("same")){
+	result = temp->Fit("gaus","QSN","",FitLowCut,FitHighCut);
+      }else{
+	result = temp->Fit("gaus","QS","",FitLowCut,FitHighCut);
+      }
+      
       
       Int_t status = result;
       

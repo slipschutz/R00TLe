@@ -66,6 +66,9 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
   }
 
   cout<<"TRACE SIZE IS "<<traceSize<<endl;
+  cout<<"Filter Size is "<<filterSize<<endl;
+  cout<<"CFD Size is "<<cfdSize<<endl;
+
   Double_t *x = (Double_t*)malloc(traceSize*sizeof(Double_t));
   
   for (int i=0;i<traceSize;i++){
@@ -159,6 +162,18 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
 
   free(temp);
 
+
+  LendaFilter theFilt;
+  int topSpot=-1;
+  vector <Double_t> coefs = theFilt.
+    GetMatrixInversionAlgorithmCoeffients(event->Bars[BarNum].Tops[0].GetCFD(),topSpot);
+  cout<<"TopSpot is "<<topSpot<<endl;
+  TF1 * f = new TF1("topFunc","pol3",topSpot-1,topSpot+2);
+  for (int i=0;i<coefs.size();i++){
+    cout<<coefs[i]<<endl;
+    f->SetParameter(i,coefs[3-i]);
+  }
+
   //gStyle->SetMarkerStyle(8);
   //  gStyle->UseCurrentStyle();
   for (int i=0;i<NumBottoms;i++){
@@ -172,7 +187,7 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
     BottomCFDs[i]->SetMarkerStyle(8);
     if (cfdSize!=0){BottomCFDs[i]->Draw("APLsame");}
 
-    if(traceSize!=0){BottomTraces[i]->Draw("AsameLp");}
+    if(traceSize!=0){BottomTraces[i]->Draw("sameLp");}
     BottomTraces[i]->SetFillColor(kBlack);
     BottomTraces[i]->SetLineWidth(2);
     BottomTraces[i]->SetMarkerStyle(8);
@@ -182,7 +197,7 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
     BottomFilters[i]->SetFillColor(kRed);
     BottomFilters[i]->SetLineWidth(2);
     BottomFilters[i]->SetMarkerStyle(8);
-    if (filterSize!=0){BottomFilters[i]->Draw("AsamePL");}
+    if (filterSize!=0){BottomFilters[i]->Draw("samePL");}
 
 
     TLegend * leg = new TLegend(0.8,0.8,0.9,0.9);
@@ -203,17 +218,20 @@ void OverPlotLE(Long64_t entry=0,Double_t offset=1660,int BarNum=0){
     TopCFDs[i]->SetLineWidth(2);
     TopCFDs[i]->GetHistogram()->GetXaxis()->SetTitle("Clock Ticks");
     TopCFDs[i]->GetHistogram()->GetYaxis()->SetTitle("ADC Units");
-    if(cfdSize!=0){TopCFDs[i]->Draw("APLsame");}
+    TopCFDs[i]->SetMarkerStyle(8);
+    if(cfdSize!=0){TopCFDs[i]->Draw("APLsame");f->Draw("same");}
     
     TopFilters[i]->SetLineColor(kRed);
     TopFilters[i]->SetMarkerColor(kRed);
     TopFilters[i]->SetFillColor(kRed);
     TopFilters[i]->SetLineWidth(2);
-    if (filterSize!=0){TopFilters[i]->Draw("AsamePL");}
+    TopFilters[i]->SetMarkerStyle(8);
+    //if (filterSize!=0){TopFilters[i]->Draw("samePL");}
 
     TopTraces[i]->SetFillColor(kBlack);
     TopTraces[i]->SetLineWidth(2);
-    if(traceSize!=0){TopTraces[i]->Draw("AsameLP");}
+    TopTraces[i]->SetMarkerStyle(8);
+    if(traceSize!=0){TopTraces[i]->Draw("sameLP");}
 
     TLegend * leg = new TLegend(0.8,0.8,0.9,0.9);
     leg->SetFillColor(kWhite);

@@ -22,9 +22,8 @@ void HistogramCrdcPads(int num=0){
   }
   
   //This script will look at the Raw root trees
-  //and plot a single crdc pad distribution 
 
-  TH1F * PADS[224];
+  TH1F * PADS[224];//Make a histogram for each pad
   stringstream name;
 
   for (int i=0;i<224;i++){

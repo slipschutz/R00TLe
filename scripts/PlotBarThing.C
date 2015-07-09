@@ -1,6 +1,17 @@
 
 
 
+TH1F * SafeGet(TString name){
+
+ 
+
+  TH1F * hist =(TH1F*) gDirectory->Get(name.Data());
+  if ( hist == NULL){
+    cout<<"Could not find "<<name.Data()<<endl;
+    return NULL;
+  }
+  return hist;
+}
 
 
 
@@ -26,6 +37,8 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
   c3->Divide(4,3);
   c4->Divide(4,3);
 
+  TH1F * hist;
+
   for (int i=1;i<=12;i++){
     c1->cd(i);
     //    gPad->SetLogy();
@@ -34,42 +47,52 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
     name<<"SL"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
     cout<<name.str()<<endl;
 
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->Draw(plotOpt.c_str());
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->SetLineColor(kBlack);
-
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->GetXaxis()->SetRangeUser(xlow,xhigh);
     
+    hist = SafeGet(name.str().c_str());
+    if (hist){
+      hist->Draw(plotOpt.c_str());
+      hist->SetLineColor(kBlack);
+      hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+    }
 
     c2->cd(i);
     name.str("");
     //gPad->SetLogy();
 
     name<<"NL"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
-    
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->Draw(plotOpt.c_str());
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->SetLineColor(kBlack);
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->GetXaxis()->SetRangeUser(xlow,xhigh);
 
+    hist = SafeGet(name.str().c_str());
+    if (hist){
+      hist->Draw(plotOpt.c_str());
+      hist->SetLineColor(kBlack);
+      hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+    }
     c3->cd(i);
     name.str("");
     //gPad->SetLogy();
 
     name<<"SV"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
+    hist = SafeGet(name.str().c_str());
+    if (hist){
+      hist->Draw(plotOpt.c_str());
+      hist->SetLineColor(kBlack);
+      hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+    }
     
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->Draw(plotOpt.c_str());
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->SetLineColor(kBlack);
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->GetXaxis()->SetRangeUser(xlow,xhigh);
-
     c4->cd(i);
     name.str("");
     //gPad->SetLogy();
 
-    name<<"NV"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
     
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->Draw(plotOpt.c_str());
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->SetLineColor(kBlack);
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->GetXaxis()->SetRangeUser(xlow,xhigh);
 
+    name<<"NV"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
+
+    hist = SafeGet(name.str().c_str());
+    if (hist){
+      hist->Draw(plotOpt.c_str());
+      hist->SetLineColor(kBlack);
+      hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+    }
 
 
 

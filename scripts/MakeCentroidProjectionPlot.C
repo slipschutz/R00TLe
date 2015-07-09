@@ -9,22 +9,25 @@
    
    Argument description: <BR>
    h: the 2-D histogram <BR>
+   NumPoints: the number of slices to make and the number of points in the resulting graph <BR>
    Start: the lowest value in the Y variable to consider <BR>
    End: the highest value in the Y variable to consdier <BR>
-   NumPoints: the number of slices to make and the number of points in the resulting graph <BR>
-   YScale: number to DIVIDE the Y values by. <BR>
-   XScale: number to MULTIPLY the X values by. <BR>
 
-   *NOTE* the Y values will be on the x axis in the resulting graph.  Script makes Width of X as function of Y <BR>
+
+   *NOTE* the Y values of the original 2D histogram will be on the x axis in the resulting graph. <BR>
+   Script makes centroid of X as function of Y <BR>
 
    FitLowCut: low edge in X for the gaussian fit <BR>
    FitHighCut: high edge in X for the gaussian fit <BR>
+   XScale: number to MULTIPLY the X values by. <BR>
+   YScale: number to DIVIDE the Y values by. <BR>
+
    plotG: Ploting flags for TGraph::Draw() <BR>
    color: color number for resulting plot <BR>
    
 
  */
-TGraphErrors* MakeCentroiProjectionPlot(TH2F* h , Double_t Start=0,Double_t End=16000,Int_t NumPoints=20,Double_t YScale=1,Double_t XScale=1,Double_t FitLowCut=-10,Double_t FitHighCut=10,TString plotG="AP",Int_t color=kBlack){
+TGraphErrors* MakeCentroiProjectionPlot(TH2F* h ,Int_t NumPoints=20,Double_t Start=0,Double_t End=16000,Double_t FitLowCut=-10,Double_t FitHighCut=10,Double_t XScale=1,Double_t YScale=1,TString plotG="AP",Int_t color=kBlack){
 
 
   Int_t numYbins = h->GetNbinsY();
@@ -42,6 +45,7 @@ TGraphErrors* MakeCentroiProjectionPlot(TH2F* h , Double_t Start=0,Double_t End=
   for (int i=0;i<NumPoints;i++){
     dd.str("");
     dd<<"hProj"<<i;
+    gDirectory->Delete(dd.str().c_str());
     Double_t ii =i;
     Int_t StartBin = h->GetYaxis()->FindBin(Start + i*step);
     //    Int_t EndBin = h->GetYaxis()->FindBin(Start + ((ii+window)/100.0)*(End-Start));
@@ -53,8 +57,12 @@ TGraphErrors* MakeCentroiProjectionPlot(TH2F* h , Double_t Start=0,Double_t End=
 
 
     if (temp->GetEntries() > 0 ){
-
-      TFitResultPtr result = temp->Fit("gaus","QS","",FitLowCut,FitHighCut);
+      TFitResultPtr result;
+      if (plotG.Contains("same")){
+	result = temp->Fit("gaus","QSN","",FitLowCut,FitHighCut);
+      }else{
+	result = temp->Fit("gaus","QS","",FitLowCut,FitHighCut);
+      }
       
       Int_t status = result;
       

@@ -12,8 +12,8 @@ void PlotPartOfArray(string part,string thing,int xlow=-100,int xhigh=100,TStrin
 
   stringstream name;
 
-  TCanvas * c1 = new TCanvas("ETops");
-  TCanvas * c2 = new TCanvas("EBottoms");
+  TCanvas * c1 = new TCanvas("Tops");
+  TCanvas * c2 = new TCanvas("Bottoms");
   
   // TCanvas * c3 = new TCanvas("TOFTops");
   // TCanvas * c4 = new TCanvas("TOFBottoms");
@@ -30,29 +30,35 @@ void PlotPartOfArray(string part,string thing,int xlow=-100,int xhigh=100,TStrin
     name.str("");
 
     name<<ArrayPart<<setfill('0')<<setw(2)<<i<<"_Top"<<thing;
-    cout<<name.str()<<endl;
+    cout<<"Plotting "<<name.str()<<endl;
 
+    TH1F * top =(TH1F*) gDirectory->Get(name.str().c_str());
+    if ( top == NULL){
+      cout<<"Could not find "<<name.srtr()<<endl;
+      return;
+    }
+    top->SetLineColor(kBlack);
+    top->GetXaxis()->SetRangeUser(xlow,xhigh);
 
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->SetLineColor(kBlack);
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->GetXaxis()->SetRangeUser(xlow,xhigh);
+    top->Draw(opt);
 
-    //    ((TH1F*)gDirectory->Get(name.str().c_str()))->ProjectionX()->    
-    ((TH2F*)gDirectory->Get(name.str().c_str()))->Draw(opt);
     
-
+ 
     c2->cd(i);
     name.str("");
-
     name<<ArrayPart<<setfill('0')<<setw(2)<<i<<"_Bottom"<<thing;
-    
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->Draw(opt);
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->SetLineColor(kBlack);
+    cout<<"Plotting "<<name.str()<<endl;
 
-    ((TH1F*)gDirectory->Get(name.str().c_str()))->GetXaxis()->SetRangeUser(xlow,xhigh);
+    TH1F * bottom =(TH1F*) gDirectory->Get(name.str().c_str());
+    if ( bottom== NULL){
+      cout<<"Could not find "<<name.str()<<endl;
+      return;
+    }
+    bottom->SetLineColor(kBlue);
+    bottom->GetXaxis()->SetRangeUser(xlow,xhigh);
 
-
-
-
-
+    bottom->Draw(opt);
   }
+
+
 }
