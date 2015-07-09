@@ -21,7 +21,7 @@
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
-   saveTraces=false;
+   saveTraces=true;
 
 
  }
@@ -146,6 +146,7 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
   if (theTrace.size()!=0 && info.DontTraceAnalyze==false){
     theFilter.FastFilter(theTrace,thisEventsFF,FL,FG); //run FF algorithim
     // thisEventsCFD = theFilter.CFD(thisEventsFF,d,w); //run CFD algorithim
+    //cout<<info.FullName<<" FL "<<FL<<" FG "<<FG<<" d "<<d<<" w "<<w<<endl;
     thisEventsCFD=theFilter.GetNewFirmwareCFD(theTrace,FL,FG,d,w);
     
     //If this channel is NOT a reference channel run the basic algorithms 
