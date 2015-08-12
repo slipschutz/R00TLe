@@ -21,7 +21,7 @@
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
-   saveTraces=true;
+   saveTraces=false;
 
 
  }
@@ -168,6 +168,8 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
       
       thisChannelsEnergies.push_back(theFilter.GetEnergy(theTrace,MaxSpotInTrace_temp));
       
+      shortGate=theFilter.GetGate(theTrace,MaxSpotInTrace_temp-4,10);
+      
     } else {//This channel is a reference channel.  Perform the Highrate related algorithms
       Double_t trash;
       Int_t t;
@@ -176,6 +178,9 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
 	thisChannelsPulseHeights=theFilter.GetPulseHeightHighRate(theTrace,thisChannelsPeakSpots);
 	thisChannelsSoftwareCFDs=theFilter.GetZeroCrossingHighRate(thisEventsCFD,thisChannelsPeakSpots);
 	thisChannelsCubicCFDs= theFilter.GetZeroCrossingCubicHighRate(thisEventsCFD,thisChannelsPeakSpots);
+
+	shortGate=theFilter.GetGate(theTrace,thisChannelsPeakSpots[0]-4,10);
+	longGate=theFilter.GetGate(theTrace,thisChannelsPeakSpots[0]-4,30);
       }
     }
     if (thisChannelsPulseHeights.size()==0){
@@ -522,7 +527,7 @@ void LendaPacker::UpdateSettings(){
      theChannel->SetCorrectedCubicFitTime( theChannel->GetCubicFitTime() - info.TOFOffset);
      theChannel->SetCorrectedCubicTime( theChannel->GetCubicTime() - info.TOFOffset);
    }
-
+   
  }
 
 
@@ -618,7 +623,7 @@ void LendaPacker::UpdateSettings(){
 	 }
        }
      } else { // This is when the channel was not in the map
-       Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],MapInfo()) );
+       //       Event->PushUnMappedChannel( DDASChannel2LendaChannel(theDDASChannels[i],MapInfo()) );
      }
    }//End FOR over DDASChannels
    
