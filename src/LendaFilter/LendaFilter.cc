@@ -781,7 +781,7 @@ Double_t LendaFilter::GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot){
 
 }
 
-vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut){
+vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,int num){
 
   Int_t NumberOfSamples = 20;
   Int_t TraceLength = trace.size();
@@ -884,7 +884,7 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
   vector <Double_t> theEnergies;
   for (auto i : PeakSpots){
     Double_t temp=0;
-    for (int j=-windowForEnergy;j<windowForEnergy;j++){
+    for (int j=0;j<3;j++){
       temp+= (trace[i+j]-BaseLine);
     }
     theEnergies.push_back(temp);
