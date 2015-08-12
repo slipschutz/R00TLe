@@ -5,4 +5,5 @@ i	amRun	-1	The run number for the Am-241 data file
 i	csRun 	-1 	The run number for the Cs-127 data file
 i	naRun 	-1	The run number for the Na-22 data file
 b	OnlyGain	false	Flag to only gain match using the Cs-137 compton edge
-
+s	ignore		xxxx	Flag to not process histograms containing value in their name
+s	pattern		_AvgCorrected Histogram names to look for in the files for Na-22 and Am-241

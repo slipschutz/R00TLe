@@ -318,6 +318,21 @@ Double_t FindComptonEdge(TH1D* theHisto,Double_t start,Double_t end,TString Name
 }
 
 
+
+// int NaEdge1Min=3000;
+// int NaEdge1Max=8000;
+
+// int NaEdge2Min=15000;
+// int NaEdge2Max=60000;
+
+int NaEdge1Min=200;
+int NaEdge1Max=500;
+
+int NaEdge2Min=900;
+int NaEdge2Max=1400;
+
+
+
 void CalibrateNAData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString BarName){
 
   //Order of points 
@@ -325,8 +340,8 @@ void CalibrateNAData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
 
   Double_t x[2];
   
-  x[0]=FindComptonEdge(theProjectionTop,200,500,BarName+"T_Nafunc1");
-  x[1]=FindComptonEdge(theProjectionTop,900,1400,BarName+"T_Nafunc2");
+  x[0]=FindComptonEdge(theProjectionTop,NaEdge1Min,NaEdge1Max,BarName+"T_Nafunc1");
+  x[1]=FindComptonEdge(theProjectionTop,NaEdge2Min,NaEdge2Max,BarName+"T_Nafunc2");
   if ( x[0]!=0 && x[1]!=0){//if either are zero then there was a failed fit.  Don't do that one
     if (theGraphs.count(BarName+"T") !=0 ){
 
@@ -340,8 +355,8 @@ void CalibrateNAData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
     }
   }
 
-  x[0]=FindComptonEdge(theProjectionBottom,200,500,BarName+"B_Nafunc1");
-  x[1]=FindComptonEdge(theProjectionBottom,900,1400,BarName+"B_Nafunc2");
+  x[0]=FindComptonEdge(theProjectionBottom,NaEdge1Min,NaEdge2Max,BarName+"B_Nafunc1");
+  x[1]=FindComptonEdge(theProjectionBottom,NaEdge2Min,NaEdge2Max,BarName+"B_Nafunc2");
   if ( x[0]!=0 && x[1]!=0){//if either are zero then there was a failed fit.  Don't do that one
     if (theGraphs.count(BarName+"B") !=0 ){
 
@@ -449,15 +464,27 @@ void CalibrateAMData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
   TH1D* bottomSmooth = BoxCarSmooth(theProjectionBottom);
 
 
+  // double low=theProjectionTop->GetXaxis()->GetXmin();
+  // double high=theProjectionTop->GetXaxis()->GetXmax();
+  // theProjectionTop->GetXaxis()->SetRangeUser(0,30);
 
-  Int_t firstTopMaxIndex = theProjectionTop->GetMaximumBin();//FindNextMax(topSmooth,0);
+  Int_t firstTopMaxIndex =FindNextMax(theProjectionTop,0);// theProjectionTop->GetMaximumBin();
+  
+  //  theProjectionTop->GetXaxis()->SetRangeUser(low,high);
+  
   Int_t temp = FindNextMin(theProjectionTop,firstTopMaxIndex)+3;
   Int_t secondTopMaxIndex=2*FindNextMax((TH1D*)theProjectionTop->Rebin(2,BarName+"TRebinAm"),temp/2);
-  
-  Int_t firstBottomMaxIndex =theProjectionBottom->GetMaximumBin();//FindNextMax(bottomSmooth,0);
-  temp = FindNextMin(theProjectionBottom,firstBottomMaxIndex)+3;
 
+
+  // low=theProjectionBottom->GetXaxis()->GetXmin();
+  // high=theProjectionBottom->GetXaxis()->GetXmax();
+
+  //  theProjectionBottom->GetXaxis()->SetRangeUser(0,30);  
+  Int_t firstBottomMaxIndex = FindNextMax(theProjectionBottom,0);//theProjectionBottom->GetMaximumBin();
+  //  theProjectionBottom->GetXaxis()->SetRangeUser(low,high);
+  temp = FindNextMin(theProjectionBottom,firstBottomMaxIndex)+3;
   Int_t secondBottomMaxIndex=2*FindNextMax((TH1D*)theProjectionBottom->Rebin(2,BarName+"BRebinAm"),temp/2);
+
 
   cout<<"Min spot is "<<temp<<" "<<theProjectionTop->GetBinCenter(temp)<<endl;
 
@@ -576,7 +603,7 @@ void CalibrateAMData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
 }
 
 
-void CalibrateCSData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString BarName){
+void CalibrateCSData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString BarName,bool OnlyGain){
 
   //Order of points 
   //Na1 Na2 Am1 Am2 Cs1 Cs2
@@ -584,46 +611,46 @@ void CalibrateCSData(TH1D* theProjectionTop,TH1D* theProjectionBottom, TString B
 
   int SmoothFudge=0;
 
-  int PhotoPeakWindow=300;
+  int PhotoPeakWindow=5;
 
-  /////////////////TOP CHANNEL///////////////////////////////
-  if (theProjectionTop->GetEntries()!=0){
-    Int_t TopMaxIndex = ReBinFactor*FindNextMax((TH1D*)theProjectionTop->Rebin(ReBinFactor,BarName+"_Trebinned"),0);//BoxCarSmooth(theProjectionTop,2),0);
-    Double_t binCenterTop = theProjectionTop->GetBinCenter(TopMaxIndex-SmoothFudge);
-    if (binCenterTop>0){
-      vector<Double_t> temp = FindPhotoPeak(theProjectionTop,binCenterTop,PhotoPeakWindow,BarName+"T_CsFirstFunc");
-      if (temp.size() !=0){
-	theGraphs[BarName+"T"]->SetPoint(4,temp[0],gY[4]);
-	theGraphs[BarName+"T"]->SetPointError(4,temp[1],0);
+  if (! OnlyGain){
+    /////////////////TOP CHANNEL///////////////////////////////
+    if (theProjectionTop->GetEntries()!=0){
+      Int_t TopMaxIndex = ReBinFactor*FindNextMax((TH1D*)theProjectionTop->Rebin(ReBinFactor,BarName+"_Trebinned"),0);//BoxCarSmooth(theProjectionTop,2),0);
+      Double_t binCenterTop = theProjectionTop->GetBinCenter(TopMaxIndex-SmoothFudge);
+      if (binCenterTop>0){
+	vector<Double_t> temp = FindPhotoPeak(theProjectionTop,binCenterTop,PhotoPeakWindow,BarName+"T_CsFirstFunc");
+	if (temp.size() !=0){
+	  theGraphs[BarName+"T"]->SetPoint(4,temp[0],gY[4]);
+	  theGraphs[BarName+"T"]->SetPointError(4,temp[1],0);
+	}
       }
     }
-  }
 
-  /////////////////Bottom CHANNEL///////////////////////////////
-  if (theProjectionBottom->GetEntries()!=0){
-    Int_t BottomMaxIndex = ReBinFactor*FindNextMax((TH1D*)theProjectionBottom->Rebin(ReBinFactor,BarName+"_Brebinned"),0);
-    Double_t binCenterBottom = theProjectionBottom->GetBinCenter(BottomMaxIndex-SmoothFudge);
+    /////////////////Bottom CHANNEL///////////////////////////////
+    if (theProjectionBottom->GetEntries()!=0){
+      Int_t BottomMaxIndex = ReBinFactor*FindNextMax((TH1D*)theProjectionBottom->Rebin(ReBinFactor,BarName+"_Brebinned"),0);
+      Double_t binCenterBottom = theProjectionBottom->GetBinCenter(BottomMaxIndex-SmoothFudge);
 
-    if (binCenterBottom>0){
-      vector<Double_t> temp = FindPhotoPeak(theProjectionBottom,binCenterBottom,PhotoPeakWindow,BarName+"B_CsFirstFunc");
-      if (temp.size()!=0){
-	theGraphs[BarName+"B"]->SetPoint(4,temp[0],gY[4]);
-	theGraphs[BarName+"B"]->SetPointError(4,temp[1],0);
+      if (binCenterBottom>0){
+	vector<Double_t> temp = FindPhotoPeak(theProjectionBottom,binCenterBottom,PhotoPeakWindow,BarName+"B_CsFirstFunc");
+	if (temp.size()!=0){
+	  theGraphs[BarName+"B"]->SetPoint(4,temp[0],gY[4]);
+	  theGraphs[BarName+"B"]->SetPointError(4,temp[1],0);
+	}
       }
     }
+  }else if (OnlyGain){
+    Double_t edgeT = FindComptonEdge(theProjectionTop,5000,20000,BarName+"T_CsFunc2");
+    Double_t edgeB = FindComptonEdge(theProjectionBottom,5000,20000,BarName+"B_CsFunc2");
+
+    theGraphs[BarName+"T"]->SetPoint(5,edgeT,gY[5]);
+    theGraphs[BarName+"T"]->SetPointError(5,gErrorInCompton*edgeT,0);
+
+
+    theGraphs[BarName+"B"]->SetPoint(5,edgeB,gY[5]);
+    theGraphs[BarName+"B"]->SetPointError(5,gErrorInCompton*edgeB,0);
   }
-
-  
-  Double_t edgeT = FindComptonEdge(theProjectionTop,5000,20000,BarName+"T_CsFunc2");
-  Double_t edgeB = FindComptonEdge(theProjectionBottom,5000,20000,BarName+"B_CsFunc2");
-
-  theGraphs[BarName+"T"]->SetPoint(5,edgeT,gY[5]);
-  theGraphs[BarName+"T"]->SetPointError(5,gErrorInCompton*edgeT,0);
-
-
-  theGraphs[BarName+"B"]->SetPoint(5,edgeB,gY[5]);
-  theGraphs[BarName+"B"]->SetPointError(5,gErrorInCompton*edgeB,0);
-
 }
 
 
@@ -757,9 +784,12 @@ int main(int argc,char**argv){
   int runNumberCs = InputMan.GetIntValue("csrun");
   
 
+  TString ignoreVal = InputMan.GetStringValue("ignore").c_str();
 
+  string histPattern = InputMan.GetStringValue("pattern");
+
+  bool OnlyGain= InputMan.GetBoolValue("onlygain");
   
-
   
   ifstream InCorrectionsFile;
   stringstream ss1;
@@ -838,25 +868,42 @@ int main(int argc,char**argv){
     TFile * theFile_Cs =  OpenFile(runNumberCs);
     TFile * theFile_Cs_Updated = OpenFileUpdated(runNumberCs);
 
+    string nameFudgeTop="";
+    string nameFudgeBottom="";
+
+    if (OnlyGain){
+      //if we are doing the gain matching set.  will need two histograms with
+      //different names 
+      nameFudgeTop="_Top";
+      nameFudgeBottom="_Bottom";
+    }
+
     cout<<"Analyzing Cs Data"<<endl;
     for ( int i=0;i<numBars;i++){
-
+      
       ////////////////////////////////////////////////
       ////////////////////////////////////////////////
       //Get the Bottom Energy vs time plot///////////
       theFile_Cs->cd();
 
       name.str("");
-      name <<theSettings->GetBarName(i)<<"_TopCalibrate";
-      cout<<"ON bar "<<theSettings->GetBarName(i)<<endl;
-
+      name <<theSettings->GetBarName(i)<<nameFudgeTop<<histPattern;
       TH2F * tempHistoTop = (TH2F*)gDirectory->Get(name.str().c_str());
+
       name.str("");
-      name <<theSettings->GetBarName(i)<<"_BottomCalibrate";
+      name <<theSettings->GetBarName(i)<<nameFudgeBottom<<histPattern;
       TH2F * tempHistoBottom = (TH2F*)gDirectory->Get(name.str().c_str());
 
-    
-      if (tempHistoTop != NULL &&tempHistoBottom!=NULL){
+
+      //will only check the second name for the ignore value as it should be looking
+      //for not 'NV' or something not no Tops...
+      TString tttt = name.str().c_str();
+
+      // if(tempHisto!=NULL && ! tttt.Contains(ignoreVal.Data(),TString::kIgnoreCase)){
+
+
+      cout<<name.str()<<endl;
+      if (tempHistoTop != NULL &&tempHistoBottom!=NULL && ! tttt.Contains(ignoreVal.Data(),TString::kIgnoreCase)){
 
 	TH1D * theProjectionBottom = GetRightTimeProjection(tempHistoBottom);
 	TH1D * theProjectionTop = GetRightTimeProjection(tempHistoTop);
@@ -867,7 +914,7 @@ int main(int argc,char**argv){
 	theProjectionBottom->Rebin(ReBinFactor,TString(theProjectionBottom->GetName())+"_Rebin")->Write("",TObject::kOverwrite);
 	theProjectionTop   ->Rebin(ReBinFactor,TString(theProjectionTop   ->GetName())+"_Rebin")->Write("",TObject::kOverwrite);
 
-	CalibrateCSData(theProjectionTop,theProjectionBottom, theSettings->GetBarName(i) );
+	CalibrateCSData(theProjectionTop,theProjectionBottom, theSettings->GetBarName(i),OnlyGain );
 
 	// if (gROOT->GetListOfFunctions()->FindObject(TString(theSettings->GetBarName(i))+"T_CsFirstFunc")!=NULL){
 	//   theProjectionTop->GetListOfFunctions()->Add((TF1*)gROOT->GetListOfFunctions()->FindObject(TString(theSettings->GetBarName(i))+"T_CsFirstFunc"));
@@ -909,16 +956,16 @@ int main(int argc,char**argv){
       ////////////////////////////////////////////////
       theFile_Na->cd();
       name.str("");
-      name <<theSettings->GetBarName(i)<<"_AvgCorrected";
+      name <<theSettings->GetBarName(i)<<histPattern;
       cout<<"On bar "<<name.str()<<endl;
       TH2F * tempHisto = (TH2F*)gDirectory->Get(name.str().c_str());
 
       TString tttt = name.str().c_str();
 
-      if(tempHisto!=NULL && ! tttt.Contains("N")){
+      if(tempHisto!=NULL && ! tttt.Contains(ignoreVal.Data(),TString::kIgnoreCase)){
   	theFile_Na_Updated->cd();
   	TH1D * theProjection = GetRightTimeProjection(tempHisto);
-
+	theProjection->Rebin(4);
 
   	BoxCarSmooth(theProjection)->Write("",TObject::kOverwrite);
 
@@ -1042,12 +1089,12 @@ int main(int argc,char**argv){
       //Get the Bottom Energy vs time plot///////////
       theFile_Am->cd();
       name.str("");
-      name <<theSettings->GetBarName(i)<<"_AvgCorrected";
+      name <<theSettings->GetBarName(i)<<histPattern;
 
       TH2F * tempHisto = (TH2F*)gDirectory->Get(name.str().c_str());
 
       TString tttt = name.str().c_str();
-      if (tempHisto !=NULL && ! tttt.Contains("N")){
+      if (tempHisto !=NULL && ! tttt.Contains(ignoreVal.Data(),TString::kIgnoreCase)){
 	theFile_Am_Updated->cd();
 	TH1D * theProjection = GetRightTimeProjection(tempHisto);
 
