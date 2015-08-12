@@ -14,7 +14,7 @@ src/TimmingAnalyzer2Channel/*.txt
 *clang*
 *back*
 src/include/.*
-prm/Corrections.txt_compton_*
+
 prm/*
 FakeDataGenerator/
 LendaBundle/
