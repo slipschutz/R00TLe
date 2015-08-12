@@ -14,3 +14,4 @@ if [ -f $theFile ]; then
 #    /usr/opt/nscldaq/10.2-112/bin/dumper --source=file://$theFile --exclude=PHYSICS_EVENT,PHYSICS_EVENT_COUNT,INCREMENTAL_SCALERS | tail -3
     
 fi
+
