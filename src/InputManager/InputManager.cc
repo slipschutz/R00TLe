@@ -170,7 +170,7 @@ bool InputManager::LoadInputs(vector <string> & inputs){
 	return false;
       } else{
 	Flags.push_back(lowerCase(temp[0]));
-	Arguments.push_back(lowerCase(temp[1]));
+	Arguments.push_back(temp[1]);//lowerCase(temp[1]));
       }
     }
 
