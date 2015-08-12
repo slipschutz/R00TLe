@@ -35,7 +35,15 @@ void LoadStyle(){
 
   gROOT->ForceStyle();
 
+  TList *list = gDirectory->GetList();
 
+  for (int i=0;i<list->GetSize();i++){
+    list->At(i)->UseCurrentStyle();
+    TObject *obj =gPad->GetPrimitive(list->At(i)->GetName());
+    if (obj !=NULL){
+      obj->Draw();
+    }
+  }
 
 
 
