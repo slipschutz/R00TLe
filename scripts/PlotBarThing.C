@@ -1,7 +1,7 @@
 
 
 
-TH1F * SafeGet(TString name){
+TH1F * SafeGet(TString name,TString xLabel, TString yLabel){
 
  
 
@@ -10,13 +10,24 @@ TH1F * SafeGet(TString name){
     cout<<"Could not find "<<name.Data()<<endl;
     return NULL;
   }
+  // //  hist->Rebin(10);
+  // hist->SetTitle("");
+  // hist->GetXaxis()->SetTitle(xLabel);
+  // hist->GetYaxis()->SetTitle(yLabel);
+
+
+  // hist->GetListOfFunctions()->Clear();
+
+  // gStyle->SetOptStat(0);
+
+  // hist->UseCurrentStyle();
   return hist;
 }
 
 
 
 
-void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
+void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TString xLabel="",TString yLabel=""){
 
 
 
@@ -48,7 +59,7 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
     cout<<name.str()<<endl;
 
     
-    hist = SafeGet(name.str().c_str());
+    hist = SafeGet(name.str().c_str(),xLabel,yLabel);
     if (hist){
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
@@ -57,11 +68,11 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
 
     c2->cd(i);
     name.str("");
-    //gPad->SetLogy();
+    //    gPad->SetLogy();
 
     name<<"NL"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
 
-    hist = SafeGet(name.str().c_str());
+    hist = SafeGet(name.str().c_str(),xLabel,yLabel);
     if (hist){
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
@@ -69,10 +80,10 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
     }
     c3->cd(i);
     name.str("");
-    //gPad->SetLogy();
+    //    gPad->SetLogy();
 
     name<<"SV"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
-    hist = SafeGet(name.str().c_str());
+    hist = SafeGet(name.str().c_str(),xLabel,yLabel);
     if (hist){
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
@@ -81,13 +92,13 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt=""){
     
     c4->cd(i);
     name.str("");
-    //gPad->SetLogy();
+    // gPad->SetLogy();
 
     
 
     name<<"NV"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
 
-    hist = SafeGet(name.str().c_str());
+    hist = SafeGet(name.str().c_str(),xLabel,yLabel);
     if (hist){
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
