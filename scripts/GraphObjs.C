@@ -73,8 +73,15 @@ void GraphObjs(Long64_t entry=0,int num=8,int start=0){
     for (int j=0;j<traceSize;j++){
       temp[j]=event->TheObjectScintillators[i].GetTrace()[j];
     }
+    Double_t temp22 =(event->TheObjectScintillators[i]).GetTime()*4.0/(TMath::Power(10,9));
+    stringstream ss;
+    ss.precision(10);
+    ss<<" "<<temp22;
+
+
+    TString timeString(ss.str().c_str());
     Objects[i]=new TGraph(traceSize,x,temp);
-    Objects[i]->SetTitle(event->TheObjectScintillators[i].GetChannelName().c_str());
+    Objects[i]->SetTitle(TString(event->TheObjectScintillators[i].GetChannelName().c_str()) +timeString );
     Objects[i]->SetName(event->TheObjectScintillators[i].GetChannelName().c_str());
 
     // for (int j=0;j<traceSize;j++){

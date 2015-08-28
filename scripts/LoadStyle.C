@@ -14,22 +14,22 @@ void LoadStyle(){
 
   gStyle->SetOptStat(0);//Get rid of histogram stats box
 
-  gStyle->SetLabelSize(0.045,"X");
-  gStyle->SetLabelSize(0.045,"Y");
-  gStyle->SetLabelSize(0.045,"Z");
+  gStyle->SetLabelSize(0.050,"X");
+  gStyle->SetLabelSize(0.050,"Y");
+  gStyle->SetLabelSize(0.050,"Z");
 
-  gStyle->SetTitleSize(0.048,"X");
-  gStyle->SetTitleSize(0.048,"Y");
-  gStyle->SetTitleSize(0.048,"Z");
+  gStyle->SetTitleSize(0.06,"X");
+  gStyle->SetTitleSize(0.06,"Y");
+  gStyle->SetTitleSize(0.06,"Z");
   
 
   gStyle->SetTickLength(0.02,"X");
   gStyle->SetTickLength(0.02,"Y");
   gStyle->SetTickLength(0.02,"Z");
 
-  gStyle->SetTitleOffset(1,"X");
-  gStyle->SetTitleOffset(1,"Y");
-  gStyle->SetTitleOffset(1,"Z");
+  gStyle->SetTitleOffset(0.8,"X");
+  gStyle->SetTitleOffset(0.8,"Y");
+  gStyle->SetTitleOffset(0.8,"Z");
 
   gStyle->SetLegendFillColor(kWhite);
 
@@ -45,6 +45,13 @@ void LoadStyle(){
     }
   }
 
+  list =gDirectory->GetListOfKeys();
+  for (int i=0;i<list->GetSize();i++){
+    cout<<list->At(i)->GetName()<<endl;
+    TObject * obj =(gDirectory->Get(list->At(i)->GetName()));
+    obj->UseCurrentStyle();
+    obj->Draw();
+  }
 
 
 
