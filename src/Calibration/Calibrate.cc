@@ -68,7 +68,7 @@ TH1D * GetRightTimeProjection(TH2F* tempHisto){
 
 
 
-TH1D * BoxCarSmooth(TH1D* theHisto,int HalfWindow=6){
+TH1D * BoxCarSmooth(TH1D* theHisto,int HalfWindow=2){
   
   if (theHisto->GetEntries()==0){
     return theHisto;

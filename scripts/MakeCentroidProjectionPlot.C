@@ -50,18 +50,30 @@ TGraphErrors* MakeCentroiProjectionPlot(TH2F* h ,Int_t NumPoints=20,Double_t Sta
     Int_t StartBin = h->GetYaxis()->FindBin(Start + i*step);
     //    Int_t EndBin = h->GetYaxis()->FindBin(Start + ((ii+window)/100.0)*(End-Start));
     Int_t EndBin = h->GetYaxis()->FindBin(Start+ (i+1)*step);
+    
+    cout<<"Start Bin "<<StartBin<<" end bin "<<EndBin<<endl;
 
-    //    cout<<"Start Bin "<<StartBin<<" end bin "<<EndBin<<endl;
     TH1D* temp = h->ProjectionX(dd.str().c_str(),StartBin,EndBin);
     
 
 
     if (temp->GetEntries() > 0 ){
       TFitResultPtr result;
+      TFitResultPtr result2;
       if (plotG.Contains("same")){
 	result = temp->Fit("gaus","QSN","",FitLowCut,FitHighCut);
+
+	Double_t low = result->Value(1)-result->Value(2);
+	Double_t high = result->Value(1)+result->Value(2);
+	result2 = temp->Fit("gaus","QSN","",low,high);
+	
       }else{
-	result = temp->Fit("gaus","QS","",FitLowCut,FitHighCut);
+	result = temp->Fit("gaus","QSN","",FitLowCut,FitHighCut);
+
+	Double_t low = result->Value(1)-result->Value(2);
+	Double_t high = result->Value(1)+result->Value(2);
+	result2 = temp->Fit("gaus","QS","",low,high);
+
       }
       
       Int_t status = result;
@@ -69,9 +81,9 @@ TGraphErrors* MakeCentroiProjectionPlot(TH2F* h ,Int_t NumPoints=20,Double_t Sta
       if (status == 0){
 	//	cout<<temp->GetEntries()<<" "<<result->Value(2)*4*2.35*1000<<","<<h->GetYaxis()->GetBinCenter(TMath::Floor((StartBin+EndBin)/2))<<endl;
 
-	gr->SetPoint(PointCount,h->GetYaxis()->GetBinCenter(TMath::Nint((StartBin+EndBin)/2.0))/YScale,result->Value(1)*XScale);
+	gr->SetPoint(PointCount,h->GetYaxis()->GetBinCenter(TMath::Nint((StartBin+EndBin)/2.0))/YScale,result2->Value(1)*XScale);
 
-	gr->SetPointError(PointCount,0,result->UpperError(2)*XScale);
+	gr->SetPointError(PointCount,0,result2->UpperError(2)*XScale);
 	PointCount++;
       }
     }
