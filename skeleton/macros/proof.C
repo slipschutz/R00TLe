@@ -15,31 +15,46 @@
 #endif // __CINT__
 
 
+TChain* ch;//Make Global so it can be seen in both versions of proof function
+
+void proof(TString InputFileName,Int_t NumCores=10,TString OutPutName="histograms/temp.root"){
+  
+  ch = new TChain("caltree");
+  std::cout << "Creating TChain... ";
+  ch->Add(InputFileName);
+
+  proof(-99,NumCores,OutPutName);
+  
+}
+
 void proof(Int_t runNum=-1,Int_t NumCores=10,TString OutPutName="histograms/temp.root")
 {
 
   ////////////////////////////////////////////////////////////
   // open the root files and put the together into a TChain //
   ////////////////////////////////////////////////////////////
-  
-  TChain* ch = new TChain("caltree");
-  std::cout << "Creating TChain... ";
-  
-  if (runNum ==-1){
-    // if no runNum give make a chain manually
-    ch->Add("./rootfiles/run-0573-??.root");
 
-  } else {
-    stringstream ss;
-    ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-??.root";
-    ch->Add(ss.str().c_str());
-    if (OutPutName == "histograms/temp.root"){
-      ss.str("");
-      ss<<"histograms/HistogramsFromRun"<<runNum<<".root";
-      OutPutName=ss.str();      
+  if (runNum != -99){  
+    ch = new TChain("caltree");
+    std::cout << "Creating TChain... ";
+    
+    if (runNum ==-1){
+      // if no runNum give make a chain manually
+      ch->Add("./rootfiles/run-0573-??.root");
+
+    } else {
+      stringstream ss;
+      ss<<"./rootfiles/run-"<<setfill('0')<<setw(4)<<runNum<<"-??.root";
+      ch->Add(ss.str().c_str());
+      if (OutPutName == "histograms/temp.root"){
+	ss.str("");
+	ss<<"histograms/HistogramsFromRun"<<runNum<<".root";
+	OutPutName=ss.str();      
+      }
     }
   }
   std::cout << "Done." << std::endl;
+
 
 
   

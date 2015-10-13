@@ -781,9 +781,9 @@ Double_t LendaFilter::GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot){
 
 }
 
-vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,int num){
+vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,int num,int num2){
 
-  Int_t NumberOfSamples = 20;
+  Int_t NumberOfSamples = 8;
   Int_t TraceLength = trace.size();
   
   Int_t SampleSize=TMath::Floor(TraceLength/Float_t(NumberOfSamples));
@@ -839,10 +839,12 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
 
 
   Double_t stanDev = TMath::Sqrt(it->first);
-
+  // cout<<"Standar dev: "<<stanDev<<endl;
+  // cout<<"BaseLine: "<<BaseLine<<endl;
   //Now we have found the base line and the maximum point.  We look for other real pulses in trace
   //Look for other maximum in the trace that are greater than 30% of total max
   Int_t ThresholdForOtherPulseInTrace=  TMath::Floor(30*stanDev);//0.10*BaseLine);    ///0.3*(Max-BaseLine));
+
   //  vector <int> IndexOfMaximums;
 
   Int_t windowForEnergy=5;
@@ -859,32 +861,39 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
     if (val > currentMax){
       currentMax=val;
     } else if (val <currentMax && HasCrossedThreshold){
-      //Assuming reasonable pulseshape.  The max must be the point before this one
-      PeakSpots.push_back(i-1);
-      //reset the current max value
-      currentMax=0;
-      HasCrossedThreshold=false;
-      //Now must skip foward in time  around the length of one RF bucket
-      //IE the minimum amount of time before a second real pulse could be there
-      int index = i + 8;//(+8 because we are at i+1 and will get +1 again at end of loop) 10 clock tics is 40 nanosecs
-      if (index > TraceLength - windowForEnergy){
-	//too close to end of trace.  End the search
-	i=TraceLength+1000;
-	break;
-      }else{
-	//Skip foward to place
-	i=index;
+
+      //Possible peak spot
+      int PossibleSpot = i-1;
+      //check to see that spot before/after peak is less than peak value
+      if ( trace[PossibleSpot-1] <trace[PossibleSpot]&&
+	   trace[PossibleSpot+1] <trace[PossibleSpot]){
+	PeakSpots.push_back(PossibleSpot);
+
+	//reset the current max value
+	currentMax=0;
+	HasCrossedThreshold=false;
+	//Now must skip foward in time  around the length of one RF bucket
+	//IE the minimum amount of time before a second real pulse could be there
+	int index = i + 8;//(+8 because we are at i+1 and will get +1 again at end of loop) 10 clock tics is 40 nanosecs
+	if (index > TraceLength - windowForEnergy){
+	  //too close to end of trace.  End the search
+	  i=TraceLength+1000;
+	  break;
+	}else{
+	  //Skip foward to place
+	  i=index;
 	    
-      }//end else if for found max
-    }//End if above threshold
-  }//end for 
+	}
+      }//end confirmed peak spot
+    }//end possible peak spot
+  }//end for
 
   //The Maximums have been found
   //Now finally we calculate pulse integrals
   vector <Double_t> theEnergies;
   for (auto i : PeakSpots){
     Double_t temp=0;
-    for (int j=0;j<3;j++){
+    for (int j=0;j<2;j++){
       temp+= (trace[i+j]-BaseLine);
     }
     theEnergies.push_back(temp);
