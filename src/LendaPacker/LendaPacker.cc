@@ -21,7 +21,7 @@
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
-   saveTraces=false;
+   saveTraces=true;
 
 
  }
@@ -567,7 +567,7 @@ void LendaPacker::UpdateSettings(){
    //////////////Get the ddaschannels from the DDASEVent///////////////
    vector <ddaschannel*> theDDASChannels = theDDASEvent->GetData();
 
-   map <int,RefTimeContainer > GlobalIDToReferenceTimes; //Container to hold the time stamps from the reference channels
+   multimap <int,RefTimeContainer > GlobalIDToReferenceTimes; //Container to hold the time stamps from the reference channels
    map<string,LendaBar> ThisEventsBars;//Container to hold the Bars that have fired in the event. Is copied into the LendaEvent
 
    //Container to hold the Reference channels for the event.  Is a multimap to allow for more than one
@@ -647,15 +647,19 @@ void LendaPacker::UpdateSettings(){
 }
 
 
-void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBar>&ThisEventsBars, map <int,RefTimeContainer > & GlobalIDToReferenceTimes){
+void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBar>&ThisEventsBars, multimap <int,RefTimeContainer > & GlobalIDToReferenceTimes){
 
   //Loop over the ThisEventsBars container and set all the reference times 
   for (map<string,LendaBar>::iterator ii=ThisEventsBars.begin();ii!=ThisEventsBars.end();ii++){
     //Loop over all tops in this bar
     for (int t=0;t<ii->second.Tops.size();t++){
-      auto refIt = GlobalIDToReferenceTimes.find(ii->second.Tops[t].GetReferenceGlobalID());
-      if (refIt !=GlobalIDToReferenceTimes.end()){
-	RefTimeContainer * temp = &refIt->second;
+      //If this event had TWO copies of OBJ1T for example both should be in the multimap
+      //and we can loop over all timestamps in BOTH and push those into the Bar's list of reference times
+      auto MultiMapRange =GlobalIDToReferenceTimes.equal_range(ii->second.Tops[t].GetReferenceGlobalID());
+      for (auto MultiMapIt =MultiMapRange.first;
+      	   MultiMapIt!=MultiMapRange.second;
+      	   ++MultiMapIt){
+	RefTimeContainer * temp = &MultiMapIt->second;
 	temp->Test();
 	ii->second.Tops[t].SetReferenceTime(temp->RefTime);
 	ii->second.Tops[t].SetSoftwareReferenceTimes(temp->RefSoftTime);
@@ -664,9 +668,13 @@ void LendaPacker::FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBa
     }
     //Loop over all bottoms in this bar
     for (int b=0;b<ii->second.Bottoms.size();b++){
-      auto refIt= GlobalIDToReferenceTimes.find(ii->second.Bottoms[b].GetReferenceGlobalID());
-      if (refIt !=GlobalIDToReferenceTimes.end()){
-	RefTimeContainer * temp = &refIt->second;
+      //If this event had TWO copies of OBJ1B for example both should be in the multimap
+      //and we can loop over all timestamps in BOTH and push those into the Bar's list of reference times
+      auto MultiMapRange =GlobalIDToReferenceTimes.equal_range(ii->second.Bottoms[b].GetReferenceGlobalID());
+      for (auto MultiMapIt =MultiMapRange.first;
+	   MultiMapIt!=MultiMapRange.second;
+	   ++MultiMapIt){
+	RefTimeContainer * temp = &MultiMapIt->second;
 	temp->Test();
 	ii->second.Bottoms[b].SetReferenceTime(temp->RefTime);
 	ii->second.Bottoms[b].SetSoftwareReferenceTimes(temp->RefSoftTime);
@@ -736,7 +744,7 @@ void LendaPacker::ReMakeLendaEvent(LendaEvent* inEvent,LendaEvent* outEvent){
     ThisEventsBars[inEvent->Bars[i].Name]=inEvent->Bars[i];//Put the repacked bars into the ThisEventsBars
   }
 
-  map <int,RefTimeContainer >  GlobalIDToReferenceTimes;
+  multimap <int,RefTimeContainer >  GlobalIDToReferenceTimes;
   
   for (int i=0;i<inEvent->NumObjectScintillators;i++){
     outEvent->TheObjectScintillators.push_back(inEvent->TheObjectScintillators[i]);//Copy a Obj Scint.

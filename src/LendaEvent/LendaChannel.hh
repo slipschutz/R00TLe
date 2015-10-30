@@ -32,8 +32,9 @@ public:
   void SetSoftwareTimes(const vector<Double_t> & v){ rSoftwareTimes=v; }///<Sets the SoftwareTimes for this channel
   void SetCubicTimes(const vector<Double_t> & v){ rCubicTimes=v; }///<Sets the cubic times for this channel
   void SetPulseHeights(const vector<Int_t> & v){ rPulseHeights=v; }///<Sets the pulseHeights for this channel
-  void SetSoftwareReferenceTimes(const vector<Double_t> & v){ rSoftwareReferenceTimes=v; }///<Sets the softwaretimes that were calculated for this channel's reference channel
-  void SetCubicReferenceTimes(const vector<Double_t> & v){ rCubicReferenceTimes=v; }///<Sets the cubictimes that were calculated for this channel's reference channel
+
+  void SetSoftwareReferenceTimes(const vector<Double_t> & v);///<Sets the softwaretimes that were calculated for this channel's reference channel
+  void SetCubicReferenceTimes(const vector<Double_t> & v);///<Sets the cubictimes that were calculated for this channel's reference channel
 
   
   /**Gets the energies for this channel.  Can accommodate many energies for when there are many pulses in a trace

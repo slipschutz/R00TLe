@@ -264,7 +264,7 @@ private:
 
   void PackCalculatedValues(LendaChannel*,MapInfo &);
 
-  void FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBar>& ThisEventsBars,map <int,RefTimeContainer > & GlobalIDToReferenceTimes);
+  void FillReferenceTimesInEvent(LendaEvent* Event,map<string,LendaBar>& ThisEventsBars,multimap <int,RefTimeContainer > & GlobalIDToReferenceTimes);
 
   vector <Double_t> thisEventsFF; ///<Temporary place for each channels fast filter.  Gets reset when Reset is called
   vector <Double_t> thisEventsCFD;///<Temporary place for each channels digital CFD.  Gets reset when Reset is called

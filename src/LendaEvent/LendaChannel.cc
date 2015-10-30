@@ -82,6 +82,26 @@ void LendaChannel::Clear(){
   rOtherTime=BAD_NUM;
 }
 
+void LendaChannel::SetSoftwareReferenceTimes(const vector<Double_t> & v){ 
+  if (rSoftwareReferenceTimes.size()==1 &&rSoftwareReferenceTimes[0]==BAD_NUM){
+    rSoftwareReferenceTimes=v; 
+  }else{
+    for (auto & x : v){
+      rSoftwareReferenceTimes.push_back(x);
+    }
+  }
+}
+void LendaChannel::SetCubicReferenceTimes(const vector<Double_t> & v){ 
+  if (rCubicReferenceTimes.size()==1 &&rCubicReferenceTimes[0]==BAD_NUM){
+    rCubicReferenceTimes=v; 
+  }else{
+    for (auto & x : v){
+      rCubicReferenceTimes.push_back(x);
+    }
+  }
+}
+
+
 
 Bool_t LendaChannel::operator==(const LendaChannel & RHS){
   
