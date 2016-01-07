@@ -251,36 +251,48 @@ Double_t LendaFilter::GetZeroCrossing(std::vector <Double_t> & CFD,Int_t & NumZe
 
 
 
-Double_t LendaFilter::GetZeroCrossingImproved(std::vector <Double_t> & CFD,Int_t & NumZeroCrossings,Double_t & residual){
+Double_t LendaFilter::GetZeroCrossingImproved(std::vector <Double_t> & CFD,Int_t& MaxInTrace,Double_t & residual){
  
- Double_t softwareCFD;
-  std::vector <Double_t> thisEventsZeroCrossings(0);
-  Double_t MaxValue=0;
-  Int_t MaxIndex=-1;
+  Double_t softwareCFD=BAD_NUM;
+  Double_t thisEventsZeroCrossing;
+
   int Window=40;
 
-  for (int j=(CFD.size()/2.0)-Window;j< (int) (CFD.size()/2.0)+Window;j++) { 
+
+  //Take the first Zerocrossing after the peak in the TRACE
+
+  for (int j=MaxInTrace;j< (int) (CFD.size()/2)+Window;j++) { 
+    if (CFD[j] >= 0 && CFD[j+1] < 0 ){
+      //zero crossing point
+      softwareCFD =j + CFD[j] / ( CFD[j] + TMath::Abs(CFD[j+1]) );
+      
+      residual=CFD[j];
+      break;
+      
+    }
+  }
+
+  return softwareCFD;
+}
+
+vector <Double_t> LendaFilter::GetAllZeroCrossings(std::vector <Double_t> & CFD){
+
+
+  Double_t softwareCFD;
+  std::vector <Double_t> thisEventsZeroCrossings(0);
+
+
+  for (int j=0;j< (int) CFD.size()-1;j++){
     if (CFD[j] >= 0 && CFD[j+1] < 0 ){
       //zero crossing point
       softwareCFD =j + CFD[j] / ( CFD[j] + TMath::Abs(CFD[j+1]) );
       thisEventsZeroCrossings.push_back(softwareCFD);
-      
-      //is this the biggest zero crossing point?
-      if (TMath::Abs(CFD[j] - CFD[j+1]) > MaxValue){
-	MaxValue=TMath::Abs(CFD[j] - CFD[j+1]);
-	MaxIndex =thisEventsZeroCrossings.size()-1;//Save the maximum spot
-	residual=CFD[j];
-      }
     }
   }
 
-
-  NumZeroCrossings=thisEventsZeroCrossings.size();
-  if (thisEventsZeroCrossings.size() == 0) // no Zero Crossing found
-    return BAD_NUM;
-  else
-    return thisEventsZeroCrossings[MaxIndex]; // take the max one
+  return thisEventsZeroCrossings;
 }
+
 
 
 
@@ -480,28 +492,33 @@ vector <Double_t> LendaFilter::GetMatrixInversionAlgorithmCoeffients
 }
 
 
-Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD){
+Double_t LendaFilter::GetZeroCubic(std::vector <Double_t> & CFD,Int_t &MaxInTrace){
   
 
-  std::map <double,int> zeroCrossings;
-  double max=0;
+  // std::map <double,int> zeroCrossings;
+  // double max=0;
 
-  int begin = (CFD.size()/2)-40;
+  int begin = MaxInTrace;
   int end = (CFD.size()/2)+40;
 
   for (int i =begin;i<end;i++){
     if (CFD[i]>=0 && CFD[i+1]<0){
-      double val = CFD[i] - CFD[i+1];
-      if ( val > max)
-	max = val;
-      //put this crossing in map
-      zeroCrossings[val]=i;
+      
+      return DoMatrixInversionAlgorithm(CFD,i);
+      break;
     }
   }
+  //     double val = CFD[i] - CFD[i+1];
+  //     if ( val > max)
+  // 	max = val;
+  //     //put this crossing in map
+  //     zeroCrossings[val]=i;
+  //   }
+  // }
   
-  int theSpotAbove = zeroCrossings[max];
+  // int theSpotAbove = zeroCrossings[max];
 
-  return DoMatrixInversionAlgorithm(CFD,theSpotAbove);
+  // return DoMatrixInversionAlgorithm(CFD,theSpotAbove);
 }
 
 Double_t LendaFilter::GetZeroFitCubic(std::vector <Double_t> & CFD){
@@ -781,13 +798,15 @@ Double_t LendaFilter::GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot){
 
 }
 
-vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,int num,int num2){
+
+vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,FilterDebugInfo* debug){
 
   Int_t NumberOfSamples = 8;
   Int_t TraceLength = trace.size();
   
   Int_t SampleSize=TMath::Floor(TraceLength/Float_t(NumberOfSamples));
   Int_t Remainder = TraceLength-SampleSize*NumberOfSamples;
+
 
   //  Int_t SampleSize = TMath::Floor(fracForSample*TraceLength);
 
@@ -830,25 +849,39 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
     for (int j=0;j <SampleSize;j++){
       StandardDeviations[i] += TMath::Power((trace[j +i*SampleSize]-Averages[i]),2);
     }
+
     baseLineRanges.insert( make_pair(StandardDeviations[i],make_pair(i*SampleSize,(i+1)*SampleSize)));
     StandardDeviation2Average.insert(make_pair(StandardDeviations[i],Averages[i]));
   }
 
   auto it = StandardDeviation2Average.begin();
   Double_t BaseLine = it->second;
+  
+  Double_t stanDev =it->first;
+  
 
 
-  Double_t stanDev = TMath::Sqrt(it->first);
-  // cout<<"Standar dev: "<<stanDev<<endl;
-  // cout<<"BaseLine: "<<BaseLine<<endl;
+
+
   //Now we have found the base line and the maximum point.  We look for other real pulses in trace
   //Look for other maximum in the trace that are greater than 30% of total max
-  Int_t ThresholdForOtherPulseInTrace=  TMath::Floor(30*stanDev);//0.10*BaseLine);    ///0.3*(Max-BaseLine));
+  //  Int_t ThresholdForOtherPulseInTrace=  TMath::Floor(15*stanDev);//0.10*BaseLine);    ///0.3*(Max-BaseLine));
+
+  Int_t  ThresholdForOtherPulseInTrace= TMath::Floor(   std::max(0.1*MaxValueOut,4500.0-BaseLine));
 
   //  vector <int> IndexOfMaximums;
 
-  Int_t windowForEnergy=5;
-  Int_t EndTraceCut =2*windowForEnergy;
+
+  if (debug!=NULL){
+    debug->BaseLine=BaseLine;
+    debug->StandardDev=TMath::Sqrt(stanDev);
+    debug->BaseLineWindowBegin =baseLineRanges[stanDev].first;
+    debug->BaseLineWindowEnd =baseLineRanges[stanDev].second;
+    debug->Threshold=ThresholdForOtherPulseInTrace;
+  }
+
+  Int_t windowForEnergy=2;
+  Int_t EndTraceCut =2;//2*windowForEnergy;
   Double_t currentMax=0;
   bool HasCrossedThreshold=false;
 

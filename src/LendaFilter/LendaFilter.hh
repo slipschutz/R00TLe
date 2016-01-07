@@ -10,6 +10,16 @@
 
 using namespace std;
 
+class FilterDebugInfo{
+public:
+  Double_t BaseLine;
+  Double_t StandardDev;
+  Double_t BaseLineWindowBegin;
+  Double_t BaseLineWindowEnd;
+  Double_t Threshold;
+
+};
+
 class LendaFilter : public TObject{
 
 public:
@@ -36,10 +46,12 @@ public:
 
   
   Double_t GetZeroCrossing(std::vector <Double_t> &,Int_t &,Double_t&);
+  vector<Double_t> GetAllZeroCrossings(std::vector <Double_t> &);
+
   Double_t GetZeroCrossingImproved(std::vector <Double_t> &,Int_t &,Double_t&);
   Double_t GetZeroCrossingOp(std::vector <Double_t> &,Int_t &);
 
-  Double_t GetZeroCubic(std::vector <Double_t> &);
+  Double_t GetZeroCubic(std::vector <Double_t> &,Int_t &);
   Double_t GetZeroFitCubic(std::vector <Double_t> &);   
   
   Double_t DoMatrixInversionAlgorithm(const std::vector <Double_t> & CFD, Int_t Spot);
@@ -51,7 +63,7 @@ public:
   Double_t GetEnergyOld(std::vector <UShort_t> &trace);
   Double_t GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot);
 
-  vector<Double_t> GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector<Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,int num=5,int num2=2);
+  vector<Double_t> GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector<Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,FilterDebugInfo* info=NULL);
   vector<Int_t> GetPulseHeightHighRate(const std::vector <UShort_t> & trace,const std::vector<Int_t> &PeakSpots);
   vector <Double_t> GetZeroCrossingHighRate(const std::vector <Double_t> & CFD,const std::vector<Int_t> & PeakSpots);
 

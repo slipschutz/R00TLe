@@ -21,7 +21,7 @@
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
-   saveTraces=true;
+   saveTraces=false;
 
 
  }
@@ -152,10 +152,6 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
     //If this channel is NOT a reference channel run the basic algorithms 
     if (! info.IsAReferenceChannel ){
       
-      //Run the basic timing algorithms for this channel
-      thisChannelsSoftwareCFDs.push_back(theFilter.GetZeroCrossingImproved(thisEventsCFD,thisChannelsNumZeroCrossings,thisChannelsCFDResidual)); //find zeroCrossig of CFD
-      thisChannelsCubicCFDs.push_back(theFilter.GetZeroCubic(thisEventsCFD));
-      //cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
       
       Int_t MaxSpotInTrace_temp=-1;
       Int_t MaxSpotInFilter_temp=-1;
@@ -169,6 +165,13 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
       thisChannelsEnergies.push_back(theFilter.GetEnergy(theTrace,MaxSpotInTrace_temp));
       
       shortGate=theFilter.GetGate(theTrace,MaxSpotInTrace_temp-4,10);
+
+
+      //Run the basic timing algorithms for this channel
+      thisChannelsSoftwareCFDs.push_back(theFilter.GetZeroCrossingImproved(thisEventsCFD,MaxSpotInTrace_temp,thisChannelsCFDResidual)); //find zeroCrossig of CFD
+      thisChannelsCubicCFDs.push_back(theFilter.GetZeroCubic(thisEventsCFD,MaxSpotInTrace_temp));
+      //cubicFitCFD=theFilter.GetZeroFitCubic(thisEventsCFD);
+
       
     } else {//This channel is a reference channel.  Perform the Highrate related algorithms
       Double_t trash;
