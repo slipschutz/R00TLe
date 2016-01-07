@@ -102,6 +102,9 @@ if [ $AutoAddScripts -eq 1 ]; then
     do
 	echo "gROOT->ProcessLine(\".L $file\" );" >> temp_R00TLe
     done
+else
+    echo "gROOT->ProcessLine(\".L D.C\" );" >> temp_R00TLe
+    echo "gROOT->ProcessLine(\".L Find.C\" );" >> temp_R00TLe
 fi
 
 # for file in $(ls ${R00TLeInstall}/users/$1/macros/*.C) 

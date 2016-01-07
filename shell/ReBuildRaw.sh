@@ -15,7 +15,7 @@ if [ $start -ge $end ]; then
         
 fi
 count=0;
-numAtATime=4;
+numAtATime=12;
 for ((i=$start;i<=$end;i++)); do
     if [ $count -lt $(($numAtATime-1)) ]; then
 	echo "BuildRaw.sh $i &> ./log$i &"

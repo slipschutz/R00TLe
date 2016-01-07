@@ -10,7 +10,7 @@ void PlotPartOfArray(string part,string thing,int xlow=-100,int xhigh=100,TStrin
 
   string ArrayPart=part;
 
-  stringstream name;
+  std::stringstream name;
 
   TCanvas * c1 = new TCanvas("Tops");
   TCanvas * c2 = new TCanvas("Bottoms");
@@ -34,7 +34,7 @@ void PlotPartOfArray(string part,string thing,int xlow=-100,int xhigh=100,TStrin
 
     TH1F * top =(TH1F*) gDirectory->Get(name.str().c_str());
     if ( top == NULL){
-      cout<<"Could not find "<<name.srtr()<<endl;
+      cout<<"Could not find "<<name.str()<<endl;
       return;
     }
     top->SetLineColor(kBlack);

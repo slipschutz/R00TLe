@@ -70,10 +70,11 @@ fi
 
 if [ -f ./rootfiles/run-${runNum}-00-RAW.root ]; then
     echo "Build From Raw Root"
+    count=0
     for file in $(ls ./rootfiles/run-${runNum}-*-RAW.root)
     do
-
-	Raw2Cal $file ./$(echo $file | sed s/-RAW//g) $fileNum
+	Raw2Cal $file ./$(echo $file | sed s/-RAW//g) $fileNum &> log${fileNum}_${count} &
+	count=$(($count+1))
     done
     exit
 fi
