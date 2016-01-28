@@ -1,5 +1,11 @@
-Crdc.0.Nofbadpads: 0
-Crdc.1.Nofbadpads: 0
+Crdc.0.Nofbadpads: 2
+Crdc.1.Nofbadpads: 2
+
+Crdc.0.badpad.0: 64
+Crdc.0.badpad.1: 220
+
+Crdc.1.badpad.0: 152
+Crdc.1.badpad.1: 153
 
 #Crdc.0.badpad.0: 64
 #Crdc.0.badpad.1: 79
