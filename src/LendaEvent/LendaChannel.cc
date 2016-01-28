@@ -78,6 +78,7 @@ void LendaChannel::Clear(){
   rChannelName="";
   rReferenceChannelName="";
 
+  rCorseTime=BAD_NUM;
   
   rOtherTime=BAD_NUM;
 }

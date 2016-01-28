@@ -123,6 +123,7 @@ public:
   string GetName(){return rChannelName;}///<Gets the full channel name
   string GetReferenceChannelName(){return rReferenceChannelName;}///<Gets the full naem of the reference channel
 
+  Double_t GetCorseTime(){return 2*(GetTimeLow() + GetTimeHigh() * 4294967296.0);}
 
   inline Double_t GetOtherTime(){return rOtherTime;}
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,6 +213,8 @@ private:
   UInt_t rTimeLow;
   UInt_t rTimeHigh;
 
+  Double_t rCorseTime;
+  
   //CFD Values for sub clock tic timing
   //These cfds refer to the cfd from calculated by
   //LendaFilter.GetZeroCrossingImproved which 
