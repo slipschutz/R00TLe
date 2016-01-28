@@ -155,7 +155,7 @@ void S800Calibration::CrdcCal(std::vector<Short_t> channel, std::vector<Short_t>
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^Will be removed^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id){
+std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id,vector<Float_t> &PedSubtractedPads){
   //Channels should be a vector holding which pads fired in this event
   //data should be the read values in the same order as the channels
   //NOTE each pad will always have several (3-4) reads in each event
@@ -170,6 +170,7 @@ std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t>
 
    std::vector<Float_t> calibratedPadValues;
    calibratedPadValues.resize(S800_FP_CRDC_CHANNELS,0);
+   PedSubtractedPads.resize(S800_FP_CRDC_CHANNELS,0);
 
    if(channels.size() != data.size()){
      //the length of the channels vector and the data vector should be the same. 
@@ -181,8 +182,9 @@ std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t>
    //With the pedistal subtracted 
    for(UShort_t f=0; f < channels.size(); f++){
       index = channels[f];
-      calibratedPadValues[index] += (data[f] - fped[id][index]);
 
+      calibratedPadValues[index] += (data[f] - fped[id][index]);
+      PedSubtractedPads  [index] += (data[f] - fped[id][index]);
       samples[index]++;
    }
 
@@ -191,7 +193,9 @@ std::vector<Float_t> S800Calibration::GetCalibratedCrdcPads(std::vector<Short_t>
    for(UShort_t ch=0; ch < S800_FP_CRDC_CHANNELS; ch++){
 
       if (samples[ch] > 0) {
-	calibratedPadValues[ch] = calibratedPadValues[ch] / samples[ch]; // / fSett->SampleWidth();
+	// calibratedPadValues[ch] = calibratedPadValues[ch] / samples[ch]; // / fSett->SampleWidth();
+	// PedSubtractedPads[ch] = PedSubtractedPads[ch] / samples[ch]; // / fSett->SampleWidth();
+
 	calibratedPadValues[ch] *= fslope[id][ch];
 	calibratedPadValues[ch] += foffset[id][ch];
       } else {
@@ -382,6 +386,7 @@ Float_t S800Calibration::CalcX(){
 Float_t S800Calibration::CalcX2(CRDC* theCRDC){
 
   vector <Float_t> theCalibratedPads = theCRDC->GetCal();
+  vector <Float_t> thePedSubtractedPads = theCRDC->GetPedSubtractedPads();
   // Cluster search
   Bool_t flg_clstr = kFALSE;
   Int_t  iclstr = -1;//Counter keeping track of the clusters.  Used as the first index in clstr[][]
@@ -397,7 +402,8 @@ Float_t S800Calibration::CalcX2(CRDC* theCRDC){
   Int_t gclstr = 0;
   
   for (UShort_t i = 0; i < S800_FP_CRDC_CHANNELS; i++) {
-    if (IsBad(i,theCRDC->GetID())) continue;
+    if (IsBad(i,theCRDC->GetID()))continue;
+
     if ((flg_clstr == kFALSE) && (!std::isnan(theCalibratedPads[i]))) {
       flg_clstr = kTRUE;
       iclstr = iclstr + 1; //iclstr starts at -1
@@ -424,7 +430,7 @@ Float_t S800Calibration::CalcX2(CRDC* theCRDC){
       }
     }
   }
-
+  
   // if a cluster is located at the end of the cathode
   if (flg_clstr == kTRUE) {
     //flg_clstr == kTRUE means that the above search never found NAN
@@ -475,6 +481,7 @@ Float_t S800Calibration::CalcX2(CRDC* theCRDC){
   for (UShort_t i = clstr[gclstr][0]; i <= clstr[gclstr][1]; i++) {
     if (IsBad(i,theCRDC->GetID())) continue;
     if (theCalibratedPads[i] < qthr) continue;
+    //    if (thePedSubtractedPads[i] < 90) continue;
     sum_q   += theCalibratedPads[i];
     sum_qx  += theCalibratedPads[i] * i;
     sum_qxx += theCalibratedPads[i] * i * i;
@@ -618,11 +625,12 @@ void S800Calibration::MakeCalibratedCRDC(CRDC* theCRDC,std::vector<Short_t> chan
 
   theCRDC->Clear(); //Clear the object being passed in
   theCRDC->SetID(id);
-
+  vector<Float_t> PedSubtractedPads;
   //Sets a vector in the CRDC object that stores the calibrated pad values.
-  vector<Float_t> calibratedPads = GetCalibratedCrdcPads(channels,data,id);
+  vector<Float_t> calibratedPads = GetCalibratedCrdcPads(channels,data,id,PedSubtractedPads);
 
   theCRDC->SetCal( calibratedPads); 
+  theCRDC->SetPedSubtractedPads(PedSubtractedPads);
 
   // this->CrdcCal(channel,data,id);
   // fcrdc.SetCal(fcrdccal);

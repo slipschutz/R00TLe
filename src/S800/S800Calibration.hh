@@ -58,7 +58,7 @@ public:
      read of each PAD that fired in the event. Data is a vector containning the corresponding read values
      id is 0 or 1 specfying which CRDC is built.
   */
-   std::vector<Float_t> GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id);
+  std::vector<Float_t> GetCalibratedCrdcPads(std::vector<Short_t> channels, std::vector<Short_t> data, Int_t id,vector<Float_t> &PedSubtractedPads);
 
   /**Method to build a fully calibrated CRDC object.  The calibrated values will be set in theCRDC.  Inputs are the
      same as for GetCalibratedCrdcPads

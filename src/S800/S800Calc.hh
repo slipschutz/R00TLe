@@ -69,6 +69,8 @@ public:
 	 fypad.push_back((Float_t)ypad[i]);
       }
    }
+   
+   void SetPedSubtractedPads(vector<Float_t> v){fPedSubtractedPads=v;}
    void SetID(int id){fid = id;}
    void SetX(Float_t x){fx = x;}
    void SetY(Float_t y){fy = y;}
@@ -103,6 +105,8 @@ public:
    Float_t GetFnorm(){return ffnorm;}
    std::vector<Int_t> GetXpad(){return fxpad;}
    std::vector<Float_t> GetYpad(){return fypad;}
+  
+   std::vector<Float_t> & GetPedSubtractedPads(){return fPedSubtractedPads;}
 
 protected:
    Int_t fid; 
@@ -113,10 +117,11 @@ protected:
    Float_t ftac;
    Float_t fanode;
    Float_t fcathode;
-   std::vector<Float_t> fcal;      //!
-   std::vector<Int_t> fchan;       //!   
-   std::vector<Float_t> fypad;     //!
-   std::vector<Int_t> fxpad;       //!
+   std::vector<Float_t> fcal;                  
+   std::vector<Float_t> fPedSubtractedPads; 
+   std::vector<Int_t> fchan;          	    //!
+   std::vector<Float_t> fypad;     	    //!
+   std::vector<Int_t> fxpad;                //!  
    Short_t fmaxpad;              
    Float_t fmaxchg;              
    std::vector<Float_t> ffitprm;   
