@@ -96,7 +96,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
   if (NumObjects !=0){
     TCanvas * objCanvas = new TCanvas("objects");
 
-    objCanvas->Divide(1,NumObjects);
+    //objCanvas->Divide(1,NumObjects);
   }
   std::vector <TGraph*> Objects;
   Objects.resize(NumObjects,NULL);
@@ -203,7 +203,7 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
       temp[j]=event->TheObjectScintillators[i].GetTrace()[j];
     }
     Objects[i]=new TGraph(traceSize,x,temp);
-    Objects[i]->SetTitle("OBJECT");
+    Objects[i]->SetTitle(event->TheObjectScintillators[i].GetChannelName().c_str());
     Objects[i]->SetName(event->TheObjectScintillators[i].GetChannelName().c_str());
 }
 
@@ -245,9 +245,13 @@ void GraphLE(Long64_t entry=0,int BarNum=0,bool traceOnly=false){
     }
   }
   
-  for (int i=0;i<NumObjects;i++){
-    objCanvas->cd(i+1);
-    Objects[i]->Draw("ALp");
-  }
+
+  objCanvas->cd();
+  Objects[1]->Draw("ALp");
+
+  // for (int i=0;i<NumObjects;i++){
+  //   objCanvas->cd(i+1);
+  //   Objects[i]->Draw("ALp");
+  // }
   
 }
