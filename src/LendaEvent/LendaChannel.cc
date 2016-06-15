@@ -73,11 +73,12 @@ void LendaChannel::Clear(){
   rFilter.clear();
   rCFD.clear();
 
+  rUnderShoots.clear();
+
   rCFDResidual=BAD_NUM;
 
   rChannelName="";
   rReferenceChannelName="";
-
   rCorseTime=BAD_NUM;
   
   rOtherTime=BAD_NUM;

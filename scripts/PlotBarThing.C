@@ -21,13 +21,15 @@ TH1F * SafeGet(TString name,TString xLabel, TString yLabel){
   // gStyle->SetOptStat(0);
 
   // hist->UseCurrentStyle();
+  // gPad->SetLogy();
+  // hist->RebinX(4);
   return hist;
 }
 
 
 
 
-void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TString xLabel="",TString yLabel=""){
+void PlotBarThing(string thing,double xlow=-100,double xhigh=100,double ylow=-1,double yhigh=-1,string plotOpt="",TString xLabel="",TString yLabel=""){
 
 
 
@@ -52,7 +54,7 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TSt
 
   for (int i=1;i<=12;i++){
     c1->cd(i);
-    //    gPad->SetLogy();
+    //gPad->SetLogy();
     name.str("");
 
     name<<"SL"<<setfill('0')<<setw(2)<<i<<"_"<<thing;
@@ -64,6 +66,9 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TSt
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
       hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+      if (ylow!=-1&&yhigh!=-1){
+	hist->GetYaxis()->SetRangeUser(ylow,yhigh);
+      }
     }
 
     c2->cd(i);
@@ -77,6 +82,10 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TSt
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
       hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+      if (ylow!=-1&&yhigh!=-1){
+	hist->GetYaxis()->SetRangeUser(ylow,yhigh);
+      }
+
     }
     c3->cd(i);
     name.str("");
@@ -88,6 +97,10 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TSt
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
       hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+      if (ylow!=-1&&yhigh!=-1){
+	hist->GetYaxis()->SetRangeUser(ylow,yhigh);
+      }
+
     }
     
     c4->cd(i);
@@ -103,6 +116,10 @@ void PlotBarThing(string thing,int xlow=-100,int xhigh=100,string plotOpt="",TSt
       hist->Draw(plotOpt.c_str());
       hist->SetLineColor(kBlack);
       hist->GetXaxis()->SetRangeUser(xlow,xhigh);
+      if (ylow!=-1&&yhigh!=-1){
+	hist->GetYaxis()->SetRangeUser(ylow,yhigh);
+      }
+
     }
 
 

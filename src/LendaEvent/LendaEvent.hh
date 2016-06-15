@@ -15,7 +15,7 @@ available in the interpreter.
 */
 class LendaEvent :  public TObject  {
 public:
-
+  
   LendaEvent(); ///<Defualt Constructor 
 
   void Clear(); ///<Clear the Event. Should be called after every write to a tree

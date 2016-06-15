@@ -63,7 +63,8 @@ public:
   Double_t GetEnergyOld(std::vector <UShort_t> &trace);
   Double_t GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot);
 
-  vector<Double_t> GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector<Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,FilterDebugInfo* info=NULL);
+  vector<Double_t> GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector<Int_t> &PeakSpots,vector<Double_t>& theUnderShoots,Double_t & MaxValueOut,Int_t & MaxIndexOut,FilterDebugInfo* info=NULL);
+
   vector<Int_t> GetPulseHeightHighRate(const std::vector <UShort_t> & trace,const std::vector<Int_t> &PeakSpots);
   vector <Double_t> GetZeroCrossingHighRate(const std::vector <Double_t> & CFD,const std::vector<Int_t> & PeakSpots);
 

@@ -15,7 +15,7 @@ if [ $start -ge $end ]; then
         
 fi
 count=0;
-numAtATime=10;
+numAtATime=5;
 for ((i=$start;i<=$end;i++)); do
     if [ $count -lt $(($numAtATime-1)) ]; then
 	echo "BuildData.sh $i &> ./log$i &"
@@ -24,7 +24,7 @@ for ((i=$start;i<=$end;i++)); do
     else 
 	echo "BuildData.sh $i &> ./log$i"
 	$(BuildData.sh $i &> ./log$i )
-
+	sleep $((60*30))
 	count=0;
     fi
 done

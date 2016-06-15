@@ -106,9 +106,10 @@ int main(int argc,char** argv){
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ////Test for the HIGH rate algorithms
   vector <Int_t> PeakSpots;
+  vector <double> UnderShoots;
   Double_t MaxValueFromHighRate=-1;
   Int_t MaxIndexFromHighRate=-1;
-  vector <Double_t> theEnergies = aFilter.GetEnergyHighRate(theTrace,PeakSpots,MaxValueFromHighRate,MaxIndexFromHighRate);
+  vector <Double_t> theEnergies = aFilter.GetEnergyHighRate(theTrace,PeakSpots,UnderShoots,MaxValueFromHighRate,MaxIndexFromHighRate);
   vector<Double_t> theTimes = aFilter.GetZeroCrossingHighRate(CFD,PeakSpots);
 
   MyAssert(PeakSpots.size()!=0,"Found No peaks");

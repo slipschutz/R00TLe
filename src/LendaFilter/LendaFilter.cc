@@ -798,17 +798,18 @@ Double_t LendaFilter::GetEnergy(std::vector <UShort_t> &trace,Int_t MaxSpot){
 
 }
 
-
-vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,Double_t & MaxValueOut,Int_t & MaxIndexOut,FilterDebugInfo* debug){
+vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & trace,std::vector <Int_t> &PeakSpots,
+						vector<Double_t>& theUnderShoots,Double_t & MaxValueOut,Int_t & MaxIndexOut,FilterDebugInfo* debug){
 
   Int_t NumberOfSamples = 8;
   Int_t TraceLength = trace.size();
-  
+ 
+  //Each chuck of Sample size trace points is used to calculate the point in the trace with
+  //the most stable baseline 
   Int_t SampleSize=TMath::Floor(TraceLength/Float_t(NumberOfSamples));
   Int_t Remainder = TraceLength-SampleSize*NumberOfSamples;
 
 
-  //  Int_t SampleSize = TMath::Floor(fracForSample*TraceLength);
 
   vector <Double_t> StandardDeviations(NumberOfSamples,0);
   vector <Double_t> Averages(NumberOfSamples,0);
@@ -818,8 +819,8 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
   //trace
   Double_t Max=0;
   Int_t MaxIndex=-1;
-  for (int i=0;i <NumberOfSamples;i++){
-    for (int j=0;j<SampleSize;j++){
+  for (int i=0;i <NumberOfSamples;i++){//I loops over the samples
+    for (int j=0;j<SampleSize;j++){//J Loops over the points in each sample
       Double_t val =trace[j +i*SampleSize];
       Averages[i] += val;
 
@@ -829,8 +830,9 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
       }
 
     }//end for over j
-    Averages[i]/=SampleSize;
-  }
+    Averages[i]/=SampleSize;//Now that the points in the sample have been summed take average
+  }//end over i
+
   ///Now look at the end of the trace to see if the maximum is there
   for (int i=SampleSize*NumberOfSamples;i<TraceLength;i++){
     Double_t val =trace[i];
@@ -840,9 +842,12 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
     }
   }
   
+  //Copy over values to output variables
   MaxValueOut=Max;
   MaxIndexOut=MaxIndex;
   
+  
+  //Find stardard deviation for each base line chuck
   map<Double_t,pair<int,int> > baseLineRanges;
   map<Double_t,Double_t> StandardDeviation2Average;
   for (int i=0;i<NumberOfSamples;i++){
@@ -854,9 +859,10 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
     StandardDeviation2Average.insert(make_pair(StandardDeviations[i],Averages[i]));
   }
 
+  //Take beginning of map which will give the smallest stardard deviation
   auto it = StandardDeviation2Average.begin();
+  //The best baseline will be the average of the chuck with the smallest standard deviation
   Double_t BaseLine = it->second;
-  
   Double_t stanDev =it->first;
   
 
@@ -867,36 +873,35 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
   //Look for other maximum in the trace that are greater than 30% of total max
   //  Int_t ThresholdForOtherPulseInTrace=  TMath::Floor(15*stanDev);//0.10*BaseLine);    ///0.3*(Max-BaseLine));
 
-  Int_t  ThresholdForOtherPulseInTrace= TMath::Floor(   std::max(0.1*MaxValueOut,4500.0-BaseLine));
-
+  //Threshold should be the amount above baseline.
+  Int_t  ThresholdForOtherPulseInTrace= MaxValueOut*0.15;//TMath::Floor(   std::max(0.1*MaxValueOut,4500.0));
+  // cout<<"MaxValue is "<<MaxValueOut<<endl;
+  // cout<<"MaxValue-BaseLine is "<<MaxValueOut-BaseLine<<endl;
   //  vector <int> IndexOfMaximums;
 
 
-  if (debug!=NULL){
-    debug->BaseLine=BaseLine;
-    debug->StandardDev=TMath::Sqrt(stanDev);
-    debug->BaseLineWindowBegin =baseLineRanges[stanDev].first;
-    debug->BaseLineWindowEnd =baseLineRanges[stanDev].second;
-    debug->Threshold=ThresholdForOtherPulseInTrace;
-  }
 
   Int_t windowForEnergy=2;
   Int_t EndTraceCut =2;//2*windowForEnergy;
   Double_t currentMax=0;
   bool HasCrossedThreshold=false;
 
-  for (int i=0;i<TraceLength-EndTraceCut;i++){
+  //Loop through the Trace and try and find the peak values
+  //Exclude the first point.  It cannot be a maximum
+  for (int i=1;i<TraceLength-EndTraceCut;i++){
     Double_t val = trace[i]-BaseLine;
+    //Check to see if this value has gone above the threshold 
     if (val > ThresholdForOtherPulseInTrace){
       HasCrossedThreshold=true;
     }
     
-    if (val > currentMax){
+    if (val > currentMax){//increase the maximum
       currentMax=val;
+      //the trace value is less than the previous point (possible peak)
     } else if (val <currentMax && HasCrossedThreshold){
 
       //Possible peak spot
-      int PossibleSpot = i-1;
+      int PossibleSpot = i-1;//The peaks spot will be the point before this one (the current i)
       //check to see that spot before/after peak is less than peak value
       if ( trace[PossibleSpot-1] <trace[PossibleSpot]&&
 	   trace[PossibleSpot+1] <trace[PossibleSpot]){
@@ -915,11 +920,11 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
 	}else{
 	  //Skip foward to place
 	  i=index;
-	    
-	}
+	}//end else
       }//end confirmed peak spot
     }//end possible peak spot
   }//end for
+
 
   //The Maximums have been found
   //Now finally we calculate pulse integrals
@@ -930,9 +935,32 @@ vector<Double_t> LendaFilter::GetEnergyHighRate(const std::vector <UShort_t> & t
       temp+= (trace[i+j]-BaseLine);
     }
     theEnergies.push_back(temp);
+    
+    Double_t min=100000000.0;
+    for (int j=0;j<6;j++){
+      if (trace[i-j] <min){
+	min=trace[i-j];
+      }
+    }
+    //    cout<<"Min is "<<min<<" Baseline "<<BaseLine<<" 3StanDev "<<stanDev<<endl;
+    //    cout<<"BaseLine is "<<BaseLine<<" stanDev is "<<stanDev<<endl;
+    double cut = 0.94*BaseLine;//-0.5*stanDev;//std::max(BaseLine-0.5*stanDev,2300.0);
+    if (min < cut){
+      theUnderShoots.push_back(BaseLine-min);
+    }else{
+      theUnderShoots.push_back(BAD_NUM);
+    }
     //    cout<<"Energy window "<<i-windowForEnergy<<" to "<<i+windowForEnergy<<" "<<temp<<endl;
   }
   
+  if (debug!=NULL){
+    debug->BaseLine=BaseLine;
+    debug->StandardDev=TMath::Sqrt(stanDev);
+    debug->BaseLineWindowBegin =baseLineRanges[stanDev].first;
+    debug->BaseLineWindowEnd =baseLineRanges[stanDev].second;
+    debug->Threshold=ThresholdForOtherPulseInTrace;
+  }
+
 
   
   return theEnergies;

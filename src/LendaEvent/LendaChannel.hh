@@ -64,8 +64,12 @@ public:
   vector<Double_t> GetCubicReferenceTimes()const { return rCubicReferenceTimes;}
 
 
-
-  
+  /**Gets the undershoot value for trace.  If an undershoot was present it will give the difference between
+     the peak of the under shoot and the calculated baseLine.  Will store information in a vector to accomidate
+     many different pulses in the trace.
+   */
+  vector <Double_t> GetUnderShoots() const {return rUnderShoots;}
+  void SetUnderShoots(vector <Double_t> v){rUnderShoots=v;}
   
 
 
@@ -253,6 +257,7 @@ private:
   vector <Double_t> rSoftwareReferenceTimes;
   vector <Double_t> rCubicReferenceTimes;
 
+  vector <Double_t> rUnderShoots;
   
 public:
   ClassDef(LendaChannel,4);

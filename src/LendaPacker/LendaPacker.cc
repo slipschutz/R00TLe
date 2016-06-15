@@ -21,8 +21,7 @@
    Reset();//Reset the member variables that have to do with building Lenda Events
    //Such as the software CFDs and the energy values
 
-   saveTraces=false;
-
+   saveTraces=true;
 
  }
 
@@ -100,7 +99,7 @@ void LendaPacker::ForceAllFilters(Int_t FL, Int_t FG, Int_t d, Int_t w){
 
    thisChannelsPeakSpots.clear();
 
-
+   thisChannelsUnderShoots.clear();
    
    //Reset packer variables
 
@@ -176,7 +175,7 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
     } else {//This channel is a reference channel.  Perform the Highrate related algorithms
       Double_t trash;
       Int_t t;
-      thisChannelsEnergies = theFilter.GetEnergyHighRate(theTrace,thisChannelsPeakSpots,trash,t);
+      thisChannelsEnergies = theFilter.GetEnergyHighRate(theTrace,thisChannelsPeakSpots,thisChannelsUnderShoots,trash,t);
       if (thisChannelsPeakSpots.size()!=0){
 	thisChannelsPulseHeights=theFilter.GetPulseHeightHighRate(theTrace,thisChannelsPeakSpots);
 	thisChannelsSoftwareCFDs=theFilter.GetZeroCrossingHighRate(thisEventsCFD,thisChannelsPeakSpots);
@@ -186,19 +185,23 @@ void LendaPacker::CalcAll(vector<UShort_t>& theTrace,MapInfo info){
 	longGate=theFilter.GetGate(theTrace,thisChannelsPeakSpots[0]-4,30);
       }
     }
-    if (thisChannelsPulseHeights.size()==0){
-      thisChannelsPulseHeights.push_back(BAD_NUM);
-    }
-    if(thisChannelsSoftwareCFDs.size()==0){
-      thisChannelsSoftwareCFDs.push_back(BAD_NUM);
-    }
-    if (thisChannelsCubicCFDs.size()==0){
-      thisChannelsCubicCFDs.push_back(BAD_NUM);
-    }
-    if(thisChannelsEnergies.size()==0){
-      thisChannelsEnergies.push_back(BAD_NUM);
-    }
   }//end trace is not 0 and do trace analysis
+  if (thisChannelsPulseHeights.size()==0){
+    thisChannelsPulseHeights.push_back(BAD_NUM);
+  }
+  if(thisChannelsSoftwareCFDs.size()==0){
+    thisChannelsSoftwareCFDs.push_back(BAD_NUM);
+  }
+  if (thisChannelsCubicCFDs.size()==0){
+    thisChannelsCubicCFDs.push_back(BAD_NUM);
+  }
+  if(thisChannelsEnergies.size()==0){
+    thisChannelsEnergies.push_back(BAD_NUM);
+  }
+  if(thisChannelsUnderShoots.size()==0){
+    thisChannelsUnderShoots.push_back(BAD_NUM);
+  }
+
 }
 
 
@@ -509,7 +512,7 @@ void LendaPacker::UpdateSettings(){
    theChannel->SetSoftwareTimes(TempTimes);
    theChannel->SetCubicTimes(TempCubicTimes);
    theChannel->SetPulseHeights(thisChannelsPulseHeights);
-   
+   theChannel->SetUnderShoots(thisChannelsUnderShoots);
 
    if (saveTraces){
      theChannel->SetFilter(thisEventsFF);

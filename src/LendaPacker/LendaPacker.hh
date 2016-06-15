@@ -297,6 +297,7 @@ private:
   vector <Double_t> thisChannelsCubicCFDs;
 
   vector <Int_t> thisChannelsPeakSpots;
+  vector <Double_t> thisChannelsUnderShoots;
 
   Int_t thisEventsFilterHeight;
 
